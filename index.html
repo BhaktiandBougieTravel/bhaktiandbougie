@@ -625,6 +625,74 @@ footer{
 ::-webkit-scrollbar-track{background:var(--navy2);}
 ::-webkit-scrollbar-thumb{background:rgba(200,134,10,0.3);border-radius:2px;}
 
+/* ── YATRA CARDS ── */
+.yatra-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:rgba(200,134,10,0.15);
+  border:0.5px solid rgba(200,134,10,0.15);
+  margin-top:48px;
+}
+.yatra-card{
+  background:var(--navy2);
+  padding:32px 28px;
+  position:relative;
+  transition:background 0.3s;
+}
+.yatra-card:hover{background:var(--navy3);}
+.yatra-card.custom{
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gold4);
+  border:0.5px dashed rgba(200,134,10,0.3);
+  text-align:center;
+  min-height:220px;
+}
+.yatra-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:rgba(200,134,10,0.12);line-height:1;margin-bottom:12px;}
+.yatra-region{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.yatra-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
+.yatra-places{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.yatra-place{font-size:11px;color:var(--t2);background:rgba(200,134,10,0.07);border:0.5px solid rgba(200,134,10,0.2);border-radius:2px;padding:3px 8px;letter-spacing:0.5px;}
+.yatra-desc{font-size:13px;color:var(--t2);line-height:1.7;}
+
+/* ── PROPERTY CARDS ── */
+.prop-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:rgba(200,134,10,0.15);
+  border:0.5px solid rgba(200,134,10,0.15);
+  margin-top:48px;
+}
+.prop-card{
+  background:var(--navy3);
+  padding:32px 28px;
+  transition:background 0.3s;
+}
+.prop-card:hover{background:var(--navy2);}
+.prop-location{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.prop-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
+.prop-note{font-size:13px;color:var(--t2);line-height:1.7;font-style:italic;}
+
+/* ── EXPERIENCE CARDS ── */
+.exp-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:rgba(200,134,10,0.15);
+  border:0.5px solid rgba(200,134,10,0.15);
+  margin-top:48px;
+}
+.exp-card{
+  background:var(--navy2);
+  padding:28px 24px;
+  transition:background 0.3s;
+}
+.exp-card:hover{background:var(--navy3);}
+.exp-emoji{font-size:28px;margin-bottom:14px;display:block;}
+.exp-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:10px;line-height:1.3;}
+.exp-desc{font-size:13px;color:var(--t2);line-height:1.7;}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   nav{padding:16px 24px;}
@@ -632,7 +700,8 @@ footer{
   section{padding:72px 24px;}
   .hero{padding:100px 24px 60px;}
   .philosophy-grid,.credentials-grid{grid-template-columns:1fr;gap:48px;}
-  .trips-grid{grid-template-columns:1fr;}
+  .yatra-grid,.prop-grid{grid-template-columns:1fr;}
+  .exp-grid{grid-template-columns:1fr 1fr;}
   footer{grid-template-columns:1fr;text-align:center;}
   .footer-right{text-align:center;}
   .form-grid{grid-template-columns:1fr;}
@@ -665,26 +734,113 @@ const SITE = {
   philosophy_p2:      "The seva of a butler and the seva of a priest spring from the same source. This is why Bhakti and Bougie are not in tension. In India, they never were.",
   philosophy_p3:      "I've slept on a charpoy and stayed at the Taj Lake Palace. I've eaten at dhabas and at Tresind Studio. I've been on the bus and I've had the private boat. I know the value of all of it. When I take you to India, we do it right — because discomfort is not a prerequisite for depth.",
 
-  // JOURNEYS
-  journeys_title:     "Five circuits.",
-  journeys_title_em:  "One subcontinent.",
-  journeys_intro:     "Each journey is built around a specific sacred geography — a deity, a tradition, a circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages with five-star beds.",
+  // YATRAS
+  yatras_title:     "The Yatras.",
+  yatras_title_em:  "Sacred circuits. Five-star beds.",
+  yatras_intro:     "Each yatra follows a specific sacred geography — a deity, a tradition, a living circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages.",
 
-  // TRIP CARDS — edit name, region, description freely
-  trips: [
-    { num:"01", region:"South India · Tamil Nadu",        title:"The Shaiva Grand Circuit",  desc:"Chidambaram, Rameshwaram, Madurai, Kanyakumari. The 79th meridian. Nataraja's domain. The southernmost tip of the subcontinent where three oceans meet." },
-    { num:"02", region:"North India · Rajasthan · Gujarat", title:"The Krishna Circuit",       desc:"Mathura, Vrindavan, Dwarka, Agra. The complete geography of Krishna's life — from his birth to his kingdom. Holi in Barsana. The Taj at dawn." },
-    { num:"03", region:"North India · Uttarakhand",        title:"Shiva of the North",        desc:"Char Dham, Rishikesh, the high Himalayas. Where the Ganga descends. Where the air itself is prana. Guided by Divya — award-winning, Shiv bhakta, family." },
-    { num:"04", region:"Nepal · Bihar · Uttar Pradesh",    title:"The Buddha-Ram Circuit",    desc:"Lumbini, Ayodhya, Kashi, Bodh Gaya. The birthplaces and enlightenment grounds of two traditions that changed the world. One circuit. Infinite depth." },
-    { num:"05", region:"Pan-India · All Traditions",       title:"The Grand Synthesis",       desc:"Delhi, Amritsar, Dharamshala, the Taj, Jaipur. Every major tradition. Every register of Indian civilization. For the first-time visitor who refuses to scratch the surface." },
+  yatras: [
+    {
+      num:"01",
+      region:"North India · Uttarakhand · Uttar Pradesh",
+      title:"Shiva in the North",
+      places:["Kedarnath","Guptakashi","Rishikesh","Varanasi"],
+      desc:"From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana."
+    },
+    {
+      num:"02",
+      region:"South India · Tamil Nadu",
+      title:"Shiva in the South",
+      places:["Arunachala","Chidambaram","Rameshwaram","Madurai"],
+      desc:"The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world."
+    },
+    {
+      num:"03",
+      region:"North India · Uttar Pradesh · Gujarat",
+      title:"The Footsteps of Krishna",
+      places:["Vrindavan","Mathura","Kurukshetra","Dwarka","Delhi"],
+      desc:"The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea."
+    },
+    {
+      num:"04",
+      region:"Nepal · Bihar · Uttar Pradesh · Himachal",
+      title:"The Buddha's Trail",
+      places:["Lumbini","Kushinagar","Bodh Gaya","Varanasi","Dharamshala"],
+      desc:"From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse."
+    },
+    {
+      num:"05",
+      region:"Northeast India · Bengal · Andhra · Tamil Nadu · Nepal",
+      title:"Tantra Yatra",
+      places:["Guwahati","Kolkata","Devipuram","Kanchipuram","Kathmandu"],
+      desc:"For serious practitioners only. The great Shakta circuit — Kamakhya, Kalighat, the Sri Yantra temples, the living Tantric traditions of Nepal. Not for beginners."
+    },
   ],
-  trips_bespoke:      "Every journey can be custom-built around your practice, your tradition, your timing. Tell us what calls you.",
+  yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
+
+  // BOUGIE PROPERTIES
+  bougie_title:    "The Properties.",
+  bougie_title_em: "Where you rest matters.",
+  bougie_intro:    "These are not just hotels. They are heritage, history, and extraordinary hospitality — each one an experience in itself. Every property on this list has been chosen personally.",
+
+  properties: [
+    {
+      name:"Taj Lake Palace",
+      location:"Udaipur, Rajasthan",
+      note:"Private boat arrival. A palace floating on Lake Pichola. The most romantic hotel in India.",
+    },
+    {
+      name:"The Imperial",
+      location:"New Delhi",
+      note:"1931 Art Deco masterpiece. The finest address in Delhi, steps from Connaught Place. Where India's history breathes.",
+    },
+    {
+      name:"Brijrama Palace",
+      location:"Varanasi, Uttar Pradesh",
+      note:"A 200-year-old palace directly on the Ganges ghats. Watch the morning aarti from your window.",
+    },
+    {
+      name:"The Leela Kovalam",
+      location:"Kovalam, Kerala",
+      note:"Clifftop heritage property above the Arabian Sea. Home to what many consider Kerala's finest Ayurvedic spa.",
+    },
+    {
+      name:"Oberoi Amarvilas",
+      location:"Agra, Uttar Pradesh",
+      note:"Every room with a Taj Mahal view. The most intentionally positioned hotel in the world.",
+    },
+    {
+      name:"Taj Rishikesh Resort & Spa",
+      location:"Rishikesh, Uttarakhand",
+      note:"Nestled in the Himalayan foothills on the banks of the Ganga. The anchor for our Shiva in the North yatra.",
+    },
+  ],
+
+  // EXPERIENCES
+  experiences_title:    "The Experiences.",
+  experiences_title_em: "What you do between temples.",
+  experiences_intro:    "The moments that don't appear in guidebooks. Curated, personal, and in most cases only possible because of relationships built over a decade of travel.",
+
+  experiences: [
+    { emoji:"🚶", title:"Salaam Baalak Trust City Walk", desc:"A guided walk through Old Delhi led by former street children. Proceeds support the Trust directly. One of the most moving experiences in India." },
+    { emoji:"🎵", title:"Nizamuddin Thursday Qawwali", desc:"Every Thursday at sunset, the finest qawwali in India at the dargah of Hazrat Nizamuddin. Next door: the tomb of Amir Khusrau, who invented the form." },
+    { emoji:"🔥", title:"Fire Yajna at Parmarth Niketan", desc:"Participate in or witness a traditional fire ceremony at one of Rishikesh's most respected ashrams. On the banks of the Ganga at dusk." },
+    { emoji:"🍳", title:"Private Cooking Lessons", desc:"All of India's extraordinary regional cuisines — Rajasthani, Chettinad, Bengali, Kashmiri, Keralan — in private settings with local experts." },
+    { emoji:"🎨", title:"Kolam Lesson", desc:"The sacred geometric floor art of Tamil Nadu — rice flour, sacred geometry, made fresh every morning and walked over by noon. Learn it from a practitioner." },
+    { emoji:"🏔️", title:"Himalayan Trekking", desc:"Day hikes to multi-day treks — Uttarakhand, Ladakh, Himachal. Routes chosen for spiritual significance as well as scenery." },
+    { emoji:"🛶", title:"Luxury Houseboat, Kerala Backwaters", desc:"Your own private houseboat, your own chef, gliding through the most beautiful waterways in India. The definition of Bougie." },
+    { emoji:"🏛️", title:"Kumartuli Potters Quarter", desc:"The Kolkata neighborhood where the great Durga Puja idols are made by hand. Visit the artists in their workshops." },
+    { emoji:"🌿", title:"Tibetan Medicine Introduction", desc:"An introduction to Tibetan medical tradition at Men-Tsee-Khang in Dharamshala — one of the world's great living medical systems." },
+    { emoji:"🕌", title:"Ashram Stays", desc:"Carefully selected ashrams across India for those who want the deepest immersion. Not spas that call themselves ashrams. The real thing." },
+    { emoji:"🌊", title:"River Rafting, Rishikesh", desc:"The Ganga through the Himalayan foothills. Grade III-IV rapids, extraordinary scenery, available to most fitness levels." },
+    { emoji:"🧵", title:"Silk Weaving, Varanasi", desc:"Watch the extraordinary Banarasi silk being woven on handlooms in weavers' homes. Some of the most complex textile work on earth." },
+  ],
 
   // ABOUT
-  about_p1:           "I have been traveling to India for over a decade — often twice a year. I wear a dhoti to temples. I have sat in the Sufi dargahs of Delhi at sunset and walked the ghats of Varanasi at 3am during Mahashivaratri. I am building a school in a tribal village in Rajasthan.",
-  about_p2:           "I didn't set out to build a travel company. I set out to go to India. After a decade of going — and after friends kept asking me to take them — it became obvious that what I was doing had value. Bhakti & Bougie Travel is just finally charging for what I already do.",
+  about_p1: "I have been traveling to India for over a decade — often twice a year. I wear a dhoti to temples. I have sat in the Sufi dargahs of Delhi at sunset and walked the ghats of Varanasi at 3am during Mahashivaratri. I am building a school in a tribal village in Rajasthan.",
+  about_p2: "I didn't set out to build a travel company. I set out to go to India. After a decade of going — and after friends kept asking me to take them — it became obvious that what I was doing had value. Bhakti & Bougie Travel is just finally charging for what I already do.",
 
-  // CREDENTIALS — edit or add items freely
+  // CREDENTIALS
   credentials: [
     { bold:"MA India Studies",      text:"O.P. Jindal Global University, Sonipat (inaugural cohort)" },
     { bold:"ERYT-500",              text:"500-hour registered yoga teacher" },
@@ -698,11 +854,11 @@ const SITE = {
   ],
 
   // FOOTER
-  footer_email:       "michael@bhaktiandbougie.travel",
-  footer_note:        "By appointment only",
-  footer_powered:     "Powered by Fora",
-  footer_instagram:   "https://instagram.com/bhaktiandbougie",
-  footer_facebook:    "https://facebook.com/bhaktiandbougie",
+  footer_email:     "michael@bhaktiandbougie.travel",
+  footer_note:      "By appointment only",
+  footer_powered:   "Powered by Fora",
+  footer_instagram: "https://instagram.com/bhaktiandbougie",
+  footer_facebook:  "https://facebook.com/bhaktiandbougie",
 };
 </script>
 
@@ -716,12 +872,13 @@ const SITE = {
     </div>
     <div class="nav-brand">
       <div class="nav-brand-line1">BHAKTI AND BOUGIE</div>
-      <div class="nav-brand-line2">Travel Company, Ltd. &nbsp;·&nbsp; India Only</div>
+      <div class="nav-brand-line2">Travel, Ltd. &nbsp;·&nbsp; India Only</div>
     </div>
   </div>
   <div class="nav-links">
     <a href="#philosophy">Philosophy</a>
-    <a href="#journeys">Journeys</a>
+    <a href="#yatras">Yatras</a>
+    <a href="#bougie">Bougie</a>
     <a href="#about">About</a>
     <a href="apply.html" class="nav-cta"><span>Apply</span></a>
   </div>
@@ -765,15 +922,39 @@ const SITE = {
   </div>
 </section>
 
-<!-- JOURNEYS -->
-<section id="journeys" style="background:var(--navy2);">
+<!-- YATRAS -->
+<section id="yatras" style="background:var(--navy2);">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Journeys</div>
-      <h2 class="section-title" id="journeys-title"></h2>
-      <p class="section-body" id="journeys-intro"></p>
+      <div class="section-label">The Yatras</div>
+      <h2 class="section-title" id="yatras-title"></h2>
+      <p class="section-body" id="yatras-intro"></p>
     </div>
-    <div class="trips-grid reveal" id="trips-grid"></div>
+    <div class="yatra-grid reveal" id="yatra-grid"></div>
+  </div>
+</section>
+
+<!-- BOUGIE PROPERTIES -->
+<section id="bougie" style="background:var(--navy3);">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">The Bougie</div>
+      <h2 class="section-title" id="bougie-title"></h2>
+      <p class="section-body" id="bougie-intro"></p>
+    </div>
+    <div class="prop-grid reveal" id="prop-grid"></div>
+  </div>
+</section>
+
+<!-- EXPERIENCES -->
+<section id="experiences" style="background:var(--navy2);">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Experiences</div>
+      <h2 class="section-title" id="exp-title"></h2>
+      <p class="section-body" id="exp-intro"></p>
+    </div>
+    <div class="exp-grid reveal" id="exp-grid"></div>
   </div>
 </section>
 
@@ -828,22 +1009,43 @@ function renderSite(){
   document.getElementById('phil-p2').textContent    = SITE.philosophy_p2;
   document.getElementById('phil-p3').textContent    = SITE.philosophy_p3;
 
-  // Journeys
-  document.getElementById('journeys-title').innerHTML = SITE.journeys_title + '<br><em>' + SITE.journeys_title_em + '</em>';
-  document.getElementById('journeys-intro').textContent = SITE.journeys_intro;
-  document.getElementById('trips-grid').innerHTML = SITE.trips.map(t => `
-    <div class="trip-card">
-      <div class="trip-num">${t.num}</div>
-      <div class="trip-region">${t.region}</div>
-      <div class="trip-title">${t.title}</div>
-      <div class="trip-desc">${t.desc}</div>
+  // Yatras
+  document.getElementById('yatras-title').innerHTML = SITE.yatras_title + '<br><em>' + SITE.yatras_title_em + '</em>';
+  document.getElementById('yatras-intro').textContent = SITE.yatras_intro;
+  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map(y => `
+    <div class="yatra-card">
+      <div class="yatra-num">${y.num}</div>
+      <div class="yatra-region">${y.region}</div>
+      <div class="yatra-title">${y.title}</div>
+      <div class="yatra-places">${y.places.map(p=>`<span class="yatra-place">${p}</span>`).join('')}</div>
+      <div class="yatra-desc">${y.desc}</div>
     </div>`).join('') + `
-    <div class="trip-card" style="display:flex;align-items:center;justify-content:center;background:var(--gold4);border:0.5px dashed rgba(200,134,10,0.3);">
-      <div style="text-align:center;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);margin-bottom:8px;">Bespoke</div>
-        <div style="font-size:13px;color:var(--t2);line-height:1.7;">${SITE.trips_bespoke}</div>
+    <div class="yatra-card custom">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:10px;">Your Yatra</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.7;">${SITE.yatras_custom}</div>
       </div>
     </div>`;
+
+  // Bougie properties
+  document.getElementById('bougie-title').innerHTML = SITE.bougie_title + '<br><em>' + SITE.bougie_title_em + '</em>';
+  document.getElementById('bougie-intro').textContent = SITE.bougie_intro;
+  document.getElementById('prop-grid').innerHTML = SITE.properties.map(p => `
+    <div class="prop-card">
+      <div class="prop-location">${p.location}</div>
+      <div class="prop-name">${p.name}</div>
+      <div class="prop-note">${p.note}</div>
+    </div>`).join('');
+
+  // Experiences
+  document.getElementById('exp-title').innerHTML = SITE.experiences_title + '<br><em>' + SITE.experiences_title_em + '</em>';
+  document.getElementById('exp-intro').textContent = SITE.experiences_intro;
+  document.getElementById('exp-grid').innerHTML = SITE.experiences.map(e => `
+    <div class="exp-card">
+      <span class="exp-emoji">${e.emoji}</span>
+      <div class="exp-title">${e.title}</div>
+      <div class="exp-desc">${e.desc}</div>
+    </div>`).join('');
 
   // About
   document.getElementById('about-p1').textContent = SITE.about_p1;
