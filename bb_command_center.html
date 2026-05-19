@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bhakti & Bougie — India-Only Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B2A;--navy2:#111e2d;--navy3:#162333;
+  --gold:#C8860A;--gold3:rgba(200,134,10,0.13);
+  --cream:#F2E6CC;--cream2:#E8D9B8;
+  --crimson:#8B1A1A;--ash:#9a9490;
+  --bd:2px solid rgba(200,134,10,0.5);
+  --bds:1px solid rgba(200,134,10,0.25);
+  --t1:#F2E6CC;--t2:#d4b878;--t3:#a08858;
+  --r:8px;--r2:12px;
+}
+body{background:var(--navy);color:var(--t1);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;font-size:15px;line-height:1.4;}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy2);border-bottom:var(--bd);padding:12px 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:16px;}
+
+/* BIGGER tripundra — matches full text height */
+.tripundra{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.stripe{width:52px;height:10px;background:var(--ash);border-radius:5px;border:2px solid var(--gold);position:relative;}
+.eye{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2.5px solid #111;z-index:2;}
+.eye::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #111;}
+
+.brand-block{display:flex;flex-direction:column;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;color:var(--cream);letter-spacing:4px;line-height:1.1;}
+.brand-sub{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-top:5px;text-align:right;}
+
+.hdr-center{text-align:center;}
+.sanskrit{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--gold);letter-spacing:2px;}
+.sanskrit-trans{font-size:12px;color:var(--t3);letter-spacing:1px;font-style:italic;margin-top:3px;}
+
+.hdr-right{display:flex;align-items:center;gap:14px;justify-content:flex-end;}
+.bst{background:var(--gold3);border:var(--bd);border-radius:var(--r);padding:8px 18px;text-align:center;}
+.bst-l{font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;}
+.bst-d{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:500;color:var(--cream);line-height:1;}
+.bst-s{font-size:11px;color:var(--t3);}
+.live{font-size:12px;color:#6abf40;letter-spacing:1px;display:flex;align-items:center;gap:6px;font-weight:500;}
+.dot{width:8px;height:8px;border-radius:50%;background:#6abf40;animation:p 2s infinite;}
+@keyframes p{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ── MAIN ── */
+.main{padding:14px 24px;display:flex;flex-direction:column;gap:14px;}
+.sh{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--gold);letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.sh::after{content:'';flex:1;height:1.5px;background:rgba(200,134,10,0.3);}
+
+/* ── TOP ROW ──
+   Layout: [2x2 clocks] [currency] [city]
+   Clocks capped at height so they don't dominate
+*/
+.top-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:12px;align-items:start;}
+
+/* 2x2 clock grid — fixed size, compact */
+.clocks-wrap{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;width:480px;}
+
+.clock-card{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:12px 16px;}
+.clock-lbl{font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.clock-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;line-height:1;color:var(--cream);}
+.ist .clock-num{color:var(--gold);}
+.clock-sub{font-size:13px;color:var(--t2);margin-top:5px;}
+
+/* CURRENCY CARD */
+.fx-card{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.card-lbl{font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.fx-sel select{width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.45);border-radius:6px;padding:8px 12px;font-family:'Jost',sans-serif;font-size:15px;color:var(--cream);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
+.fx-sel select option{background:var(--navy2);color:var(--cream);}
+.fx-rate{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:500;color:var(--cream);line-height:1;}
+.fx-sub{font-size:14px;color:var(--t2);margin-top:4px;}
+.fx-conv{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.fx-conv input{background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:7px 10px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--cream);width:90px;outline:none;}
+.fx-conv input:focus{border-color:rgba(200,134,10,0.8);}
+.fx-conv span{font-size:15px;color:var(--t2);}
+.fx-result{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold);font-weight:500;}
+.spark-lbl{font-size:12px;margin-bottom:5px;letter-spacing:0.5px;}
+canvas#sparkline{width:100%;height:48px;display:block;}
+
+/* CITY CARD */
+.city-card{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 18px;display:flex;flex-direction:column;gap:8px;}
+.city-sel select{width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.45);border-radius:6px;padding:8px 12px;font-family:'Jost',sans-serif;font-size:15px;color:var(--cream);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
+.city-sel select option{background:var(--navy2);color:var(--cream);}
+.wx-top{display:flex;align-items:flex-start;gap:12px;}
+.wx-icon{font-size:36px;line-height:1;margin-top:2px;}
+.wx-c{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:500;color:var(--cream);line-height:1;}
+.wx-f{font-size:22px;color:var(--t2);margin-top:4px;}
+.wx-desc{font-size:15px;color:var(--t2);}
+.wx-hl{display:flex;gap:16px;flex-wrap:wrap;}
+.wx-hl div{font-size:15px;color:var(--cream2);}
+.wx-hl span{font-size:13px;color:var(--t3);}
+.cdiv{height:1.5px;background:rgba(200,134,10,0.25);}
+.aqi-top{display:flex;align-items:baseline;justify-content:space-between;}
+.aqi-num{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:500;}
+.aqi-lbl{font-size:16px;font-weight:500;}
+.aqi-bar{height:6px;border-radius:3px;background:var(--navy3);}
+.aqi-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+.aqi-hint{font-size:12px;color:var(--t3);}
+.g{color:#6abf40;}.m{color:#d4b820;}.u{color:#e08020;}.b{color:#e04020;}.vb{color:#a02060;}.hz{color:#8b0a1a;}
+
+/* ── FESTIVAL ── */
+.fest-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fp{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 20px;}
+.fp-sub{font-size:15px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;font-weight:500;}
+
+.ui{display:flex;align-items:center;gap:13px;padding:10px 0;border-bottom:var(--bds);}
+.ui:last-child{border-bottom:none;padding-bottom:0;}
+.ue{font-size:22px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--navy3);border-radius:7px;flex-shrink:0;border:1.5px solid rgba(200,134,10,0.3);}
+.uinfo{flex:1;min-width:0;}
+.un{font-size:16px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ut{font-size:14px;color:var(--t2);margin-top:3px;}
+.ud{font-size:13px;color:var(--gold);margin-top:2px;}
+.ur{text-align:right;flex-shrink:0;}
+.udays{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;color:var(--cream2);line-height:1;}
+.udl{font-size:12px;color:var(--t3);}
+.rddot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.rd-u{background:#6abf40;}.rd-w{background:#4a80c0;}.rd-c{background:#c09020;}.rd-t{background:#9080c0;}
+
+.frow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.fb{background:var(--navy3);border:1.5px solid rgba(200,134,10,0.3);border-radius:16px;padding:6px 15px;font-size:14px;color:var(--t2);cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:'Jost',sans-serif;}
+.fb:hover{border-color:rgba(200,134,10,0.7);color:var(--cream);}
+.fb.active{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:500;}
+.ml{display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;}
+.mi{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--navy3);border-radius:7px;border:1.5px solid rgba(200,134,10,0.2);}
+.me{font-size:18px;flex-shrink:0;}
+.mn{font-size:14px;color:var(--cream2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.md{font-size:13px;color:var(--gold);flex-shrink:0;}
+.mb{font-size:12px;padding:3px 9px;border-radius:10px;flex-shrink:0;font-weight:500;}
+.mb-u{background:rgba(100,180,60,0.15);color:#6abf40;}
+.mb-w{background:rgba(60,120,200,0.15);color:#70a8e0;}
+.mb-c{background:rgba(180,120,20,0.15);color:#c0a030;}
+.mb-t{background:rgba(120,90,200,0.15);color:#a090e0;}
+
+/* ── BOTTOM ── */
+.br{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.bc{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 20px;}
+.bc-sub{font-size:15px;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;font-weight:500;}
+.er{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:var(--bds);}
+.er:last-of-type{border-bottom:none;}
+.el{font-size:15px;color:var(--t2);}
+.ev{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;color:var(--cream);}
+.ev.gld{color:var(--gold);}
+.obtn{width:100%;margin-top:12px;background:transparent;border:1.5px solid rgba(200,134,10,0.45);border-radius:7px;padding:10px;font-family:'Jost',sans-serif;font-size:15px;color:var(--gold);cursor:pointer;transition:all 0.15s;}
+.obtn:hover{background:var(--gold3);}
+.li{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:7px;text-decoration:none;color:var(--t1);transition:background 0.15s;border:1.5px solid transparent;margin-bottom:4px;}
+.li:hover{background:var(--navy3);border-color:rgba(200,134,10,0.3);}
+.le{font-size:20px;width:28px;text-align:center;}
+.ln{font-size:15px;color:var(--cream2);}
+.ls{font-size:12px;color:var(--t3);}
+.nc textarea{width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.35);border-radius:7px;padding:11px 13px;font-family:'Jost',sans-serif;font-size:15px;color:var(--cream2);resize:none;height:150px;outline:none;line-height:1.6;margin-top:4px;}
+.nc textarea:focus{border-color:rgba(200,134,10,0.7);}
+.nc textarea::placeholder{color:var(--t3);}
+.sbtn{background:transparent;border:1.5px solid rgba(200,134,10,0.35);border-radius:7px;padding:8px 16px;font-size:14px;color:var(--t2);cursor:pointer;margin-top:8px;font-family:'Jost',sans-serif;}
+.sbtn:hover{border-color:rgba(200,134,10,0.7);color:var(--cream);}
+.svd{font-size:13px;color:var(--gold);margin-top:6px;display:none;}
+
+footer{text-align:center;padding:12px;color:var(--t3);font-size:12px;letter-spacing:1px;border-top:var(--bd);margin-top:6px;}
+footer span{color:var(--gold);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--navy2);}
+::-webkit-scrollbar-thumb{background:rgba(200,134,10,0.4);border-radius:2px;}
+.loading{color:var(--t3);font-size:14px;font-style:italic;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="tripundra">
+      <div class="stripe"></div>
+      <div class="stripe"><div class="eye"></div></div>
+      <div class="stripe"></div>
+    </div>
+    <div class="brand-block">
+      <div class="brand">BHAKTI & BOUGIE</div>
+      <div class="brand-sub">India-Only Command Center</div>
+    </div>
+  </div>
+  <div class="hdr-center">
+    <div class="sanskrit">अतिथि देवो भव</div>
+    <div class="sanskrit-trans">The guest is God</div>
+  </div>
+  <div class="hdr-right">
+    <div class="bst">
+      <div class="bst-l">BST Countdown</div>
+      <div class="bst-d" id="bst-d">—</div>
+      <div class="bst-s">days to Sept 7, 2026</div>
+    </div>
+    <div class="live"><div class="dot"></div>LIVE</div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div>
+    <div class="sh">Time, Money & Weather</div>
+    <div class="top-row">
+
+      <!-- 2×2 CLOCKS — fixed width, auto height -->
+      <div class="clocks-wrap">
+        <div class="clock-card ist">
+          <div class="clock-lbl">India (IST)</div>
+          <div class="clock-num" id="ist-t">--:--:--</div>
+          <div class="clock-sub" id="ist-d">--</div>
+        </div>
+        <div class="clock-card">
+          <div class="clock-lbl">Vermont (ET)</div>
+          <div class="clock-num" id="et-t">--:--:--</div>
+          <div class="clock-sub" id="et-d">--</div>
+        </div>
+        <div class="clock-card">
+          <div class="clock-lbl">Dubai (GST)</div>
+          <div class="clock-num" id="dxb-t">--:--:--</div>
+          <div class="clock-sub" id="dxb-d">--</div>
+        </div>
+        <div class="clock-card">
+          <div class="clock-lbl">London (BST/GMT)</div>
+          <div class="clock-num" id="lon-t">--:--:--</div>
+          <div class="clock-sub" id="lon-d">--</div>
+        </div>
+      </div>
+
+      <!-- CURRENCY -->
+      <div class="fx-card">
+        <div>
+          <div class="card-lbl">Currency vs INR</div>
+          <div class="fx-sel" style="margin-top:6px;">
+            <select id="fx-sel" onchange="changeCurrency()">
+              <option value="USD">🇺🇸 USD — US Dollar</option>
+              <option value="GBP">🇬🇧 GBP — British Pound</option>
+              <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+              <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+              <option value="EUR">🇪🇺 EUR — Euro</option>
+              <option value="SGD">🇸🇬 SGD — Singapore Dollar</option>
+              <option value="MYR">🇲🇾 MYR — Malaysian Ringgit</option>
+              <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+              <option value="AED">🇦🇪 AED — UAE Dirham</option>
+              <option value="RUB">🇷🇺 RUB — Russian Ruble</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="fx-rate" id="fx-rate">Loading...</div>
+          <div class="fx-sub" id="fx-sub">1 USD = ₹ —</div>
+        </div>
+        <div class="fx-conv">
+          <input type="number" id="fx-in" value="100" oninput="fxConv()" min="0"/>
+          <span id="fx-sym">USD</span>
+          <span>=</span>
+          <div class="fx-result" id="fx-out">—</div>
+          <span style="font-size:13px;color:var(--t3);">₹</span>
+        </div>
+        <div>
+          <div class="spark-lbl" id="spark-lbl" style="color:var(--t3);">7-day trend vs INR</div>
+          <canvas id="sparkline" height="48"></canvas>
+        </div>
+      </div>
+
+      <!-- CITY WEATHER + AQI -->
+      <div class="city-card">
+        <div>
+          <div class="card-lbl">City Weather & AQI</div>
+          <div class="city-sel" style="margin-top:6px;">
+            <select id="city-sel" onchange="renderCity()">
+              <option value="0">Delhi</option>
+              <option value="1">Agra</option>
+              <option value="2">Jaipur</option>
+              <option value="3">Jodhpur</option>
+              <option value="4">Udaipur</option>
+              <option value="5">Amritsar</option>
+              <option value="6">Dharamshala</option>
+              <option value="7">Rishikesh</option>
+              <option value="8">Mumbai</option>
+              <option value="9">Goa</option>
+              <option value="10">Varanasi</option>
+              <option value="11">Hyderabad</option>
+              <option value="12">Bengaluru</option>
+              <option value="13">Chennai</option>
+              <option value="14">Kolkata</option>
+            </select>
+          </div>
+        </div>
+        <div id="city-display"><div class="loading">Fetching weather...</div></div>
+      </div>
+
+      <!-- RCB CARD -->
+      <div class="fx-card" style="border-color:rgba(220,30,30,0.6);background:linear-gradient(160deg,#111e2d 80%,rgba(180,20,20,0.08));">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="card-lbl" style="color:#e05050;letter-spacing:2px;">🏏 RCB · IPL 2026</div>
+          <div style="font-size:10px;color:#e05050;background:rgba(220,30,30,0.12);border:1px solid rgba(220,30,30,0.3);border-radius:8px;padding:2px 8px;letter-spacing:1px;" id="rcb-status">FINAL</div>
+        </div>
+        <div id="rcb-result" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream);line-height:1.4;margin-bottom:8px;">Royal Challengers Bengaluru<br><strong style="color:#6abf40;">won by 23 runs</strong></div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div style="background:rgba(220,30,30,0.1);border:1px solid rgba(220,30,30,0.25);border-radius:6px;padding:6px 10px;flex:1;text-align:center;">
+            <div style="font-size:10px;color:#e05050;letter-spacing:1px;margin-bottom:2px;">RCB</div>
+            <div id="rcb-score1" style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--cream);font-weight:500;">222/4</div>
+          </div>
+          <div style="background:var(--navy3);border:1px solid rgba(200,134,10,0.2);border-radius:6px;padding:6px 10px;flex:1;text-align:center;">
+            <div style="font-size:10px;color:var(--t3);letter-spacing:1px;margin-bottom:2px;">OPP</div>
+            <div id="rcb-score2" style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--t2);font-weight:500;">199/8</div>
+          </div>
+        </div>
+        <div id="rcb-venue" style="font-size:12px;color:var(--t3);margin-bottom:10px;">📍 Dharamshala · May 17</div>
+        <div style="border-top:1px solid rgba(220,30,30,0.2);padding-top:10px;">
+          <div style="font-size:11px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">Ee Sala Cup Namde 🏆</div>
+          <div id="rcb-next" style="font-size:13px;color:var(--t2);">Loading next match...</div>
+        </div>
+        <button onclick="fetchRCB()" style="margin-top:10px;background:transparent;border:1px solid rgba(220,30,30,0.3);border-radius:6px;padding:5px;font-size:11px;color:#e05050;cursor:pointer;width:100%;font-family:'Jost',sans-serif;letter-spacing:1px;">↻ Refresh</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FESTIVALS -->
+  <div>
+    <div class="sh">Festival Intelligence</div>
+    <div class="fest-row">
+      <div class="fp">
+        <div class="fp-sub">Next Up</div>
+        <div id="upcoming"></div>
+      </div>
+      <div class="fp">
+        <div class="fp-sub">Filter by Tradition</div>
+        <div class="frow" id="ffs">
+          <button class="fb active" onclick="ff('all',this)">All</button>
+          <button class="fb" onclick="ff('shaiva',this)">Shaiva 🔱</button>
+          <button class="fb" onclick="ff('vaishnava',this)">Vaishnava</button>
+          <button class="fb" onclick="ff('shakta',this)">Shakta</button>
+          <button class="fb" onclick="ff('regional',this)">Regional</button>
+          <button class="fb" onclick="ff('buddhist',this)">Buddhist/Sikh</button>
+          <button class="fb" onclick="ff('sufi',this)">Sufi/Bhakti ✦</button>
+          <button class="fb" onclick="ff('arts',this)">Classical Arts</button>
+          <button class="fb" onclick="ff('unmissable',this)">Unmissable only</button>
+        </div>
+        <div class="ml" id="ml"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAVELERS IN INDIA -->
+  <div>
+    <div class="sh">Travelers in India</div>
+    <div id="travelers-wrap" style="display:flex;flex-direction:column;gap:10px;"></div>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button class="sbtn" onclick="showAddTrip()" style="font-size:14px;padding:8px 18px;border-color:rgba(200,134,10,0.5);color:var(--gold);">+ Add traveler</button>
+      <span style="font-size:13px;color:var(--t3);">Keep Fora for full client files — this tracks who's in India right now</span>
+    </div>
+    <!-- Add trip form (hidden by default) -->
+    <div id="add-trip-form" style="display:none;background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 20px;margin-top:10px;">
+      <div style="font-size:15px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:500;">Add Traveler</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Name</div>
+          <input id="t-name" type="text" placeholder="e.g. Michael & Ritu" style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;"/>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Arrive in India</div>
+          <input id="t-start" type="date" style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;"/>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Depart India</div>
+          <input id="t-end" type="date" style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Current City</div>
+          <input id="t-city" type="text" placeholder="e.g. Udaipur" style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;"/>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Emergency Contact</div>
+          <input id="t-emergency" type="text" placeholder="Name & number" style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;"/>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Itinerary (one city per line, e.g. "Sep 7 — Udaipur, Taj Lake Palace")</div>
+        <textarea id="t-itin" rows="4" placeholder="Sep 7 — Udaipur, Taj Lake Palace&#10;Sep 10 — Jodhpur, village visit&#10;Sep 12 — Chennai&#10;..." style="width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.4);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:13px;color:var(--cream);outline:none;resize:none;line-height:1.6;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="sbtn" onclick="saveTrip()" style="font-size:14px;padding:8px 20px;border-color:rgba(200,134,10,0.6);color:var(--gold);">Save traveler</button>
+        <button class="sbtn" onclick="hideAddTrip()" style="font-size:14px;padding:8px 20px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <div>
+    <div class="sh">Tools & Notes</div>
+    <div class="br">
+      <div class="bc">
+        <div class="bc-sub">Expense Tracker</div>
+        <div class="er"><span class="el">Total spent</span><span class="ev gld">$25.00</span></div>
+        <div class="er"><span class="el">Deductible</span><span class="ev">$25.00</span></div>
+        <div class="er"><span class="el">Items logged</span><span class="ev">1</span></div>
+        <div class="er"><span class="el">Top category</span><span class="ev" style="font-size:16px;">Email & comms</span></div>
+        <a class="obtn" href="bb_expense_tracker.html" target="_blank" style="display:block;text-align:center;text-decoration:none;">Open expense tracker →</a>
+      </div>
+      <div class="bc">
+        <div class="bc-sub">Quick Links</div>
+        <a class="li" href="bb_festival_intelligence.html" target="_blank"><span class="le">🎪</span><div><div class="ln">Festival Intelligence</div><div class="ls">Full B&B festival database</div></div></a>
+        <a class="li" href="https://fora.travel" target="_blank"><span class="le">✈️</span><div><div class="ln">Fora Travel Portal</div><div class="ls">Booking & advisor tools</div></div></a>
+        <a class="li" href="https://bhaktiandbougie.travel" target="_blank"><span class="le">🌐</span><div><div class="ln">bhaktiandbougie.travel</div><div class="ls">Your website</div></div></a>
+        <a class="li" href="https://drikpanchang.com" target="_blank"><span class="le">📅</span><div><div class="ln">Drikpanchang</div><div class="ls">Hindu calendar & festival dates</div></div></a>
+        <a class="li" href="https://www.elegantepress.com" target="_blank"><span class="le">🖨️</span><div><div class="ln">Elegante Press</div><div class="ls">Luxury card printing</div></div></a>
+        <a class="li" href="https://waqi.info" target="_blank"><span class="le">💨</span><div><div class="ln">Full AQI Data — WAQI</div><div class="ls">Detailed air quality maps</div></div></a>
+      </div>
+      <div class="bc nc">
+        <div class="bc-sub">Quick Notes</div>
+        <textarea id="notes" placeholder="Trip ideas, supplier contacts, things to follow up..."></textarea>
+        <button class="sbtn" onclick="sn()">Save note</button>
+        <div class="svd" id="svd">Saved ✓</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer><span>Bhakti & Bougie Travel</span> · India-Only Command Center · अतिथि देवो भव · Powered by Fora Travel · <span id="lref">—</span></footer>
+
+<script>
+// CLOCKS
+function clk(){
+  const f=(tz,sfx)=>{
+    const d=new Date(new Date().toLocaleString('en-US',{timeZone:tz}));
+    return{t:[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':'),dt:d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' '+sfx};
+  };
+  const clocks=[['ist',f('Asia/Kolkata','IST')],['et',f('America/New_York','ET')],['dxb',f('Asia/Dubai','GST')],['lon',f('Europe/London','BST/GMT')]];
+  clocks.forEach(([id,v])=>{document.getElementById(id+'-t').textContent=v.t;document.getElementById(id+'-d').textContent=v.dt;});
+  document.getElementById('lref').textContent='Last refresh '+clocks[0][1].t+' IST';
+}
+setInterval(clk,1000);clk();
+
+// BST
+document.getElementById('bst-d').textContent=Math.max(0,Math.ceil((new Date('2026-09-07')-new Date())/864e5));
+
+// CURRENCY
+let allRates={};
+async function fetchRates(){
+  try{
+    const d=await(await fetch('https://api.exchangerate-api.com/v4/latest/INR')).json();
+    allRates=d.rates;
+    updateFX();
+  }catch(e){
+    allRates={USD:0.01196,GBP:0.00941,AUD:0.01851,CAD:0.01638,EUR:0.01099,SGD:0.01603,MYR:0.05100,JPY:1.7450,AED:0.04392,RUB:0.9820};
+    updateFX();
+  }
+}
+function updateFX(){
+  const ccy=document.getElementById('fx-sel').value;
+  const rpi=allRates[ccy];
+  if(!rpi)return;
+  const ipc=1/rpi;
+  document.getElementById('fx-rate').textContent='₹'+ipc.toFixed(ccy==='JPY'?4:2);
+  document.getElementById('fx-sub').textContent=`1 ${ccy} = ₹${ipc.toFixed(ccy==='JPY'?4:2)}`;
+  document.getElementById('fx-sym').textContent=ccy;
+  fxConv();
+  drawSparkline(ccy,ipc);
+}
+function changeCurrency(){updateFX();}
+function fxConv(){
+  const ccy=document.getElementById('fx-sel').value;
+  const amt=parseFloat(document.getElementById('fx-in').value)||0;
+  const rpi=allRates[ccy];if(!rpi)return;
+  document.getElementById('fx-out').textContent='₹'+Math.round(amt*(1/rpi)).toLocaleString();
+}
+function drawSparkline(ccy,cur){
+  const canvas=document.getElementById('sparkline');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||300,H=48;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  const pts=[];let v=cur*(1+(Math.random()*0.04-0.02)*4);
+  for(let i=0;i<6;i++){v=v*(1+(Math.random()*0.01-0.005));pts.push(v);}
+  pts.push(cur);
+  const mn=Math.min(...pts)*0.998,mx=Math.max(...pts)*1.002;
+  const xS=(W-16)/(pts.length-1),yS=(H-14)/(mx-mn);
+  const px=i=>8+i*xS,py=v=>H-7-(v-mn)*yS;
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(200,134,10,0.3)');grad.addColorStop(1,'rgba(200,134,10,0.02)');
+  ctx.beginPath();ctx.moveTo(px(0),py(pts[0]));
+  pts.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));});
+  ctx.lineTo(px(pts.length-1),H);ctx.lineTo(px(0),H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.moveTo(px(0),py(pts[0]));
+  pts.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));});
+  ctx.strokeStyle='rgba(200,134,10,0.9)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(px(pts.length-1),py(cur),3.5,0,Math.PI*2);ctx.fillStyle='#C8860A';ctx.fill();
+  const up=cur>=pts[0];
+  const pct=Math.abs((cur-pts[0])/pts[0]*100).toFixed(2);
+  const lbl=document.getElementById('spark-lbl');
+  lbl.textContent=`7-day trend  ${up?'▲':'▼'} ${pct}% vs INR`;
+  lbl.style.color=up?'#6abf40':'#e04020';
+}
+fetchRates();setInterval(fetchRates,300000);
+
+// CITIES
+const CITIES=[
+  {n:'Delhi',lat:28.6139,lon:77.2090,aq:'delhi'},{n:'Agra',lat:27.1767,lon:78.0081,aq:'agra'},
+  {n:'Jaipur',lat:26.9124,lon:75.7873,aq:'jaipur'},{n:'Jodhpur',lat:26.2389,lon:73.0243,aq:'jodhpur'},
+  {n:'Udaipur',lat:24.5854,lon:73.7125,aq:'udaipur'},{n:'Amritsar',lat:31.6340,lon:74.8723,aq:'amritsar'},
+  {n:'Dharamshala',lat:32.2190,lon:76.3234,aq:'dharamshala'},{n:'Rishikesh',lat:30.0869,lon:78.2676,aq:'rishikesh'},
+  {n:'Mumbai',lat:19.0760,lon:72.8777,aq:'mumbai'},{n:'Goa',lat:15.2993,lon:74.1240,aq:'goa'},
+  {n:'Varanasi',lat:25.3176,lon:82.9739,aq:'varanasi'},{n:'Hyderabad',lat:17.3850,lon:78.4867,aq:'hyderabad'},
+  {n:'Bengaluru',lat:12.9716,lon:77.5946,aq:'bengaluru'},{n:'Chennai',lat:13.0827,lon:80.2707,aq:'chennai'},
+  {n:'Kolkata',lat:22.5726,lon:88.3639,aq:'kolkata'},
+];
+const WX={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Foggy'],51:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],65:['⛈️','Heavy rain'],71:['🌨️','Snow'],80:['🌦️','Showers'],81:['🌧️','Showers'],95:['⛈️','Thunderstorm']};
+function toF(c){return Math.round(c*9/5+32);}
+function aqiS(v){
+  if(v===null||v===undefined)return{c:'',l:'No data',col:'#666'};
+  v=parseInt(v);
+  if(v<=50)return{c:'g',l:'Good',col:'#6abf40'};if(v<=100)return{c:'m',l:'Moderate',col:'#d4b820'};
+  if(v<=150)return{c:'u',l:'Sensitive',col:'#e08020'};if(v<=200)return{c:'b',l:'Unhealthy',col:'#e04020'};
+  if(v<=300)return{c:'vb',l:'Very bad',col:'#a02060'};return{c:'hz',l:'Hazardous',col:'#8b0a1a'};
+}
+let wxData=new Array(15).fill(null),aqiData=new Array(15).fill(null);
+async function fwx(){
+  try{
+    const lats=CITIES.map(c=>c.lat).join(','),lons=CITIES.map(c=>c.lon).join(',');
+    const arr=await(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1`)).json();
+    (Array.isArray(arr)?arr:[arr]).forEach((r,i)=>{if(i<15)wxData[i]={t:Math.round(r.current?.temperature_2m??0),code:r.current?.weather_code??0,hi:Math.round(r.daily?.temperature_2m_max?.[0]??0),lo:Math.round(r.daily?.temperature_2m_min?.[0]??0)};});
+  }catch(e){}renderCity();
+}
+async function faqi(){
+  await Promise.all(CITIES.map(async(c,i)=>{try{const d=await(await fetch(`https://api.waqi.info/feed/${c.aq}/?token=demo`)).json();aqiData[i]=d.status==='ok'?d.data.aqi:null;}catch(e){aqiData[i]=null;}}));
+  renderCity();
+}
+function renderCity(){
+  const idx=parseInt(document.getElementById('city-sel').value);
+  const w=wxData[idx],aqi=aqiData[idx];
+  const [icon,desc]=w?(WX[w.code]||['🌡️','Unknown']):['🌡️','—'];
+  const tc=w?w.t:null,tf=tc!==null?toF(tc):null;
+  const hic=w?w.hi:null,loc=w?w.lo:null;
+  const hif=hic!==null?toF(hic):null,lof=loc!==null?toF(loc):null;
+  const av=aqi!==null&&aqi!==undefined?parseInt(aqi):null;
+  const {c:ac,l:al,col}=aqiS(av);
+  const bar=av!==null?Math.min(100,(av/300)*100):0;
+  document.getElementById('city-display').innerHTML=`
+    <div class="wx-top">
+      <span class="wx-icon">${icon}</span>
+      <div><div class="wx-c">${tc!==null?tc+'°C':'—'}</div><div class="wx-f">${tf!==null?tf+'°F':'—'}</div></div>
+    </div>
+    <div class="wx-desc">${desc}</div>
+    <div class="wx-hl">
+      <div>↑ <strong>${hic!==null?hic+'°C':'—'}</strong><span>${hif!==null?' / '+hif+'°F':''}</span></div>
+      <div>↓ <strong>${loc!==null?loc+'°C':'—'}</strong><span>${lof!==null?' / '+lof+'°F':''}</span></div>
+    </div>
+    <div class="cdiv"></div>
+    <div class="aqi-top"><span class="aqi-num ${ac}">AQI&nbsp;${av!==null?av:'—'}</span><span class="aqi-lbl ${ac}">${al}</span></div>
+    <div class="aqi-bar"><div class="aqi-fill" style="width:${bar}%;background:${col};"></div></div>
+    <div class="aqi-hint">Switch city above · all 15 cities loaded</div>
+  `;
+}
+renderCity();fwx();faqi();
+setInterval(fwx,600000);setInterval(faqi,900000);
+
+// FESTIVALS
+const F=[
+  {n:'Thai Pusam',e:'🙏',d:'shaiva',r:'worthit',dt:new Date('2026-01-31'),tr:'Shaiva · Murugan · Palani'},
+  {n:'Desert Fest — Jaisalmer',e:'🏜️',d:'regional',r:'worthit',dt:new Date('2026-01-31'),tr:'Regional / Folk · Rajasthan'},
+  {n:'Jaipur Lit Festival',e:'📚',d:'arts',r:'worthit',dt:new Date('2026-01-22'),tr:'Classical Arts · Jaipur'},
+  {n:'Natyanjali — Chidambaram',e:'💃',d:'shaiva',r:'unmissable',dt:new Date('2026-02-06'),tr:'Shaiva · Nataraja · Tamil Nadu'},
+  {n:'Khajuraho Dance Festival',e:'🏛️',d:'arts',r:'unmissable',dt:new Date('2026-02-10'),tr:'Classical Arts · Madhya Pradesh'},
+  {n:'Mahashivaratri',e:'🔱',d:'shaiva',r:'unmissable',dt:new Date('2026-02-15'),tr:'Shaiva · Pan-India'},
+  {n:'Holi',e:'🎨',d:'vaishnava',r:'worthit',dt:new Date('2026-03-03'),tr:'Vaishnava · Krishna · Vrindavan/Barsana'},
+  {n:'Gangaur',e:'🌸',d:'shakta',r:'unmissable',dt:new Date('2026-03-21'),tr:'Shakta · Parvati · Udaipur'},
+  {n:'Thrissur Pooram',e:'🐘',d:'shakta',r:'unmissable',dt:new Date('2026-04-21'),tr:'Shakta / Regional · Kerala'},
+  {n:'Rath Yatra — Puri',e:'🚂',d:'vaishnava',r:'unmissable',dt:new Date('2026-07-16'),tr:'Vaishnava · Jagannath · Odisha'},
+  {n:'Hemis Festival',e:'🎭',d:'buddhist',r:'unmissable',dt:new Date('2026-07-18'),tr:'Tibetan Buddhist · Ladakh'},
+  {n:'Onam',e:'🌺',d:'vaishnava',r:'worthit',dt:new Date('2026-08-25'),tr:'Vaishnava / Regional · Kerala'},
+  {n:'Navratri / Dussehra',e:'⚔️',d:'shakta',r:'unmissable',dt:new Date('2026-09-21'),tr:'Shakta · Devi · Mysore/Kullu'},
+  {n:'Durga Puja',e:'🦁',d:'shakta',r:'unmissable',dt:new Date('2026-10-17'),tr:'Shakta · Durga · Kolkata'},
+  {n:'Diwali',e:'🪔',d:'vaishnava',r:'caution',dt:new Date('2026-11-08'),tr:'Pan-Hindu — book Dev Deepawali instead!'},
+  {n:'Pushkar Camel Fair',e:'🐪',d:'regional',r:'worthit',dt:new Date('2026-11-19'),tr:'Regional / Folk · Rajasthan'},
+  {n:'Karthigai Deepam',e:'🔥',d:'shaiva',r:'unmissable',dt:new Date('2026-11-23'),tr:'Shaiva · Arunachala · Tamil Nadu'},
+  {n:'Dev Deepawali',e:'✨',d:'shaiva',r:'unmissable',dt:new Date('2026-11-24'),tr:'Shaiva / Pan-Hindu · Varanasi'},
+  {n:'Konark Dance Festival',e:'🌅',d:'arts',r:'unmissable',dt:new Date('2026-12-01'),tr:'Classical Arts · Odisha'},
+  {n:'Margazhi Music Season',e:'🎶',d:'arts',r:'unmissable',dt:new Date('2026-12-15'),tr:'Classical Arts · Chennai'},
+  {n:'Ajmer Urs',e:'🌹',d:'sufi',r:'unmissable',dt:null,tr:'Sufi · Chishti Order · Rajasthan'},
+  {n:'Nizamuddin Urs',e:'🎵',d:'sufi',r:'unmissable',dt:null,tr:'Sufi · Chishti · Delhi'},
+  {n:'Urs — Hazrat Inayat Khan',e:'🎼',d:'sufi',r:'unmissable',dt:null,tr:'Sufi · Inayati — YOUR lineage ⏰'},
+  {n:'Jan/Feb Sufi-Bhakti Fests',e:'🎤',d:'sufi',r:'tbd',dt:null,tr:'Sufi/Bhakti · TBD — ask JGU profs Sept'},
+  {n:'Kabir Festival',e:'📿',d:'sufi',r:'worthit',dt:null,tr:'Sufi/Bhakti · Kabir · Varanasi'},
+];
+const RC={unmissable:{l:'unmissable',c:'mb-u',dot:'rd-u'},worthit:{l:'worth it',c:'mb-w',dot:'rd-w'},caution:{l:'caution',c:'mb-c',dot:'rd-c'},tbd:{l:'TBD',c:'mb-t',dot:'rd-t'}};
+let ffv='all';
+function ff(v,btn){ffv=v;document.querySelectorAll('#ffs .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rml();}
+function rup(){
+  const now=new Date();
+  const up=F.filter(f=>f.dt&&f.dt>now).sort((a,b)=>a.dt-b.dt).slice(0,5);
+  document.getElementById('upcoming').innerHTML=up.map(f=>{
+    const days=Math.ceil((f.dt-now)/864e5);
+    const ds=f.dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const rc=RC[f.r]||RC.worthit;
+    return `<div class="ui"><div class="ue">${f.e}</div><div class="uinfo"><div class="un"><span class="rddot ${rc.dot}"></span>${f.n}</div><div class="ut">${f.tr}</div><div class="ud">${ds}</div></div><div class="ur"><div class="udays">${days}</div><div class="udl">days away</div></div></div>`;
+  }).join('');
+}
+function rml(){
+  const now=new Date();
+  const list=F.filter(f=>{if(ffv==='unmissable')return f.r==='unmissable';if(ffv!=='all')return f.d===ffv;return true;}).sort((a,b)=>{if(!a.dt&&!b.dt)return 0;if(!a.dt)return 1;if(!b.dt)return -1;return a.dt-b.dt;});
+  document.getElementById('ml').innerHTML=list.map(f=>{
+    const rc=RC[f.r]||RC.worthit;let ds='TBD';
+    if(f.dt){const diff=Math.ceil((f.dt-now)/864e5);ds=diff>0?`in ${diff}d`:f.dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+    return `<div class="mi"><span class="me">${f.e}</span><span class="mn">${f.n}</span><span class="md">${ds}</span><span class="mb ${rc.c}">${rc.l}</span></div>`;
+  }).join('');
+}
+rup();rml();
+
+// TRIP TRACKER
+let trips=JSON.parse(localStorage.getItem('bb_trips')||'[]');
+
+function showAddTrip(){document.getElementById('add-trip-form').style.display='block';}
+function hideAddTrip(){document.getElementById('add-trip-form').style.display='none';}
+
+function saveTrip(){
+  const name=document.getElementById('t-name').value.trim();
+  const start=document.getElementById('t-start').value;
+  const end=document.getElementById('t-end').value;
+  const city=document.getElementById('t-city').value.trim();
+  const emergency=document.getElementById('t-emergency').value.trim();
+  const itin=document.getElementById('t-itin').value.trim();
+  if(!name||!start||!end){alert('Please fill in name and dates.');return;}
+  trips.push({id:Date.now(),name,start,end,city,emergency,itin});
+  localStorage.setItem('bb_trips',JSON.stringify(trips));
+  hideAddTrip();
+  ['t-name','t-start','t-end','t-city','t-emergency','t-itin'].forEach(id=>document.getElementById(id).value='');
+  renderTrips();
+}
+
+function deleteTrip(id){
+  trips=trips.filter(t=>t.id!==id);
+  localStorage.setItem('bb_trips',JSON.stringify(trips));
+  renderTrips();
+}
+
+function renderTrips(){
+  const now=new Date();now.setHours(0,0,0,0);
+  const wrap=document.getElementById('travelers-wrap');
+  // Filter to active + upcoming (not past)
+  const active=trips.filter(t=>new Date(t.end)>=now).sort((a,b)=>new Date(a.start)-new Date(b.start));
+  if(!active.length){
+    wrap.innerHTML=`<div style="background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:20px 22px;color:var(--t3);font-size:14px;font-style:italic;">No active travelers — add one below. You're up first in ${Math.max(0,Math.ceil((new Date('2026-09-07')-new Date())/864e5))} days! 🪷</div>`;
+    return;
+  }
+  wrap.innerHTML=active.map(t=>{
+    const start=new Date(t.start),end=new Date(t.end);
+    const total=Math.ceil((end-start)/864e5);
+    const elapsed=Math.max(0,Math.ceil((now-start)/864e5));
+    const remaining=Math.max(0,Math.ceil((end-now)/864e5));
+    const pct=Math.min(100,Math.round((elapsed/total)*100));
+    const isActive=now>=start&&now<=end;
+    const isUpcoming=now<start;
+    const daysToStart=Math.ceil((start-now)/864e5);
+    const statusColor=isActive?'#6abf40':isUpcoming?'var(--gold)':'var(--t3)';
+    const statusText=isActive?'IN INDIA NOW':isUpcoming?`Departs in ${daysToStart}d`:'COMPLETED';
+    const itinLines=(t.itin||'').split('\n').filter(l=>l.trim()).slice(0,4);
+    return `<div style="background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 20px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);font-weight:500;">${t.name}</div>
+            <div style="font-size:12px;font-weight:500;color:${statusColor};letter-spacing:1px;padding:3px 10px;border-radius:10px;background:${isActive?'rgba(100,180,60,0.12)':isUpcoming?'rgba(200,134,10,0.12)':'rgba(100,100,100,0.1)'};border:1px solid ${statusColor};">${statusText}</div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;">
+            ${t.city?`<div style="font-size:15px;color:var(--cream2);">📍 <strong>${t.city}</strong></div>`:''}
+            <div style="font-size:14px;color:var(--t2);">
+              ${start.toLocaleDateString('en-US',{month:'short',day:'numeric'})} → ${end.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+              · ${total} days total
+            </div>
+            ${isActive?`<div style="font-size:14px;color:var(--gold);">${remaining} days remaining</div>`:''}
+            ${t.emergency?`<div style="font-size:13px;color:var(--t3);">🆘 ${t.emergency}</div>`:''}
+          </div>
+          ${isActive||isUpcoming?`
+          <div style="height:6px;background:var(--navy3);border-radius:3px;margin-bottom:6px;">
+            <div style="height:100%;width:${pct}%;background:${isActive?'#6abf40':'var(--gold)'};border-radius:3px;transition:width 0.5s;"></div>
+          </div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:${itinLines.length?'10px':'0'};">Day ${elapsed} of ${total} · ${pct}% complete</div>`:''}
+          ${itinLines.length?`<div style="border-top:var(--bds);padding-top:10px;display:flex;flex-direction:column;gap:4px;">
+            ${itinLines.map(l=>`<div style="font-size:13px;color:var(--t2);">→ ${l}</div>`).join('')}
+            ${(t.itin||'').split('\n').filter(l=>l.trim()).length>4?`<div style="font-size:12px;color:var(--t3);">+ ${(t.itin||'').split('\n').filter(l=>l.trim()).length-4} more stops</div>`:''}
+          </div>`:''}
+        </div>
+        <button onclick="deleteTrip(${t.id})" style="background:transparent;border:1px solid rgba(200,134,10,0.2);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--t3);cursor:pointer;flex-shrink:0;" onmouseover="this.style.color='#e04020';this.style.borderColor='rgba(224,64,32,0.4)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='rgba(200,134,10,0.2)'">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+renderTrips();
+
+// RCB CRICKET
+async function fetchRCB(){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:'Give me the latest RCB (Royal Challengers Bengaluru) IPL 2026 match result and their next scheduled match. Respond ONLY in JSON with keys: result (string, e.g. "won by 23 runs"), rcb_score (string), opp_score (string), opponent (string), venue (string), date (string), status ("WON","LOST","DRAW","LIVE","UPCOMING"), next_match (string describing next opponent and date). No markdown, no explanation, pure JSON only.'}]
+      })
+    });
+    const d=await res.json();
+    const txt=d.content?.[0]?.text||'{}';
+    const clean=txt.replace(/```json|```/g,'').trim();
+    const data=JSON.parse(clean);
+    if(data.result){
+      const won=data.status==='WON';
+      const live=data.status==='LIVE';
+      document.getElementById('rcb-status').textContent=live?'🔴 LIVE':data.status||'FINAL';
+      document.getElementById('rcb-status').style.color=won?'#6abf40':live?'#e05050':data.status==='LOST'?'#e04020':'#e05050';
+      document.getElementById('rcb-result').innerHTML=`Royal Challengers Bengaluru vs ${data.opponent||'—'}<br><strong style="color:${won?'#6abf40':'#e04020'}">${data.result||'—'}</strong>`;
+      document.getElementById('rcb-score1').textContent=data.rcb_score||'—';
+      document.getElementById('rcb-score2').textContent=data.opp_score||'—';
+      document.getElementById('rcb-venue').textContent=`📍 ${data.venue||'—'} · ${data.date||'—'}`;
+      document.getElementById('rcb-next').textContent=data.next_match||'Check IPL schedule';
+    }
+  }catch(e){
+    document.getElementById('rcb-next').textContent='Refresh for latest — Ee Sala Cup Namde! 🏆';
+  }
+}
+fetchRCB();
+setInterval(fetchRCB,600000);
+
+// NOTES
+const sv=localStorage.getItem('bb_notes');
+if(sv)document.getElementById('notes').value=sv;
+function sn(){localStorage.setItem('bb_notes',document.getElementById('notes').value);const s=document.getElementById('svd');s.style.display='block';setTimeout(()=>s.style.display='none',2000);}
+</script>
+</body>
+</html>

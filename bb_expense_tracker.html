@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bhakti & Bougie — Expense Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--navy:#0D1B2A;--navy2:#111e2d;--navy3:#162333;--gold:#C8860A;--gold3:rgba(200,134,10,0.13);--cream:#F2E6CC;--cream2:#E8D9B8;--crimson:#8B1A1A;--ash:#9a9490;--bd:2px solid rgba(200,134,10,0.5);--bds:1px solid rgba(200,134,10,0.25);--t1:#F2E6CC;--t2:#d4b878;--t3:#a08858;--r:8px;--r2:12px;}
+body{background:var(--navy);color:var(--t1);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;font-size:15px;line-height:1.5;}
+.hdr{background:var(--navy2);border-bottom:var(--bd);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.tripundra{display:flex;flex-direction:column;gap:3px;}
+.stripe{width:36px;height:7px;background:var(--ash);border-radius:3px;border:1.5px solid var(--gold);position:relative;}
+.eye{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #111;z-index:2;}
+.eye::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #111;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;color:var(--cream);letter-spacing:3px;}
+.brand-sub{font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:2px;text-align:right;}
+.back{text-decoration:none;color:var(--t2);font-size:13px;border:1px solid rgba(200,134,10,0.3);border-radius:6px;padding:6px 14px;transition:all 0.15s;}
+.back:hover{color:var(--cream);border-color:rgba(200,134,10,0.7);}
+.main{max-width:1000px;margin:0 auto;padding:24px 28px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:14px 18px;}
+.stat-lbl{font-size:11px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--cream);}
+.stat-val.gld{color:var(--gold);}
+.stat-val.grn{color:#6abf40;}
+.stat-val.blue{color:#70a8e0;}
+
+/* RECURRING SECTION */
+.recurring-section{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:16px 22px;margin-bottom:20px;}
+.section-title{font-size:15px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500;display:flex;align-items:center;gap:10px;}
+.section-title span{font-size:12px;color:var(--t3);letter-spacing:0;text-transform:none;font-weight:300;}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.rec-card{background:var(--navy3);border:1.5px solid rgba(200,134,10,0.25);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.rec-card.due{border-color:rgba(100,180,60,0.5);background:rgba(100,180,60,0.05);}
+.rec-info{}
+.rec-name{font-size:14px;color:var(--cream2);margin-bottom:2px;}
+.rec-amt{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);font-weight:500;}
+.rec-next{font-size:11px;color:var(--t3);margin-top:2px;}
+.rec-due-badge{font-size:11px;color:#6abf40;background:rgba(100,180,60,0.15);border-radius:8px;padding:2px 8px;white-space:nowrap;}
+.rec-actions{display:flex;gap:6px;flex-shrink:0;}
+.rec-post-btn{background:var(--gold);border:none;border-radius:5px;padding:5px 10px;font-size:12px;color:var(--navy);cursor:pointer;font-family:'Jost',sans-serif;font-weight:500;white-space:nowrap;}
+.rec-post-btn:hover{opacity:0.85;}
+.rec-del-btn{background:transparent;border:1px solid rgba(200,134,10,0.2);border-radius:5px;padding:5px 8px;font-size:12px;color:var(--t3);cursor:pointer;}
+.rec-del-btn:hover{color:#e04020;border-color:rgba(224,64,32,0.4);}
+
+/* ADD FORM */
+.add-form{background:var(--navy2);border:var(--bd);border-radius:var(--r2);padding:18px 22px;margin-bottom:20px;}
+.form-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+label{font-size:11px;color:var(--t3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+input,select{width:100%;background:var(--navy3);border:1.5px solid rgba(200,134,10,0.35);border-radius:6px;padding:8px 11px;font-family:'Jost',sans-serif;font-size:14px;color:var(--cream);outline:none;}
+input:focus,select:focus{border-color:rgba(200,134,10,0.8);}
+select option{background:var(--navy2);}
+
+/* Recurring checkbox */
+.rec-check-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--navy3);border-radius:var(--r);border:1.5px solid rgba(200,134,10,0.2);}
+.rec-check-wrap input[type="checkbox"]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
+.rec-check-label{font-size:14px;color:var(--t2);cursor:pointer;}
+.rec-check-label strong{color:var(--gold);}
+
+.add-btn{background:var(--gold);border:none;border-radius:6px;padding:9px 22px;font-family:'Jost',sans-serif;font-size:14px;font-weight:500;color:var(--navy);cursor:pointer;transition:opacity 0.15s;}
+.add-btn:hover{opacity:0.85;}
+
+/* TABLE */
+.exp-table{background:var(--navy2);border:var(--bd);border-radius:var(--r2);overflow:hidden;}
+.exp-hdr{display:grid;grid-template-columns:90px 1fr 150px 90px 100px 80px 50px;gap:8px;padding:10px 16px;background:var(--navy3);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;}
+.exp-row{display:grid;grid-template-columns:90px 1fr 150px 90px 100px 80px 50px;gap:8px;padding:11px 16px;border-top:var(--bds);font-size:14px;align-items:center;}
+.exp-row:hover{background:rgba(200,134,10,0.04);}
+.exp-row.is-rec{background:rgba(200,134,10,0.03);}
+.exp-amount{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--cream);}
+.badge{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;}
+.badge-yes{background:rgba(100,180,60,0.15);color:#6abf40;}
+.badge-no{background:rgba(100,100,100,0.15);color:var(--t3);}
+.badge-partial{background:rgba(200,134,10,0.15);color:var(--gold);}
+.badge-rec{background:rgba(112,168,224,0.15);color:#70a8e0;font-size:10px;}
+.del-btn{background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;}
+.del-btn:hover{color:#e04020;}
+.empty{padding:32px;text-align:center;color:var(--t3);font-style:italic;font-size:14px;}
+
+footer{text-align:center;padding:20px;color:var(--t3);font-size:11px;letter-spacing:1px;margin-top:16px;}
+footer span{color:var(--gold);}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="tripundra">
+      <div class="stripe"></div>
+      <div class="stripe"><div class="eye"></div></div>
+      <div class="stripe"></div>
+    </div>
+    <div>
+      <div class="brand">BHAKTI & BOUGIE</div>
+      <div class="brand-sub">Expense Tracker</div>
+    </div>
+  </div>
+  <a class="back" href="bb_command_center.html">← Command Center</a>
+</header>
+
+<main class="main">
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">Total spent</div><div class="stat-val gld" id="s-total">$0.00</div></div>
+    <div class="stat"><div class="stat-lbl">Deductible</div><div class="stat-val grn" id="s-deduct">$0.00</div></div>
+    <div class="stat"><div class="stat-lbl">Non-deductible</div><div class="stat-val" id="s-nondeduc">$0.00</div></div>
+    <div class="stat"><div class="stat-lbl">Monthly recurring</div><div class="stat-val blue" id="s-monthly">$0.00</div></div>
+    <div class="stat"><div class="stat-lbl">Items logged</div><div class="stat-val" id="s-count">0</div></div>
+  </div>
+
+  <!-- RECURRING SUBSCRIPTIONS -->
+  <div class="recurring-section">
+    <div class="section-title">Monthly Recurring <span>— auto-posts each month · click "Post this month" when due</span></div>
+    <div class="rec-grid" id="rec-grid">
+      <div style="color:var(--t3);font-size:13px;font-style:italic;">No recurring expenses yet — add one below by checking "Monthly recurring"</div>
+    </div>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="add-form">
+    <div class="section-title">Add Expense</div>
+    <div class="form-row">
+      <div><label>Description</label><input type="text" id="e-desc" placeholder="e.g. Google Workspace"/></div>
+      <div><label>Amount ($)</label><input type="number" id="e-amt" placeholder="0.00" min="0" step="0.01"/></div>
+      <div><label>Date</label><input type="date" id="e-date"/></div>
+      <div><label>Deductible?</label>
+        <select id="e-deduct">
+          <option value="yes">Yes</option>
+          <option value="partial">Partial</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row2">
+      <div><label>Category</label>
+        <select id="e-cat">
+          <option>Branding & design</option>
+          <option>Domain & hosting</option>
+          <option>Email & communications</option>
+          <option>Phone & WhatsApp</option>
+          <option>Marketing & social</option>
+          <option>Travel & research</option>
+          <option>Education & training</option>
+          <option>Professional services</option>
+          <option>Software & subscriptions</option>
+          <option>Printing & cards</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div><label>Notes (optional)</label><input type="text" id="e-notes" placeholder="e.g. Annual — transfer to Cloudflare July 2026"/></div>
+    </div>
+    <div class="rec-check-wrap">
+      <input type="checkbox" id="e-recurring" onchange="toggleRecurring()"/>
+      <label class="rec-check-label" for="e-recurring">
+        <strong>Monthly recurring</strong> — this expense repeats every month on the same date. It will appear in the Recurring panel above and remind you when due.
+      </label>
+    </div>
+    <button class="add-btn" onclick="addExp()">Add expense →</button>
+  </div>
+
+  <!-- EXPENSE TABLE -->
+  <div class="exp-table">
+    <div class="exp-hdr">
+      <span>Date</span><span>Description</span><span>Category</span><span>Amount</span><span>Deductible</span><span>Type</span><span></span>
+    </div>
+    <div id="exp-list"><div class="empty">No expenses yet — add your first one above</div></div>
+  </div>
+
+</main>
+
+<footer><span>Bhakti & Bougie Travel, Ltd.</span> · Expense Tracker · All amounts USD</footer>
+
+<script>
+// ── DATA ──
+let exps = JSON.parse(localStorage.getItem('bb_expenses') || 'null');
+if(!exps){
+  exps = [
+    {id:1, desc:'GoDaddy email setup (michael@bhaktiandbougie.travel)', amt:25.00, date:'2026-05-16', cat:'Email & communications', deduct:'yes', notes:'Annual — transfer to Cloudflare July 2026', recurring:false},
+    {id:2, desc:'Google Workspace', amt:7.00, date:'2026-05-18', cat:'Software & subscriptions', deduct:'yes', notes:'michael@bhaktiandbougie.travel', recurring:true, recurDay:18},
+    {id:3, desc:'US Mobile — B&B business line', amt:8.00, date:'2026-05-18', cat:'Phone & WhatsApp', deduct:'yes', notes:'Dedicated WhatsApp Business line', recurring:true, recurDay:18},
+    {id:4, desc:'Claude upgrade — totally worth it', amt:50.00, date:'2026-05-18', cat:'Professional services', deduct:'yes', notes:'Brand build session', recurring:false},
+  ];
+  localStorage.setItem('bb_expenses', JSON.stringify(exps));
+}
+
+// Set default date to today
+document.getElementById('e-date').valueAsDate = new Date();
+
+// ── RECURRING TOGGLE ──
+function toggleRecurring(){
+  // Just visual feedback — logic handled on save
+}
+
+// ── ADD EXPENSE ──
+function addExp(){
+  const desc = document.getElementById('e-desc').value.trim();
+  const amt = parseFloat(document.getElementById('e-amt').value);
+  const date = document.getElementById('e-date').value;
+  const deduct = document.getElementById('e-deduct').value;
+  const cat = document.getElementById('e-cat').value;
+  const notes = document.getElementById('e-notes').value.trim();
+  const recurring = document.getElementById('e-recurring').checked;
+  if(!desc || isNaN(amt) || amt <= 0 || !date){ alert('Please fill in description, amount and date.'); return; }
+  const recurDay = recurring ? parseInt(date.split('-')[2]) : null;
+  exps.unshift({id:Date.now(), desc, amt, date, cat, deduct, notes, recurring, recurDay});
+  localStorage.setItem('bb_expenses', JSON.stringify(exps));
+  // Clear form
+  document.getElementById('e-desc').value = '';
+  document.getElementById('e-amt').value = '';
+  document.getElementById('e-notes').value = '';
+  document.getElementById('e-recurring').checked = false;
+  document.getElementById('e-date').valueAsDate = new Date();
+  render();
+}
+
+// ── DELETE ──
+function delExp(id){
+  exps = exps.filter(e => e.id !== id);
+  localStorage.setItem('bb_expenses', JSON.stringify(exps));
+  render();
+}
+
+// ── DELETE RECURRING ──
+function delRec(id){
+  if(!confirm('Remove this recurring expense? It will no longer auto-remind you each month.')) return;
+  exps = exps.filter(e => e.id !== id);
+  localStorage.setItem('bb_expenses', JSON.stringify(exps));
+  render();
+}
+
+// ── POST THIS MONTH (recurring) ──
+function postThisMonth(id){
+  const rec = exps.find(e => e.id === id);
+  if(!rec) return;
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  // Check if already posted this month
+  const alreadyPosted = exps.some(e =>
+    e.desc === rec.desc &&
+    e.date.startsWith(today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')) &&
+    e.id !== id
+  );
+  if(alreadyPosted){
+    alert('Already posted for this month!');
+    return;
+  }
+  exps.unshift({
+    id: Date.now(),
+    desc: rec.desc,
+    amt: rec.amt,
+    date: dateStr,
+    cat: rec.cat,
+    deduct: rec.deduct,
+    notes: rec.notes + ' (auto-posted)',
+    recurring: false,
+    recurDay: null
+  });
+  localStorage.setItem('bb_expenses', JSON.stringify(exps));
+  render();
+}
+
+// ── CHECK IF RECURRING IS DUE ──
+function isDue(rec){
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  // Due if today is on or after the recurDay this month and not yet posted this month
+  if(day < rec.recurDay) return false;
+  const alreadyPosted = exps.some(e =>
+    e.desc === rec.desc &&
+    e.date.startsWith(year+'-'+String(month+1).padStart(2,'0')) &&
+    e.id !== rec.id &&
+    !e.recurring
+  );
+  return !alreadyPosted;
+}
+
+// ── RENDER ──
+function render(){
+  const recurring = exps.filter(e => e.recurring);
+  const oneTime = exps.filter(e => !e.recurring);
+
+  // STATS
+  const total = oneTime.reduce((s,e) => s+e.amt, 0);
+  const deduct = oneTime.filter(e => e.deduct==='yes').reduce((s,e) => s+e.amt, 0);
+  const partial = oneTime.filter(e => e.deduct==='partial').reduce((s,e) => s+e.amt*0.5, 0);
+  const nondeduc = total - deduct - partial;
+  const monthly = recurring.reduce((s,e) => s+e.amt, 0);
+  document.getElementById('s-total').textContent = '$'+total.toFixed(2);
+  document.getElementById('s-deduct').textContent = '$'+(deduct+partial).toFixed(2);
+  document.getElementById('s-nondeduc').textContent = '$'+Math.max(0,nondeduc).toFixed(2);
+  document.getElementById('s-monthly').textContent = '$'+monthly.toFixed(2)+'/mo';
+  document.getElementById('s-count').textContent = oneTime.length;
+
+  // RECURRING PANEL
+  const recGrid = document.getElementById('rec-grid');
+  if(!recurring.length){
+    recGrid.innerHTML = '<div style="color:var(--t3);font-size:13px;font-style:italic;">No recurring expenses yet — add one below by checking "Monthly recurring"</div>';
+  } else {
+    recGrid.innerHTML = recurring.map(r => {
+      const due = isDue(r);
+      const nextDate = (() => {
+        const today = new Date();
+        const d = new Date(today.getFullYear(), today.getMonth(), r.recurDay);
+        if(d < today) d.setMonth(d.getMonth()+1);
+        return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      })();
+      return `<div class="rec-card${due?' due':''}">
+        <div class="rec-info">
+          <div class="rec-name">${r.desc}</div>
+          <div class="rec-amt">$${r.amt.toFixed(2)}<span style="font-size:12px;color:var(--t3);font-family:'Jost',sans-serif;font-weight:300;">/mo</span></div>
+          <div class="rec-next">${due ? '⚡ Due now' : 'Next: '+nextDate} · ${r.cat}</div>
+        </div>
+        <div class="rec-actions">
+          ${due ? `<button class="rec-post-btn" onclick="postThisMonth(${r.id})">Post ✓</button>` : ''}
+          <button class="rec-del-btn" onclick="delRec(${r.id})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // EXPENSE TABLE
+  const DC = {yes:'badge-yes', partial:'badge-partial', no:'badge-no'};
+  const DL = {yes:'Yes', partial:'Partial', no:'No'};
+  document.getElementById('exp-list').innerHTML = oneTime.length ? oneTime.map(e => `
+    <div class="exp-row">
+      <span style="color:var(--t2);font-size:13px;">${e.date}</span>
+      <span>
+        <div style="font-size:14px;color:var(--cream2);">${e.desc}</div>
+        ${e.notes ? `<div style="font-size:12px;color:var(--t3);margin-top:2px;">${e.notes}</div>` : ''}
+      </span>
+      <span style="font-size:13px;color:var(--t2);">${e.cat}</span>
+      <span class="exp-amount">$${e.amt.toFixed(2)}</span>
+      <span><span class="badge ${DC[e.deduct]}">${DL[e.deduct]}</span></span>
+      <span><span class="badge badge-no">One-time</span></span>
+      <span><button class="del-btn" onclick="delExp(${e.id})">✕</button></span>
+    </div>`).join('') : '<div class="empty">No one-time expenses yet</div>';
+}
+
+render();
+</script>
+</body>
+</html>
