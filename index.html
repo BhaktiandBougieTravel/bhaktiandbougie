@@ -170,8 +170,8 @@ nav.scrolled{
 }
 
 .hero-sanskrit-trans{
-  font-size:12px;
-  color:var(--t3);
+  font-size:13px;
+  color:var(--cream2);
   letter-spacing:2px;
   font-style:italic;
   margin-bottom:36px;
@@ -636,10 +636,23 @@ footer{
 }
 .yatra-card{
   background:var(--navy2);
-  padding:32px 28px;
+  padding:0;
   position:relative;
   transition:background 0.3s;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
+.yatra-img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  display:block;
+  opacity:0.85;
+  transition:opacity 0.3s;
+}
+.yatra-card:hover .yatra-img{opacity:1;}
+.yatra-content{padding:24px 26px;}
 .yatra-card:hover{background:var(--navy3);}
 .yatra-card.custom{
   display:flex;align-items:center;justify-content:center;
@@ -647,8 +660,8 @@ footer{
   border:0.5px dashed rgba(200,134,10,0.3);
   text-align:center;
   min-height:220px;
+  padding:32px;
 }
-.yatra-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:rgba(200,134,10,0.12);line-height:1;margin-bottom:12px;}
 .yatra-region{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
 .yatra-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
 .yatra-places{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
@@ -735,41 +748,36 @@ const SITE = {
   philosophy_p3:      "I've slept on a charpoy and stayed at the Taj Lake Palace. I've eaten at dhabas and at Tresind Studio. I've been on the bus and I've had the private boat. I know the value of all of it. When I take you to India, we do it right — because discomfort is not a prerequisite for depth.",
 
   // YATRAS
-  yatras_title:     "The Yatras.",
-  yatras_title_em:  "Sacred circuits. Five-star beds.",
+  yatras_title:     "The Yatras",
+  yatras_title_em:  "Sacred circuits, five-star beds",
   yatras_intro:     "Each yatra follows a specific sacred geography — a deity, a tradition, a living circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages.",
 
   yatras: [
     {
-      num:"01",
       region:"North India · Uttarakhand · Uttar Pradesh",
       title:"Shiva in the North",
       places:["Kedarnath","Guptakashi","Rishikesh","Varanasi"],
       desc:"From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana."
     },
     {
-      num:"02",
       region:"South India · Tamil Nadu",
       title:"Shiva in the South",
       places:["Arunachala","Chidambaram","Rameshwaram","Madurai"],
       desc:"The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world."
     },
     {
-      num:"03",
       region:"North India · Uttar Pradesh · Gujarat",
-      title:"The Footsteps of Krishna",
+      title:"Krishna's Lila",
       places:["Vrindavan","Mathura","Kurukshetra","Dwarka","Delhi"],
       desc:"The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea."
     },
     {
-      num:"04",
       region:"Nepal · Bihar · Uttar Pradesh · Himachal",
       title:"The Buddha's Trail",
       places:["Lumbini","Kushinagar","Bodh Gaya","Varanasi","Dharamshala"],
       desc:"From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse."
     },
     {
-      num:"05",
       region:"Northeast India · Bengal · Andhra · Tamil Nadu · Nepal",
       title:"Tantra Yatra",
       places:["Guwahati","Kolkata","Devipuram","Kanchipuram","Kathmandu"],
@@ -779,8 +787,8 @@ const SITE = {
   yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
 
   // BOUGIE PROPERTIES
-  bougie_title:    "The Properties.",
-  bougie_title_em: "Where you rest matters.",
+  bougie_title:    "The Properties",
+  bougie_title_em: "Where you rest matters",
   bougie_intro:    "These are not just hotels. They are heritage, history, and extraordinary hospitality — each one an experience in itself. Every property on this list has been chosen personally.",
 
   properties: [
@@ -817,8 +825,8 @@ const SITE = {
   ],
 
   // EXPERIENCES
-  experiences_title:    "The Experiences.",
-  experiences_title_em: "What you do between temples.",
+  experiences_title:    "The Experiences",
+  experiences_title_em: "What you do between temples",
   experiences_intro:    "The moments that don't appear in guidebooks. Curated, personal, and in most cases only possible because of relationships built over a decade of travel.",
 
   experiences: [
@@ -872,7 +880,7 @@ const SITE = {
     </div>
     <div class="nav-brand">
       <div class="nav-brand-line1">BHAKTI AND BOUGIE</div>
-      <div class="nav-brand-line2">Travel, Ltd. &nbsp;·&nbsp; India Only</div>
+      <div class="nav-brand-line2">Travel Company, Ltd.</div>
     </div>
   </div>
   <div class="nav-links">
@@ -892,7 +900,7 @@ const SITE = {
     <div class="hero-sanskrit">अतिथि देवो भव</div>
     <div class="hero-sanskrit-trans">The guest is God</div>
     <h1 class="hero-title">BHAKTI AND BOUGIE</h1>
-    <div class="hero-subtitle">TRAVEL &nbsp;&nbsp; LTD.</div>
+    <div class="hero-subtitle">TRAVEL COMPANY &nbsp; LTD.</div>
     <p class="hero-tagline">
       <em id="hero-tagline-1"></em> <span id="hero-tagline-2"></span>
     </p>
@@ -982,7 +990,7 @@ const SITE = {
   <div class="footer-left" id="footer-left"></div>
   <div class="footer-center">
     <div class="footer-brand">BHAKTI AND BOUGIE</div>
-    <div class="footer-ltd">Travel, Ltd. · India Only</div>
+    <div class="footer-ltd">Travel Company, Ltd. · India Only</div>
   </div>
   <div class="footer-right" id="footer-right"></div>
 </footer>
@@ -1012,16 +1020,26 @@ function renderSite(){
   // Yatras
   document.getElementById('yatras-title').innerHTML = SITE.yatras_title + '<br><em>' + SITE.yatras_title_em + '</em>';
   document.getElementById('yatras-intro').textContent = SITE.yatras_intro;
-  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map(y => `
+  const yatraImages = [
+    'yatra-shiva-north.jpg',
+    'yatra-shiva-south.jpg',
+    'yatra-krishna.jpg',
+    'yatra-buddha.jpg',
+    'yatra-tantra.jpg',
+  ];
+  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map((y,i) => `
     <div class="yatra-card">
-      <div class="yatra-num">${y.num}</div>
-      <div class="yatra-region">${y.region}</div>
-      <div class="yatra-title">${y.title}</div>
-      <div class="yatra-places">${y.places.map(p=>`<span class="yatra-place">${p}</span>`).join('')}</div>
-      <div class="yatra-desc">${y.desc}</div>
+      <img class="yatra-img" src="${yatraImages[i]}" alt="${y.title}" loading="lazy"/>
+      <div class="yatra-content">
+        <div class="yatra-region">${y.region}</div>
+        <div class="yatra-title">${y.title}</div>
+        <div class="yatra-places">${y.places.map(p=>`<span class="yatra-place">${p}</span>`).join('')}</div>
+        <div class="yatra-desc">${y.desc}</div>
+      </div>
     </div>`).join('') + `
     <div class="yatra-card custom">
       <div>
+        <img src="yatra-custom.jpg" alt="Custom Yatra" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:16px;opacity:0.7;"/>
         <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:10px;">Your Yatra</div>
         <div style="font-size:13px;color:var(--t2);line-height:1.7;">${SITE.yatras_custom}</div>
       </div>
