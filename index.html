@@ -76,9 +76,9 @@ nav.scrolled{
 .eye{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #0a0a0a;z-index:2;}
 .eye::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #0a0a0a;}
 
-.nav-brand{display:flex;flex-direction:column;}
+.nav-brand{display:flex;flex-direction:column;gap:2px;}
 .nav-brand-line1{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--cream);letter-spacing:5px;text-transform:uppercase;}
-.nav-brand-line2{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:300;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-top:2px;}
+.nav-brand-line2{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:300;color:var(--gold);letter-spacing:4px;text-transform:uppercase;text-align:right;}
 
 .nav-links{display:flex;align-items:center;gap:32px;}
 .nav-links a{font-size:12px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:color 0.2s;}
@@ -250,7 +250,7 @@ nav.scrolled{
 }
 
 /* ── SECTIONS ── */
-section{padding:100px 48px;}
+section{padding:72px 48px;}
 
 .section-inner{max-width:1100px;margin:0 auto;}
 
@@ -729,13 +729,13 @@ footer{
 const SITE = {
   // HERO
   hero_eyebrow:       "India Only",
-  hero_cta:           "Currently Accepting Applications for 2027",
+  hero_cta:           "Accepting Applications for 2027",
   hero_tagline_1:     "Auspicious sadhana",
   hero_tagline_2:     "Uncompromising luxury",
   hero_bottom:        "India — and only India — since always",
 
   // PHILOSOPHY
-  philosophy_quote:   "In India, always meditate with your eyes open — you don't want to miss anything.",
+  philosophy_quote:   "Always meditate with your eyes open when you're in India. You don't want to miss anything!",
   philosophy_title_1: "Bhakti",
   philosophy_title_2: "and Bougie",
   philosophy_title_3: "Always both",
@@ -796,39 +796,15 @@ const SITE = {
   // BOUGIE PROPERTIES
   bougie_title:    "Uncompromising Luxury",
   bougie_title_em: "Unparalleled Indian hospitality",
-  bougie_intro:    "These are not just hotels. They are heritage, history, and extraordinary hospitality — each one an experience in itself. Every property on this list has been chosen personally.",
+  bougie_intro:    "Experience hospitality as a spiritual practice at our hand-curated collection of the finest properties in India.",
 
   properties: [
-    {
-      name:"Taj Lake Palace",
-      location:"Udaipur, Rajasthan",
-      note:"Private boat arrival. A palace floating on Lake Pichola. The most romantic hotel in India.",
-    },
-    {
-      name:"The Imperial",
-      location:"New Delhi",
-      note:"1931 Art Deco masterpiece. The finest address in Delhi, steps from Connaught Place. Where India's history breathes.",
-    },
-    {
-      name:"Brijrama Palace",
-      location:"Varanasi, Uttar Pradesh",
-      note:"A 200-year-old palace directly on the Ganges ghats. Watch the morning aarti from your window.",
-    },
-    {
-      name:"The Leela Kovalam",
-      location:"Kovalam, Kerala",
-      note:"Clifftop heritage property above the Arabian Sea. Home to what many consider Kerala's finest Ayurvedic spa.",
-    },
-    {
-      name:"Oberoi Amarvilas",
-      location:"Agra, Uttar Pradesh",
-      note:"Every room with a Taj Mahal view. The most intentionally positioned hotel in the world.",
-    },
-    {
-      name:"Taj Rishikesh Resort & Spa",
-      location:"Rishikesh, Uttarakhand",
-      note:"Nestled in the Himalayan foothills on the banks of the Ganga. The anchor for our Shiva in the North yatra.",
-    },
+    {name:"Taj Lake Palace", location:"Udaipur, Rajasthan", note:"Private boat arrival. A palace floating on Lake Pichola. The most romantic hotel in India.", url:"https://www.tajhotels.com/en-in/taj/taj-lake-palace-udaipur/"},
+    {name:"The Imperial", location:"New Delhi", note:"1931 Art Deco masterpiece. The finest address in Delhi, steps from Connaught Place. Where India's history breathes.", url:"https://www.theimperialindia.com"},
+    {name:"Brijrama Palace", location:"Varanasi, Uttar Pradesh", note:"A 200-year-old palace directly on the Ganges ghats. Watch the morning aarti from your window.", url:"https://www.brijrama.com"},
+    {name:"The Leela Kovalam", location:"Kovalam, Kerala", note:"Clifftop heritage property above the Arabian Sea. Home to what many consider Kerala's finest Ayurvedic spa.", url:"https://www.theleela.com/the-leela-kovalam"},
+    {name:"Oberoi Amarvilas", location:"Agra, Uttar Pradesh", note:"Every room with a Taj Mahal view. The most intentionally positioned hotel in the world.", url:"https://www.oberoihotels.com/hotels-in-agra-amarvilas-resort"},
+    {name:"Taj Rishikesh Resort & Spa", location:"Rishikesh, Uttarakhand", note:"Nestled in the Himalayan foothills on the banks of the Ganga. The anchor for our Shiva in the North yatra.", url:"https://www.tajhotels.com/en-in/taj/taj-rishikesh-resort-and-spa-rishikesh/"},
   ],
 
   // EXPERIENCES
@@ -907,9 +883,9 @@ const SITE = {
     <div class="hero-sanskrit">अतिथि देवो भव</div>
     <div class="hero-sanskrit-trans">The guest is God</div>
     <h1 class="hero-title">BHAKTI AND BOUGIE</h1>
-    <div class="hero-subtitle">TRAVEL COMPANY · LTD.</div>
+    <div class="hero-subtitle">TRAVEL COMPANY LTD.</div>
     <p class="hero-tagline">
-      <em id="hero-tagline-1"></em> <span style="color:var(--t3);">·</span> <span id="hero-tagline-2"></span>
+      <em id="hero-tagline-1"></em> <span style="color:var(--gold);opacity:0.7;font-size:1.2em;"> · </span> <span id="hero-tagline-2"></span>
     </p>
     <a href="apply.html" class="hero-cta">
       <span id="hero-cta"></span>
@@ -1051,16 +1027,17 @@ function renderSite(){
     <div style="margin-top:1px;">
       <div style="padding:20px 0 12px;border-bottom:0.5px solid rgba(200,134,10,0.2);margin-bottom:1px;">
         <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">The Bougie</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold);">${SITE.bougie_title}</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);font-style:italic;margin-top:4px;">${SITE.bougie_title_em}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,60px);font-weight:300;line-height:1.1;color:var(--gold);">${SITE.bougie_title}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2vw,26px);color:var(--cream);font-style:italic;margin-top:8px;">${SITE.bougie_title_em}</div>
+        <div style="font-size:16px;color:var(--t2);line-height:1.8;margin-top:16px;max-width:680px;">${SITE.bougie_intro}</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,134,10,0.15);border:0.5px solid rgba(200,134,10,0.15);">
         ${SITE.properties.map(p => `
-          <div style="background:var(--navy3);padding:18px 22px;transition:background 0.2s;" onmouseover="this.style.background='var(--navy2)'" onmouseout="this.style.background='var(--navy3)'">
+          <a href="${p.url}" target="_blank" style="display:block;background:var(--navy3);padding:18px 22px;transition:background 0.2s;text-decoration:none;cursor:pointer;" onmouseover="this.style.background='var(--navy2)'" onmouseout="this.style.background='var(--navy3)'">
             <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">${p.location}</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">${p.name}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">${p.name} <span style="font-size:11px;color:var(--t3);letter-spacing:1px;">↗</span></div>
             <div style="font-size:12px;color:var(--t2);font-style:italic;line-height:1.5;">${p.note}</div>
-          </div>`).join('')}
+          </a>`).join('')}
       </div>
     </div>`;
 
