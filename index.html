@@ -753,37 +753,42 @@ const SITE = {
       region:"North India · Uttarakhand · Uttar Pradesh",
       title:"Shiva in the North",
       places:["Kedarnath","Guptakashi","Rishikesh","Varanasi"],
-      desc:"From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana."
+      desc:"From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana.",
+      custom: false
     },
     {
       region:"South India · Tamil Nadu",
       title:"Shiva in the South",
       places:["Arunachala","Chidambaram","Rameshwaram","Madurai"],
-      desc:"The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world."
+      desc:"The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world.",
+      custom: false
     },
     {
       region:"North India · Uttar Pradesh · Gujarat",
       title:"Krishna's Lila",
       places:["Vrindavan","Mathura","Kurukshetra","Dwarka","Delhi"],
-      desc:"The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea."
+      desc:"The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea.",
+      custom: false
     },
     {
       region:"Nepal · Bihar · Uttar Pradesh · Himachal",
       title:"The Buddha's Trail",
       places:["Lumbini","Kushinagar","Bodh Gaya","Varanasi","Dharamshala"],
-      desc:"From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse."
-    },
-    {
-      region:"Northeast India · Bengal · Andhra · Tamil Nadu · Nepal",
-      title:"Tantra Yatra",
-      places:["Guwahati","Kolkata","Devipuram","Kanchipuram","Kathmandu"],
-      desc:"For serious practitioners only. The great Shakta circuit — Kamakhya, Kalighat, the Sri Yantra temples, the living Tantric traditions of Nepal. Not for beginners."
+      desc:"From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse.",
+      custom: false
     },
     {
       region:"North India · Bengal · Andhra · Tamil Nadu",
       title:"Devi Yatra",
       places:["Nainital","Rishikesh","Kolkata","Guptakashi","Kanchipuram","Devipuram","Madurai"],
-      desc:"The great Shakti circuit — from the Himalayan goddess temples to the Devi shrines of the South. The Divine Mother in all her forms, across the full length of the subcontinent."
+      desc:"The great Shakti circuit — from the Himalayan goddess temples to the Devi shrines of the South. The Divine Mother in all her forms, across the full length of the subcontinent.",
+      custom: false
+    },
+    {
+      title:"Your Yatra",
+      subtitle:"Hand-curated yatras designed exclusively for your sadhana",
+      desc:"Tell us what calls you — a deity, a festival, a lineage, a region. We build the rest.",
+      custom: true
     },
   ],
   yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
@@ -1018,39 +1023,45 @@ function renderSite(){
     {src:'yatra-shiva-south.jpg', pos:'top'},
     {src:'yatra-krishna.jpg', pos:'center'},
     {src:'yatra-buddha.jpg', pos:'center'},
-    {src:'yatra-tantra.jpg', pos:'center'},
     {src:'yatra-devi.jpg', pos:'center'},
+    {src:'yatra-custom.jpg', pos:'center'},
   ];
-  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map((y,i) => `
-    <div class="yatra-card">
-      <img class="yatra-img" src="${yatraImages[i].src}" alt="${y.title}" style="object-position:${yatraImages[i].pos};" loading="lazy"/>
-      <div class="yatra-content">
-        <div class="yatra-region">${y.region}</div>
-        <div class="yatra-title">${y.title}</div>
-        <div class="yatra-places">${y.places.join(' · ')}</div>
-        <div class="yatra-desc">${y.desc}</div>
-      </div>
-    </div>`).join('');
-
-  document.getElementById('yatra-custom-card').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1px;background:rgba(200,134,10,0.15);border:0.5px solid rgba(200,134,10,0.15);width:100%;">
-      <div style="background:var(--gold4);padding:40px 36px;display:flex;flex-direction:column;justify-content:center;">
-        <img src="yatra-custom.jpg" alt="Your Yatra" style="width:100%;height:180px;object-fit:cover;opacity:0.75;border-radius:4px;margin-bottom:20px;"/>
-        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;">Bespoke</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--cream);margin-bottom:10px;">Your Yatra</div>
-        <div style="font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:18px;">${SITE.yatras_custom}</div>
-        <a href="apply.html" style="display:inline-block;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:9px 20px;align-self:flex-start;">Tell us what calls you →</a>
-      </div>
-      <div style="background:var(--navy3);padding:0;">
-        <div style="padding:24px 28px;border-bottom:0.5px solid rgba(200,134,10,0.2);">
-          <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">The Bougie</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);">${SITE.bougie_title}</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);font-style:italic;margin-top:4px;">${SITE.bougie_title_em}</div>
+  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map((y,i) => {
+    if(y.custom) return `
+      <div class="yatra-card" style="background:var(--gold4);border:0.5px dashed rgba(200,134,10,0.35);">
+        <img class="yatra-img" src="${yatraImages[i].src}" alt="Your Yatra" style="object-position:center;opacity:0.7;" loading="lazy"/>
+        <div class="yatra-content">
+          <div class="yatra-title" style="color:var(--gold);">${y.title}</div>
+          <div style="font-size:13px;color:var(--cream2);font-style:italic;margin-bottom:10px;">${y.subtitle}</div>
+          <div class="yatra-desc">${y.desc}</div>
+          <a href="apply.html" style="display:inline-block;margin-top:14px;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:7px 16px;">Begin the conversation →</a>
         </div>
+      </div>`;
+    return `
+      <div class="yatra-card">
+        <img class="yatra-img" src="${yatraImages[i].src}" alt="${y.title}" style="object-position:${yatraImages[i].pos};" loading="lazy"/>
+        <div class="yatra-content">
+          <div class="yatra-region">${y.region}</div>
+          <div class="yatra-title">${y.title}</div>
+          <div class="yatra-places">${y.places.join(' · ')}</div>
+          <div class="yatra-desc">${y.desc}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Properties — small boxes below yatra grid
+  document.getElementById('yatra-custom-card').innerHTML = `
+    <div style="margin-top:1px;">
+      <div style="padding:20px 0 12px;border-bottom:0.5px solid rgba(200,134,10,0.2);margin-bottom:1px;">
+        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">The Bougie</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold);">${SITE.bougie_title}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);font-style:italic;margin-top:4px;">${SITE.bougie_title_em}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,134,10,0.15);border:0.5px solid rgba(200,134,10,0.15);">
         ${SITE.properties.map(p => `
-          <div style="padding:16px 28px;border-bottom:0.5px solid rgba(200,134,10,0.1);">
-            <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">${p.location}</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream);margin-bottom:3px;">${p.name}</div>
+          <div style="background:var(--navy3);padding:18px 22px;transition:background 0.2s;" onmouseover="this.style.background='var(--navy2)'" onmouseout="this.style.background='var(--navy3)'">
+            <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">${p.location}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">${p.name}</div>
             <div style="font-size:12px;color:var(--t2);font-style:italic;line-height:1.5;">${p.note}</div>
           </div>`).join('')}
       </div>
