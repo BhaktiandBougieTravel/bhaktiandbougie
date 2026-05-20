@@ -894,7 +894,7 @@ const SITE = {
   <div class="nav-links">
     <a href="#philosophy">Philosophy</a>
     <a href="#yatras">Yatras</a>
-    <a href="#bougie">Bougie</a>
+    <a href="#experiences">Experiences</a>
     <a href="#about">About</a>
     <a href="apply.html" class="nav-cta"><span>Apply</span></a>
   </div>
@@ -946,21 +946,12 @@ const SITE = {
       <p class="section-body" id="yatras-intro"></p>
     </div>
     <div class="yatra-grid reveal" id="yatra-grid"></div>
+    <!-- Your Yatra + Properties combined -->
     <div class="yatra-custom-card reveal" id="yatra-custom-card"></div>
   </div>
 </section>
 
-<!-- BOUGIE PROPERTIES -->
-<section id="bougie" style="background:var(--navy3);">
-  <div class="section-inner">
-    <div class="reveal">
-      <div class="section-label">The Bougie</div>
-      <h2 class="section-title" id="bougie-title"></h2>
-      <p class="section-body" id="bougie-intro"></p>
-    </div>
-    <div class="prop-grid reveal" id="prop-grid"></div>
-  </div>
-</section>
+<!-- BOUGIE PROPERTIES - now inside custom card, no separate section needed -->
 
 <!-- EXPERIENCES -->
 <section id="experiences" style="background:var(--navy2);">
@@ -1048,25 +1039,28 @@ function renderSite(){
     </div>`).join('');
 
   document.getElementById('yatra-custom-card').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:40px;align-items:center;">
-      <img src="yatra-custom.jpg" alt="Your Yatra" style="width:100%;height:220px;object-fit:cover;opacity:0.75;border-radius:4px;"/>
-      <div>
-        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;">Bespoke</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--cream);margin-bottom:12px;">Your Yatra</div>
-        <div style="font-size:15px;color:var(--t2);line-height:1.8;margin-bottom:20px;">${SITE.yatras_custom}</div>
-        <a href="apply.html" style="display:inline-block;font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:10px 24px;">Tell us what calls you →</a>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(200,134,10,0.15);border:0.5px solid rgba(200,134,10,0.15);">
+      <div style="background:var(--gold4);padding:40px 36px;display:flex;flex-direction:column;justify-content:center;">
+        <img src="yatra-custom.jpg" alt="Your Yatra" style="width:100%;height:180px;object-fit:cover;opacity:0.75;border-radius:4px;margin-bottom:20px;"/>
+        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;">Bespoke</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--cream);margin-bottom:10px;">Your Yatra</div>
+        <div style="font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:18px;">${SITE.yatras_custom}</div>
+        <a href="apply.html" style="display:inline-block;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:9px 20px;align-self:flex-start;">Tell us what calls you →</a>
+      </div>
+      <div style="background:var(--navy3);padding:0;">
+        <div style="padding:24px 28px;border-bottom:0.5px solid rgba(200,134,10,0.2);">
+          <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">The Bougie</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);">${SITE.bougie_title}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);font-style:italic;margin-top:4px;">${SITE.bougie_title_em}</div>
+        </div>
+        ${SITE.properties.map(p => `
+          <div style="padding:16px 28px;border-bottom:0.5px solid rgba(200,134,10,0.1);">
+            <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">${p.location}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--cream);margin-bottom:3px;">${p.name}</div>
+            <div style="font-size:12px;color:var(--t2);font-style:italic;line-height:1.5;">${p.note}</div>
+          </div>`).join('')}
       </div>
     </div>`;
-
-  // Bougie — main title gold, subtitle cream italic
-  document.getElementById('bougie-title').innerHTML = '<span style="color:var(--gold);">' + SITE.bougie_title + '</span><br><em style="color:var(--cream);font-size:0.7em;">' + SITE.bougie_title_em + '</em>';
-  document.getElementById('bougie-intro').textContent = SITE.bougie_intro;
-  document.getElementById('prop-grid').innerHTML = SITE.properties.map(p => `
-    <div class="prop-card">
-      <div class="prop-location">${p.location}</div>
-      <div class="prop-name">${p.name}</div>
-      <div class="prop-note">${p.note}</div>
-    </div>`).join('');
 
   // Experiences
   document.getElementById('exp-title').innerHTML = SITE.experiences_title + '<br><em>' + SITE.experiences_title_em + '</em>';
