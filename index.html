@@ -174,7 +174,8 @@ nav.scrolled{
   color:var(--cream2);
   letter-spacing:2px;
   font-style:italic;
-  margin-bottom:36px;
+  margin-bottom:28px;
+  margin-top:1px;
 }
 
 .hero-title{
@@ -669,7 +670,7 @@ footer{
 .yatra-places{font-size:12px;color:var(--t2);margin-bottom:12px;letter-spacing:0.5px;}
 .yatra-desc{font-size:13px;color:var(--t2);line-height:1.7;}
 
-/* ── PROPERTY CARDS ── */
+/* ── PROPERTY LIST — compact ── */
 .prop-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -680,13 +681,13 @@ footer{
 }
 .prop-card{
   background:var(--navy3);
-  padding:32px 28px;
+  padding:24px 26px;
   transition:background 0.3s;
 }
 .prop-card:hover{background:var(--navy2);}
-.prop-location{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
-.prop-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
-.prop-note{font-size:13px;color:var(--t2);line-height:1.7;font-style:italic;}
+.prop-location{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+.prop-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:8px;line-height:1.3;}
+.prop-note{font-size:13px;color:var(--t2);line-height:1.6;font-style:italic;}
 
 /* ── EXPERIENCE CARDS ── */
 .exp-grid{
@@ -734,23 +735,23 @@ footer{
 const SITE = {
   // HERO
   hero_eyebrow:       "India Only",
-  hero_cta:           "Applications for 2027",
-  hero_tagline_1:     "Auspicious sadhana.",
-  hero_tagline_2:     "Uncompromising luxury.",
+  hero_cta:           "Currently Accepting Applications for 2027",
+  hero_tagline_1:     "Auspicious sadhana",
+  hero_tagline_2:     "Uncompromising luxury",
   hero_bottom:        "India — and only India — since always",
 
   // PHILOSOPHY
   philosophy_quote:   "In India, always meditate with your eyes open — you don't want to miss anything.",
   philosophy_title_1: "Bhakti",
-  philosophy_title_2: "and Bougie.",
-  philosophy_title_3: "Always both.",
+  philosophy_title_2: "and Bougie",
+  philosophy_title_3: "Always both",
   philosophy_p1:      "India's hospitality tradition doesn't come from the hotel industry. It comes from the Upanishads. Atithi Devo Bhava — the guest is God. When you stay in a palace hotel in Rajasthan or a haveli in Varanasi, you're not taking a break from the pilgrimage. You're continuing it.",
   philosophy_p2:      "The seva of a butler and the seva of a priest spring from the same source. This is why Bhakti and Bougie are not in tension. In India, they never were.",
   philosophy_p3:      "I've slept on a charpoy and stayed at the Taj Lake Palace. I've eaten at dhabas and at Tresind Studio. I've been on the bus and I've had the private boat. I know the value of all of it. When I take you to India, we do it right — because discomfort is not a prerequisite for depth.",
 
   // YATRAS
-  yatras_title:     "The Yatras",
-  yatras_title_em:  "Sacred circuits, five-star beds",
+  yatras_title:     "Auspicious Sadhana",
+  yatras_title_em:  "Tracing India's sacred geography",
   yatras_intro:     "Each yatra follows a specific sacred geography — a deity, a tradition, a living circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages.",
 
   yatras: [
@@ -794,8 +795,8 @@ const SITE = {
   yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
 
   // BOUGIE PROPERTIES
-  bougie_title:    "The Properties",
-  bougie_title_em: "Where you rest matters",
+  bougie_title:    "Uncompromising Luxury",
+  bougie_title_em: "Unparalleled Indian hospitality",
   bougie_intro:    "These are not just hotels. They are heritage, history, and extraordinary hospitality — each one an experience in itself. Every property on this list has been chosen personally.",
 
   properties: [
@@ -833,7 +834,7 @@ const SITE = {
 
   // EXPERIENCES
   experiences_title:    "The Experiences",
-  experiences_title_em: "What you do between temples",
+  experiences_title_em: "India beyond the temples",
   experiences_intro:    "The moments that don't appear in guidebooks. Curated, personal, and in most cases only possible because of relationships built over a decade of travel.",
 
   experiences: [
@@ -907,15 +908,14 @@ const SITE = {
     <div class="hero-sanskrit">अतिथि देवो भव</div>
     <div class="hero-sanskrit-trans">The guest is God</div>
     <h1 class="hero-title">BHAKTI AND BOUGIE</h1>
-    <div class="hero-subtitle">TRAVEL COMPANY &nbsp; LTD.</div>
+    <div class="hero-subtitle">TRAVEL COMPANY · LTD.</div>
     <p class="hero-tagline">
-      <em id="hero-tagline-1"></em> <span id="hero-tagline-2"></span>
+      <em id="hero-tagline-1"></em> <span style="color:var(--t3);">·</span> <span id="hero-tagline-2"></span>
     </p>
     <a href="apply.html" class="hero-cta">
       <span id="hero-cta"></span>
       <span>→</span>
     </a>
-    <div class="hero-india" id="hero-bottom"></div>
   </div>
   <div class="hero-rule-bottom"></div>
 </section>
@@ -999,6 +999,7 @@ const SITE = {
   <div class="footer-center">
     <div class="footer-brand">BHAKTI AND BOUGIE</div>
     <div class="footer-ltd">Travel Company, Ltd. · India Only</div>
+    <div style="font-size:13px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-top:8px;font-family:'Cormorant Garamond',serif;">Powered by Fora</div>
   </div>
   <div class="footer-right" id="footer-right"></div>
 </footer>
@@ -1025,8 +1026,8 @@ function renderSite(){
   document.getElementById('phil-p2').textContent    = SITE.philosophy_p2;
   document.getElementById('phil-p3').textContent    = SITE.philosophy_p3;
 
-  // Yatras
-  document.getElementById('yatras-title').innerHTML = SITE.yatras_title + '<br><em>' + SITE.yatras_title_em + '</em>';
+  // Yatras — main title cream, subtitle gold italic
+  document.getElementById('yatras-title').innerHTML = '<span style="color:var(--cream);">' + SITE.yatras_title + '</span><br><em style="color:var(--gold);font-size:0.7em;">' + SITE.yatras_title_em + '</em>';
   document.getElementById('yatras-intro').textContent = SITE.yatras_intro;
   const yatraImages = [
     {src:'yatra-shiva-north.jpg', pos:'center'},
@@ -1058,8 +1059,8 @@ function renderSite(){
       </div>
     </div>`;
 
-  // Bougie properties
-  document.getElementById('bougie-title').innerHTML = SITE.bougie_title + '<br><em>' + SITE.bougie_title_em + '</em>';
+  // Bougie — main title gold, subtitle cream italic
+  document.getElementById('bougie-title').innerHTML = '<span style="color:var(--gold);">' + SITE.bougie_title + '</span><br><em style="color:var(--cream);font-size:0.7em;">' + SITE.bougie_title_em + '</em>';
   document.getElementById('bougie-intro').textContent = SITE.bougie_intro;
   document.getElementById('prop-grid').innerHTML = SITE.properties.map(p => `
     <div class="prop-card">
@@ -1087,8 +1088,7 @@ function renderSite(){
   // Footer
   document.getElementById('footer-left').innerHTML =
     `<a href="mailto:${SITE.footer_email}" style="color:var(--t2);text-decoration:none;">${SITE.footer_email}</a><br>
-     ${SITE.footer_note}<br>
-     <span style="color:var(--t3);font-size:11px;">${SITE.footer_powered}</span>`;
+     ${SITE.footer_note}`;
 
   document.getElementById('footer-right').innerHTML =
     `<a href="${SITE.footer_instagram}">Instagram</a><br>
