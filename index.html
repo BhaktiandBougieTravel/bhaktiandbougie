@@ -654,18 +654,19 @@ footer{
 .yatra-card:hover .yatra-img{opacity:1;}
 .yatra-content{padding:24px 26px;}
 .yatra-card:hover{background:var(--navy3);}
-.yatra-card.custom{
-  display:flex;align-items:center;justify-content:center;
+.yatra-custom-card{
+  margin-top:1px;
   background:var(--gold4);
   border:0.5px dashed rgba(200,134,10,0.3);
-  text-align:center;
-  min-height:220px;
-  padding:32px;
+  padding:40px 48px;
+  display:grid;
+  grid-template-columns:1fr 2fr;
+  gap:40px;
+  align-items:center;
 }
 .yatra-region{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
 .yatra-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
-.yatra-places{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.yatra-place{font-size:11px;color:var(--t2);background:rgba(200,134,10,0.07);border:0.5px solid rgba(200,134,10,0.2);border-radius:2px;padding:3px 8px;letter-spacing:0.5px;}
+.yatra-places{font-size:12px;color:var(--t2);margin-bottom:12px;letter-spacing:0.5px;}
 .yatra-desc{font-size:13px;color:var(--t2);line-height:1.7;}
 
 /* ── PROPERTY CARDS ── */
@@ -782,6 +783,12 @@ const SITE = {
       title:"Tantra Yatra",
       places:["Guwahati","Kolkata","Devipuram","Kanchipuram","Kathmandu"],
       desc:"For serious practitioners only. The great Shakta circuit — Kamakhya, Kalighat, the Sri Yantra temples, the living Tantric traditions of Nepal. Not for beginners."
+    },
+    {
+      region:"North India · Bengal · Andhra · Tamil Nadu",
+      title:"Devi Yatra",
+      places:["Nainital","Rishikesh","Kolkata","Guptakashi","Kanchipuram","Devipuram","Madurai"],
+      desc:"The great Shakti circuit — from the Himalayan goddess temples to the Devi shrines of the South. The Divine Mother in all her forms, across the full length of the subcontinent."
     },
   ],
   yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
@@ -939,6 +946,7 @@ const SITE = {
       <p class="section-body" id="yatras-intro"></p>
     </div>
     <div class="yatra-grid reveal" id="yatra-grid"></div>
+    <div class="yatra-custom-card reveal" id="yatra-custom-card"></div>
   </div>
 </section>
 
@@ -1021,27 +1029,32 @@ function renderSite(){
   document.getElementById('yatras-title').innerHTML = SITE.yatras_title + '<br><em>' + SITE.yatras_title_em + '</em>';
   document.getElementById('yatras-intro').textContent = SITE.yatras_intro;
   const yatraImages = [
-    'yatra-shiva-north.jpg',
-    'yatra-shiva-south.jpg',
-    'yatra-krishna.jpg',
-    'yatra-buddha.jpg',
-    'yatra-tantra.jpg',
+    {src:'yatra-shiva-north.jpg', pos:'center'},
+    {src:'yatra-shiva-south.jpg', pos:'top'},
+    {src:'yatra-krishna.jpg', pos:'center'},
+    {src:'yatra-buddha.jpg', pos:'center'},
+    {src:'yatra-tantra.jpg', pos:'center'},
+    {src:'yatra-devi.jpg', pos:'center'},
   ];
   document.getElementById('yatra-grid').innerHTML = SITE.yatras.map((y,i) => `
     <div class="yatra-card">
-      <img class="yatra-img" src="${yatraImages[i]}" alt="${y.title}" loading="lazy"/>
+      <img class="yatra-img" src="${yatraImages[i].src}" alt="${y.title}" style="object-position:${yatraImages[i].pos};" loading="lazy"/>
       <div class="yatra-content">
         <div class="yatra-region">${y.region}</div>
         <div class="yatra-title">${y.title}</div>
-        <div class="yatra-places">${y.places.map(p=>`<span class="yatra-place">${p}</span>`).join('')}</div>
+        <div class="yatra-places">${y.places.join(' · ')}</div>
         <div class="yatra-desc">${y.desc}</div>
       </div>
-    </div>`).join('') + `
-    <div class="yatra-card custom">
+    </div>`).join('');
+
+  document.getElementById('yatra-custom-card').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:40px;align-items:center;">
+      <img src="yatra-custom.jpg" alt="Your Yatra" style="width:100%;height:220px;object-fit:cover;opacity:0.75;border-radius:4px;"/>
       <div>
-        <img src="yatra-custom.jpg" alt="Custom Yatra" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:16px;opacity:0.7;"/>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:10px;">Your Yatra</div>
-        <div style="font-size:13px;color:var(--t2);line-height:1.7;">${SITE.yatras_custom}</div>
+        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;">Bespoke</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--cream);margin-bottom:12px;">Your Yatra</div>
+        <div style="font-size:15px;color:var(--t2);line-height:1.8;margin-bottom:20px;">${SITE.yatras_custom}</div>
+        <a href="apply.html" style="display:inline-block;font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:10px 24px;">Tell us what calls you →</a>
       </div>
     </div>`;
 
