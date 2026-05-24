@@ -1,1087 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Bhakti & Bougie Travel, Ltd. — India-only luxury spiritual travel. Auspicious sadhana. Uncompromising luxury."/>
-<title>Bhakti & Bougie Travel, Ltd. — India Only</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-
-:root{
-  --navy:#0D1B2A;
-  --navy2:#0a1520;
-  --navy3:#111e2d;
-  --gold:#C8860A;
-  --gold2:#E8A020;
-  --gold3:rgba(200,134,10,0.12);
-  --gold4:rgba(200,134,10,0.06);
-  --cream:#F2E6CC;
-  --cream2:#E8D9B8;
-  --cream3:#c8b480;
-  --crimson:#8B1A1A;
-  --ash:#9a9490;
-  --t2:#a09070;
-  --t3:#6a5a40;
-}
-
-html{scroll-behavior:smooth;}
-
-body{
-  background:var(--navy2);
-  color:var(--cream);
-  font-family:'Jost',sans-serif;
-  font-weight:300;
-  line-height:1.7;
-  overflow-x:hidden;
-}
-
-/* ── NOISE TEXTURE OVERLAY ── */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:1000;
-  opacity:0.4;
-}
-
-/* ── HEADER ── */
-nav{
-  position:fixed;
-  top:0;left:0;right:0;
-  z-index:100;
-  padding:20px 48px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:linear-gradient(to bottom, rgba(10,21,32,0.95) 0%, rgba(10,21,32,0) 100%);
-  transition:background 0.3s;
-}
-
-nav.scrolled{
-  background:rgba(10,21,32,0.97);
-  border-bottom:0.5px solid rgba(200,134,10,0.2);
-  backdrop-filter:blur(12px);
-}
-
-.nav-logo{display:flex;align-items:center;gap:14px;}
-
-.tripundra{display:flex;flex-direction:column;gap:3px;}
-.stripe{width:36px;height:7px;background:var(--ash);border-radius:4px;border:1px solid var(--gold);position:relative;}
-.eye{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #0a0a0a;z-index:2;}
-.eye::after{content:'';position:absolute;width:7px;height:7px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #0a0a0a;}
-
-.nav-brand{display:flex;flex-direction:column;gap:2px;}
-.nav-brand-line1{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--cream);letter-spacing:5px;text-transform:uppercase;}
-.nav-brand-line2{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:300;color:var(--gold);letter-spacing:4px;text-transform:uppercase;text-align:right;}
-
-.nav-links{display:flex;align-items:center;gap:32px;}
-.nav-links a{font-size:12px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:color 0.2s;}
-.nav-links a:hover{color:var(--cream);}
-.nav-cta{
-  font-size:12px;
-  color:var(--gold);
-  letter-spacing:2px;
-  text-transform:uppercase;
-  text-decoration:none;
-  border:0.5px solid rgba(200,134,10,0.5);
-  border-radius:2px;
-  padding:8px 20px;
-  transition:all 0.2s;
-}
-.nav-cta:hover{background:var(--gold3);border-color:var(--gold);color:var(--cream);}
-
-/* ── HERO ── */
-.hero{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  overflow:hidden;
-  padding:120px 48px 80px;
-}
-
-/* Radial glow */
-.hero::after{
-  content:'';
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:800px;height:800px;
-  background:radial-gradient(ellipse, rgba(200,134,10,0.06) 0%, transparent 70%);
-  pointer-events:none;
-}
-
-/* Decorative horizontal rules */
-.hero-rule-top,.hero-rule-bottom{
-  position:absolute;
-  left:48px;right:48px;
-  height:0.5px;
-  background:linear-gradient(to right, transparent, rgba(200,134,10,0.4), transparent);
-}
-.hero-rule-top{top:100px;}
-.hero-rule-bottom{bottom:80px;}
-
-.hero-inner{
-  text-align:center;
-  max-width:900px;
-  position:relative;
-  z-index:2;
-  animation:fadeUp 1.2s ease both;
-}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(30px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-.hero-eyebrow{
-  font-size:11px;
-  color:var(--gold);
-  letter-spacing:6px;
-  text-transform:uppercase;
-  margin-bottom:32px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:16px;
-}
-.hero-eyebrow::before,.hero-eyebrow::after{
-  content:'';
-  width:40px;height:0.5px;
-  background:var(--gold);
-  opacity:0.6;
-}
-
-.hero-sanskrit{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(20px,3vw,28px);
-  font-weight:300;
-  color:var(--gold);
-  letter-spacing:4px;
-  margin-bottom:4px;
-  opacity:0.9;
-}
-
-.hero-sanskrit-trans{
-  font-size:13px;
-  color:var(--cream2);
-  letter-spacing:2px;
-  font-style:italic;
-  margin-bottom:28px;
-  margin-top:1px;
-}
-
-.hero-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(36px,6vw,80px);
-  font-weight:300;
-  line-height:1;
-  color:var(--cream);
-  letter-spacing:clamp(6px,1.5vw,16px);
-  margin-bottom:12px;
-  text-transform:uppercase;
-}
-
-.hero-subtitle{
-  font-size:clamp(13px,1.5vw,16px);
-  color:var(--gold);
-  letter-spacing:8px;
-  text-transform:uppercase;
-  font-family:'Cormorant Garamond',serif;
-  font-weight:300;
-  margin:8px 0 32px;
-}
-
-.hero-tagline{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(18px,2.5vw,26px);
-  font-style:italic;
-  font-weight:300;
-  color:var(--cream2);
-  margin-bottom:56px;
-  line-height:1.6;
-}
-
-.hero-tagline span{color:var(--gold);}
-
-.hero-cta{
-  display:inline-flex;
-  align-items:center;
-  gap:12px;
-  font-size:12px;
-  color:var(--gold);
-  letter-spacing:3px;
-  text-transform:uppercase;
-  text-decoration:none;
-  border:0.5px solid rgba(200,134,10,0.5);
-  border-radius:2px;
-  padding:16px 36px;
-  transition:all 0.3s;
-  position:relative;
-  overflow:hidden;
-}
-
-.hero-cta::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:var(--gold3);
-  transform:translateX(-100%);
-  transition:transform 0.3s;
-}
-
-.hero-cta:hover::before{transform:translateX(0);}
-.hero-cta:hover{border-color:var(--gold);}
-.hero-cta span{position:relative;z-index:1;}
-
-.hero-india{
-  margin-top:64px;
-  font-size:11px;
-  color:var(--t3);
-  letter-spacing:4px;
-  text-transform:uppercase;
-}
-
-/* ── SECTIONS ── */
-section{padding:72px 48px;}
-
-.section-inner{max-width:1100px;margin:0 auto;}
-
-.section-label{
-  font-size:10px;
-  color:var(--gold);
-  letter-spacing:5px;
-  text-transform:uppercase;
-  margin-bottom:16px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.section-label::after{
-  content:'';
-  flex:1;
-  max-width:60px;
-  height:0.5px;
-  background:rgba(200,134,10,0.5);
-}
-
-.section-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(36px,5vw,60px);
-  font-weight:300;
-  line-height:1.1;
-  color:var(--cream);
-  margin-bottom:24px;
-}
-
-.section-title em{font-style:italic;color:var(--gold);}
-
-.section-body{
-  font-size:16px;
-  color:var(--t2);
-  line-height:1.8;
-  max-width:680px;
-}
-
-.gold-rule{
-  width:60px;height:0.5px;
-  background:var(--gold);
-  margin:32px 0;
-  opacity:0.6;
-}
-
-/* ── PHILOSOPHY ── */
-.philosophy{
-  background:var(--navy3);
-  border-top:0.5px solid rgba(200,134,10,0.15);
-  border-bottom:0.5px solid rgba(200,134,10,0.15);
-}
-
-.philosophy-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:80px;
-  align-items:center;
-}
-
-.philosophy-quote{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(24px,3vw,38px);
-  font-style:italic;
-  font-weight:300;
-  color:var(--cream);
-  line-height:1.4;
-  position:relative;
-  padding-left:24px;
-  border-left:1px solid rgba(200,134,10,0.4);
-}
-
-.philosophy-text p{
-  font-size:15px;
-  color:var(--t2);
-  line-height:1.8;
-  margin-bottom:20px;
-}
-
-.philosophy-text p:last-child{margin-bottom:0;}
-
-.philosophy-text strong{color:var(--cream2);font-weight:400;}
-
-/* ── TRIPS ── */
-.trips-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:1px;
-  background:rgba(200,134,10,0.15);
-  border:0.5px solid rgba(200,134,10,0.15);
-  margin-top:56px;
-}
-
-.trip-card{
-  background:var(--navy2);
-  padding:40px 32px;
-  position:relative;
-  overflow:hidden;
-  transition:background 0.3s;
-}
-
-.trip-card::before{
-  content:'';
-  position:absolute;
-  bottom:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(to right, transparent, rgba(200,134,10,0.3), transparent);
-}
-
-.trip-card:hover{background:var(--navy3);}
-
-.trip-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:48px;
-  font-weight:300;
-  color:rgba(200,134,10,0.15);
-  line-height:1;
-  margin-bottom:16px;
-}
-
-.trip-region{
-  font-size:10px;
-  color:var(--gold);
-  letter-spacing:3px;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.trip-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:22px;
-  font-weight:400;
-  color:var(--cream);
-  margin-bottom:12px;
-  line-height:1.3;
-}
-
-.trip-desc{
-  font-size:13px;
-  color:var(--t2);
-  line-height:1.7;
-}
-
-/* ── CREDENTIALS ── */
-.credentials{
-  background:var(--navy3);
-  border-top:0.5px solid rgba(200,134,10,0.15);
-}
-
-.credentials-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:80px;
-  align-items:start;
-}
-
-.cred-list{
-  list-style:none;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  margin-top:32px;
-}
-
-.cred-list li{
-  display:flex;
-  align-items:baseline;
-  gap:14px;
-  font-size:14px;
-  color:var(--t2);
-  line-height:1.6;
-}
-
-.cred-list li::before{
-  content:'—';
-  color:var(--gold);
-  flex-shrink:0;
-  opacity:0.7;
-}
-
-.cred-list strong{color:var(--cream2);font-weight:400;}
-
-/* ── APPLICATION ── */
-.application{
-  text-align:center;
-  position:relative;
-  overflow:hidden;
-}
-
-.application::before{
-  content:'';
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:600px;height:600px;
-  background:radial-gradient(ellipse, rgba(200,134,10,0.05) 0%, transparent 70%);
-  pointer-events:none;
-}
-
-.application .section-label{justify-content:center;}
-.application .section-label::after{display:none;}
-.application .section-label::before{
-  content:'';
-  flex:1;
-  max-width:60px;
-  height:0.5px;
-  background:rgba(200,134,10,0.5);
-}
-
-.application .section-title{text-align:center;margin:0 auto 16px;}
-.application .section-body{margin:0 auto 48px;text-align:center;}
-
-.app-form{
-  max-width:640px;
-  margin:0 auto;
-  text-align:left;
-}
-
-.form-group{
-  margin-bottom:24px;
-}
-
-.form-group label{
-  display:block;
-  font-size:11px;
-  color:var(--gold);
-  letter-spacing:2px;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea{
-  width:100%;
-  background:rgba(255,255,255,0.03);
-  border:0.5px solid rgba(200,134,10,0.3);
-  border-radius:2px;
-  padding:14px 16px;
-  font-family:'Jost',sans-serif;
-  font-size:14px;
-  font-weight:300;
-  color:var(--cream);
-  outline:none;
-  transition:border-color 0.2s;
-  -webkit-appearance:none;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus{
-  border-color:rgba(200,134,10,0.7);
-  background:rgba(200,134,10,0.04);
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder{color:var(--t3);}
-.form-group select option{background:var(--navy2);color:var(--cream);}
-
-.form-group textarea{resize:none;height:120px;line-height:1.6;}
-
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-
-.form-submit{
-  width:100%;
-  background:transparent;
-  border:0.5px solid rgba(200,134,10,0.6);
-  border-radius:2px;
-  padding:18px;
-  font-family:'Jost',sans-serif;
-  font-size:12px;
-  font-weight:400;
-  color:var(--gold);
-  letter-spacing:3px;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:all 0.3s;
-  margin-top:8px;
-}
-
-.form-submit:hover{
-  background:var(--gold3);
-  border-color:var(--gold);
-  color:var(--cream);
-}
-
-.form-note{
-  font-size:12px;
-  color:var(--t3);
-  text-align:center;
-  margin-top:16px;
-  font-style:italic;
-}
-
-.submitted-msg{
-  display:none;
-  text-align:center;
-  padding:48px;
-  background:var(--gold4);
-  border:0.5px solid rgba(200,134,10,0.3);
-  border-radius:2px;
-}
-
-.submitted-msg h3{
-  font-family:'Cormorant Garamond',serif;
-  font-size:28px;
-  font-weight:300;
-  color:var(--cream);
-  margin-bottom:12px;
-}
-
-.submitted-msg p{font-size:14px;color:var(--t2);}
-
-/* ── FOOTER ── */
-footer{
-  background:var(--navy2);
-  border-top:0.5px solid rgba(200,134,10,0.2);
-  padding:48px;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  gap:32px;
-}
-
-.footer-left{
-  font-size:12px;
-  color:var(--t3);
-  line-height:1.8;
-}
-
-.footer-center{
-  text-align:center;
-}
-
-.footer-brand{
-  font-family:'Cormorant Garamond',serif;
-  font-size:14px;
-  color:var(--cream);
-  letter-spacing:3px;
-  margin-bottom:4px;
-}
-
-.footer-ltd{
-  font-size:11px;
-  color:var(--gold);
-  letter-spacing:3px;
-}
-
-.footer-right{
-  text-align:right;
-  font-size:12px;
-  color:var(--t3);
-  line-height:1.8;
-}
-
-.footer-right a{
-  color:var(--t2);
-  text-decoration:none;
-  transition:color 0.2s;
-}
-.footer-right a:hover{color:var(--gold);}
-
-/* ── ANIMATIONS ── */
-.reveal{
-  opacity:0;
-  transform:translateY(24px);
-  transition:opacity 0.8s ease, transform 0.8s ease;
-}
-.reveal.visible{opacity:1;transform:translateY(0);}
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:var(--navy2);}
-::-webkit-scrollbar-thumb{background:rgba(200,134,10,0.3);border-radius:2px;}
-
-/* ── YATRA CARDS ── */
-.yatra-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:1px;
-  background:rgba(200,134,10,0.15);
-  border:0.5px solid rgba(200,134,10,0.15);
-  margin-top:48px;
-}
-.yatra-card{
-  background:var(--navy2);
-  padding:0;
-  position:relative;
-  transition:background 0.3s;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-.yatra-img{
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  display:block;
-  opacity:0.85;
-  transition:opacity 0.3s;
-}
-.yatra-card:hover .yatra-img{opacity:1;}
-.yatra-content{padding:24px 26px;}
-.yatra-card:hover{background:var(--navy3);}
-.yatra-custom-card{
-  margin-top:1px;
-  width:100%;
-}
-.yatra-region{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
-.yatra-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--cream);margin-bottom:12px;line-height:1.3;}
-.yatra-places{font-size:12px;color:var(--t2);margin-bottom:12px;letter-spacing:0.5px;}
-.yatra-desc{font-size:13px;color:var(--t2);line-height:1.7;}
-
-/* ── PROPERTY LIST — compact ── */
-.prop-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:1px;
-  background:rgba(200,134,10,0.15);
-  border:0.5px solid rgba(200,134,10,0.15);
-  margin-top:48px;
-}
-.prop-card{
-  background:var(--navy3);
-  padding:24px 26px;
-  transition:background 0.3s;
-}
-.prop-card:hover{background:var(--navy2);}
-.prop-location{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
-.prop-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:8px;line-height:1.3;}
-.prop-note{font-size:13px;color:var(--t2);line-height:1.6;font-style:italic;}
-
-/* ── EXPERIENCE CARDS ── */
-.exp-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:1px;
-  background:rgba(200,134,10,0.15);
-  border:0.5px solid rgba(200,134,10,0.15);
-  margin-top:48px;
-}
-.exp-card{
-  background:var(--navy2);
-  padding:28px 24px;
-  transition:background 0.3s;
-}
-.exp-card:hover{background:var(--navy3);}
-.exp-emoji{font-size:28px;margin-bottom:14px;display:block;}
-.exp-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:10px;line-height:1.3;}
-.exp-desc{font-size:13px;color:var(--t2);line-height:1.7;}
-
-/* ── MOBILE ── */
-@media(max-width:768px){
-  nav{padding:16px 24px;}
-  .nav-links{display:none;}
-  section{padding:72px 24px;}
-  .hero{padding:100px 24px 60px;}
-  .philosophy-grid,.credentials-grid{grid-template-columns:1fr;gap:48px;}
-  .yatra-grid,.prop-grid{grid-template-columns:1fr;}
-  .exp-grid{grid-template-columns:1fr 1fr;}
-  footer{grid-template-columns:1fr;text-align:center;}
-  .footer-right{text-align:center;}
-  .form-grid{grid-template-columns:1fr;}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bhakti & Bougie Travel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0a1628;
+      --navy-mid: #0f2040;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-pale: #f5e6c0;
+      --cream: #f8f3e8;
+      --white: #ffffff;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Subtle animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(201,168,76,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(201,168,76,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, #0f2040 0%, #0a1628 100%);
+      z-index: 0;
+    }
+
+    /* Grain texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* Top ornament */
+    .ornament {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.2s;
+    }
+
+    .ornament::before,
+    .ornament::after {
+      content: '◆';
+      position: absolute;
+      top: -5px;
+      font-size: 8px;
+      color: var(--gold);
+    }
+    .ornament::before { left: 50%; transform: translateX(-50%); }
+
+    /* Logo mark — tripundra lines */
+    .mark {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.4s;
+    }
+
+    .mark-line {
+      height: 2.5px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+      border-radius: 2px;
+    }
+    .mark-line:nth-child(1) { width: 48px; align-self: center; }
+    .mark-line:nth-child(2) { width: 36px; align-self: center; }
+    .mark-line:nth-child(3) { width: 24px; align-self: center; }
+
+    /* Brand name */
+    .brand {
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.6s;
+      margin-bottom: 0.4rem;
+    }
+
+    .brand-main {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+    }
+
+    .brand-amp {
+      color: var(--gold);
+      font-weight: 400;
+      margin: 0 0.15em;
+    }
+
+    .brand-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      font-weight: 300;
+      letter-spacing: 0.45em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      opacity: 0.8;
+    }
+
+    /* Divider */
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 2.2rem auto;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.8s;
+    }
+
+    /* Main message */
+    .headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.3;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1s;
+    }
+
+    .subtext {
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+      font-weight: 200;
+      letter-spacing: 0.2em;
+      color: rgba(248,243,232,0.55);
+      text-transform: uppercase;
+      line-height: 1.8;
+      max-width: 420px;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.2s;
+    }
+
+    /* Contact line */
+    .contact {
+      margin-top: 2.8rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.5s;
+    }
+
+    .contact-label {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .contact a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--gold-light);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.3s ease;
+    }
+
+    .contact a:hover {
+      color: var(--white);
+    }
+
+    /* Bottom ornament */
+    .bottom-ornament {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.8s;
+    }
+
+    .bottom-ornament span {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.35);
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+    }
+
+    .bottom-ornament::before,
+    .bottom-ornament::after {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3));
+    }
+    .bottom-ornament::after {
+      background: linear-gradient(90deg, rgba(201,168,76,0.3), transparent);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Subtle gold pulse on the mark */
+    @keyframes glow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .mark { animation: fadeUp 1s ease forwards 0.4s, glow 4s ease-in-out infinite 2s; }
+
+  </style>
 </head>
 <body>
+  <div class="container">
 
-<!-- ============================================================
-  EDITABLE SITE CONTENT — Michael, edit anything in here freely!
-  Open this file in TextEdit, change the text between the quotes,
-  save, re-upload to GitHub. No coding needed. Don't touch anything
-  outside this block unless you know what you're doing.
-  ============================================================ -->
-<script>
-const SITE = {
-  // HERO
-  hero_eyebrow:       "India Only",
-  hero_cta:           "Accepting Applications for 2027",
-  hero_tagline_1:     "Auspicious sadhana",
-  hero_tagline_2:     "Uncompromising luxury",
-  hero_bottom:        "India — and only India — since always",
+    <div class="ornament"></div>
 
-  // PHILOSOPHY
-  philosophy_quote:   "Always meditate with your eyes open when you're in India. You don't want to miss anything!",
-  philosophy_title_1: "Bhakti",
-  philosophy_title_2: "and Bougie",
-  philosophy_title_3: "Always both",
-  philosophy_p1:      "India's hospitality tradition doesn't come from the hotel industry. It comes from the Upanishads. Atithi Devo Bhava — the guest is God. When you stay in a palace hotel in Rajasthan or a haveli in Varanasi, you're not taking a break from the pilgrimage. You're continuing it.",
-  philosophy_p2:      "The seva of a butler and the seva of a priest spring from the same source. This is why Bhakti and Bougie are not in tension. In India, they never were.",
-  philosophy_p3:      "I've slept on a charpoy and stayed at the Taj Lake Palace. I've eaten at dhabas and at Tresind Studio. I've been on the bus and I've had the private boat. I know the value of all of it. When I take you to India, we do it right — because discomfort is not a prerequisite for depth.",
-
-  // YATRAS
-  yatras_title:     "Auspicious Sadhana",
-  yatras_title_em:  "Tracing India's sacred geography",
-  yatras_intro:     "Each yatra follows a specific sacred geography — a deity, a tradition, a living circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages.",
-
-  yatras: [
-    {
-      region:"North India · Uttarakhand · Uttar Pradesh",
-      title:"Shiva in the North",
-      places:["Kedarnath","Guptakashi","Rishikesh","Varanasi"],
-      desc:"From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana.",
-      custom: false
-    },
-    {
-      region:"South India · Tamil Nadu",
-      title:"Shiva in the South",
-      places:["Arunachala","Chidambaram","Rameshwaram","Madurai"],
-      desc:"The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world.",
-      custom: false
-    },
-    {
-      region:"North India · Uttar Pradesh · Gujarat",
-      title:"Krishna's Lila",
-      places:["Vrindavan","Mathura","Kurukshetra","Dwarka","Delhi"],
-      desc:"The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea.",
-      custom: false
-    },
-    {
-      region:"Nepal · Bihar · Uttar Pradesh · Himachal",
-      title:"The Buddha's Trail",
-      places:["Lumbini","Kushinagar","Bodh Gaya","Varanasi","Dharamshala"],
-      desc:"From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse.",
-      custom: false
-    },
-    {
-      region:"North India · Bengal · Andhra · Tamil Nadu",
-      title:"Devi Yatra",
-      places:["Nainital","Rishikesh","Kolkata","Guptakashi","Kanchipuram","Devipuram","Madurai"],
-      desc:"The great Shakti circuit — from the Himalayan goddess temples to the Devi shrines of the South. The Divine Mother in all her forms, across the full length of the subcontinent.",
-      custom: false
-    },
-    {
-      title:"Your Yatra",
-      subtitle:"Hand-curated yatras designed exclusively for your sadhana",
-      desc:"Tell us what calls you — a deity, a festival, a lineage, a region. We build the rest.",
-      custom: true
-    },
-  ],
-  yatras_custom: "Your practice is your compass. Tell us what calls you — a specific deity, a festival, a lineage, a region. We will build the yatra around it.",
-
-  // BOUGIE PROPERTIES
-  bougie_title:    "Uncompromising Luxury",
-  bougie_title_em: "Unparalleled Indian hospitality",
-  bougie_intro:    "Experience hospitality as a spiritual practice at our hand-curated collection of the finest properties in India.",
-
-  properties: [
-    {name:"Taj Lake Palace", location:"Udaipur, Rajasthan", note:"Private boat arrival. A palace floating on Lake Pichola. The most romantic hotel in India.", url:"https://www.tajhotels.com/en-in/taj/taj-lake-palace-udaipur/"},
-    {name:"The Imperial", location:"New Delhi", note:"1931 Art Deco masterpiece. The finest address in Delhi, steps from Connaught Place. Where India's history breathes.", url:"https://www.theimperialindia.com"},
-    {name:"Brijrama Palace", location:"Varanasi, Uttar Pradesh", note:"A 200-year-old palace directly on the Ganges ghats. Watch the morning aarti from your window.", url:"https://www.brijrama.com"},
-    {name:"The Leela Kovalam", location:"Kovalam, Kerala", note:"Clifftop heritage property above the Arabian Sea. Home to what many consider Kerala's finest Ayurvedic spa.", url:"https://www.theleela.com/the-leela-kovalam"},
-    {name:"Oberoi Amarvilas", location:"Agra, Uttar Pradesh", note:"Every room with a Taj Mahal view. The most intentionally positioned hotel in the world.", url:"https://www.oberoihotels.com/hotels-in-agra-amarvilas-resort"},
-    {name:"Taj Rishikesh Resort & Spa", location:"Rishikesh, Uttarakhand", note:"Nestled in the Himalayan foothills on the banks of the Ganga. The anchor for our Shiva in the North yatra.", url:"https://www.tajhotels.com/en-in/taj/taj-rishikesh-resort-and-spa-rishikesh/"},
-  ],
-
-  // EXPERIENCES
-  experiences_title:    "The Experiences",
-  experiences_title_em: "India beyond the temples",
-  experiences_intro:    "The moments that don't appear in guidebooks. Curated, personal, and in most cases only possible because of relationships built over a decade of travel.",
-
-  experiences: [
-    { emoji:"🚶", title:"Salaam Baalak Trust City Walk", desc:"A guided walk through Old Delhi led by former street children. Proceeds support the Trust directly. One of the most moving experiences in India." },
-    { emoji:"🎵", title:"Nizamuddin Thursday Qawwali", desc:"Every Thursday at sunset, the finest qawwali in India at the dargah of Hazrat Nizamuddin. Next door: the tomb of Amir Khusrau, who invented the form." },
-    { emoji:"🔥", title:"Fire Yajna at Parmarth Niketan", desc:"Participate in or witness a traditional fire ceremony at one of Rishikesh's most respected ashrams. On the banks of the Ganga at dusk." },
-    { emoji:"🍳", title:"Private Cooking Lessons", desc:"All of India's extraordinary regional cuisines — Rajasthani, Chettinad, Bengali, Kashmiri, Keralan — in private settings with local experts." },
-    { emoji:"🎨", title:"Kolam Lesson", desc:"The sacred geometric floor art of Tamil Nadu — rice flour, sacred geometry, made fresh every morning and walked over by noon. Learn it from a practitioner." },
-    { emoji:"🏔️", title:"Himalayan Trekking", desc:"Day hikes to multi-day treks — Uttarakhand, Ladakh, Himachal. Routes chosen for spiritual significance as well as scenery." },
-    { emoji:"🛶", title:"Luxury Houseboat, Kerala Backwaters", desc:"Your own private houseboat, your own chef, gliding through the most beautiful waterways in India. The definition of Bougie." },
-    { emoji:"🏛️", title:"Kumartuli Potters Quarter", desc:"The Kolkata neighborhood where the great Durga Puja idols are made by hand. Visit the artists in their workshops." },
-    { emoji:"🌿", title:"Tibetan Medicine Introduction", desc:"An introduction to Tibetan medical tradition at Men-Tsee-Khang in Dharamshala — one of the world's great living medical systems." },
-    { emoji:"🕌", title:"Ashram Stays", desc:"Carefully selected ashrams across India for those who want the deepest immersion. Not spas that call themselves ashrams. The real thing." },
-    { emoji:"🌊", title:"River Rafting, Rishikesh", desc:"The Ganga through the Himalayan foothills. Grade III-IV rapids, extraordinary scenery, available to most fitness levels." },
-    { emoji:"🧵", title:"Silk Weaving, Varanasi", desc:"Watch the extraordinary Banarasi silk being woven on handlooms in weavers' homes. Some of the most complex textile work on earth." },
-  ],
-
-  // ABOUT
-  about_p1: "I have been traveling to India for over a decade — often twice a year. I wear a dhoti to temples. I have sat in the Sufi dargahs of Delhi at sunset and walked the ghats of Varanasi at 3am during Mahashivaratri. I am building a school in a tribal village in Rajasthan.",
-  about_p2: "I didn't set out to build a travel company. I set out to go to India. After a decade of going — and after friends kept asking me to take them — it became obvious that what I was doing had value. Bhakti & Bougie Travel is just finally charging for what I already do.",
-
-  // CREDENTIALS
-  credentials: [
-    { bold:"MA India Studies",      text:"O.P. Jindal Global University, Sonipat (inaugural cohort)" },
-    { bold:"ERYT-500",              text:"500-hour registered yoga teacher" },
-    { bold:"Tantric practitioner",  text:"25+ years" },
-    { bold:"Inayati Sufi",          text:"devotee of the Inayati Order" },
-    { bold:"Kirtan Wala",           text:"performing as Jam Dass" },
-    { bold:"Fora Travel",           text:"preferred travel advisor affiliation" },
-    { bold:"India travel",          text:"10+ years, often twice annually" },
-    { bold:"Ground team",           text:"trusted guides, drivers, and suppliers across India built over a decade" },
-    { bold:"School project",        text:"supporting education for Dalit girls in a tribal village, Rajasthan" },
-  ],
-
-  // FOOTER
-  footer_email:     "michael@bhaktiandbougie.travel",
-  footer_note:      "By appointment only",
-  footer_powered:   "Powered by Fora",
-  footer_instagram: "https://instagram.com/bhaktiandbougie",
-  footer_facebook:  "https://facebook.com/bhaktiandbougie",
-};
-</script>
-
-<!-- NAV -->
-<nav id="nav">
-  <div class="nav-logo">
-    <img src="tripundra-mark.png" alt="Bhakti & Bougie Travel" style="height:36px;width:auto;display:block;"/>
-    <div class="nav-brand">
-      <div class="nav-brand-line1">BHAKTI AND BOUGIE</div>
-      <div class="nav-brand-line2">Travel Company, Ltd.</div>
+    <div class="mark">
+      <div class="mark-line"></div>
+      <div class="mark-line"></div>
+      <div class="mark-line"></div>
     </div>
-  </div>
-  <div class="nav-links">
-    <a href="#philosophy">Philosophy</a>
-    <a href="#yatras">Yatras</a>
-    <a href="#experiences">Experiences</a>
-    <a href="#about">About</a>
-    <a href="apply.html" class="nav-cta"><span>Apply</span></a>
-  </div>
-</nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-rule-top"></div>
-  <div class="hero-inner">
-    <div class="hero-eyebrow" id="hero-eyebrow"></div>
-    <div class="hero-sanskrit">अतिथि देवो भव</div>
-    <div class="hero-sanskrit-trans">The guest is God</div>
-    <h1 class="hero-title">BHAKTI AND BOUGIE</h1>
-    <div class="hero-subtitle">TRAVEL COMPANY LTD.</div>
-    <p class="hero-tagline">
-      <em id="hero-tagline-1"></em> <span style="color:var(--gold);opacity:0.7;font-size:1.2em;"> · </span> <span id="hero-tagline-2"></span>
-    </p>
-    <a href="apply.html" class="hero-cta">
-      <span id="hero-cta"></span>
-      <span>→</span>
-    </a>
-  </div>
-  <div class="hero-rule-bottom"></div>
-</section>
-
-<!-- PHILOSOPHY -->
-<section class="philosophy" id="philosophy">
-  <div class="section-inner">
-    <div class="philosophy-grid reveal">
-      <div class="philosophy-quote" id="phil-quote"></div>
-      <div class="philosophy-text">
-        <div class="section-label">Philosophy</div>
-        <h2 class="section-title" id="phil-title"></h2>
-        <p id="phil-p1"></p>
-        <p id="phil-p2"></p>
-        <div class="gold-rule"></div>
-        <p id="phil-p3"></p>
-      </div>
+    <div class="brand">
+      <div class="brand-main">Bhakti <span class="brand-amp">&</span> Bougie</div>
+      <div class="brand-sub">Curated India Travel</div>
     </div>
-  </div>
-</section>
 
-<!-- YATRAS -->
-<section id="yatras" style="background:var(--navy2);">
-  <div class="section-inner">
-    <div class="reveal">
-      <div class="section-label">The Yatras</div>
-      <h2 class="section-title" id="yatras-title"></h2>
-      <p class="section-body" id="yatras-intro"></p>
+    <div class="divider"></div>
+
+    <div class="headline">Something beautiful<br>is on its way.</div>
+
+    <div class="subtext">
+      We are crafting an experience<br>
+      worthy of the journey.
     </div>
-    <div class="yatra-grid reveal" id="yatra-grid"></div>
-    <!-- Your Yatra + Properties combined -->
-    <div class="yatra-custom-card reveal" id="yatra-custom-card"></div>
-  </div>
-</section>
 
-<!-- BOUGIE PROPERTIES - now inside custom card, no separate section needed -->
-
-<!-- EXPERIENCES -->
-<section id="experiences" style="background:var(--navy2);">
-  <div class="section-inner">
-    <div class="reveal">
-      <div class="section-label">Experiences</div>
-      <h2 class="section-title" id="exp-title"></h2>
-      <p class="section-body" id="exp-intro"></p>
+    <div class="contact">
+      <div class="contact-label">Enquiries</div>
+      <a href="mailto:hello@bhaktiandbougie.travel">hello@bhaktiandbougie.travel</a>
     </div>
-    <div class="exp-grid reveal" id="exp-grid"></div>
+
   </div>
-</section>
 
-<!-- ABOUT / CREDENTIALS -->
-<section class="credentials" id="about">
-  <div class="section-inner">
-    <div class="credentials-grid reveal">
-      <div>
-        <div class="section-label">About</div>
-        <h2 class="section-title">Not a tour<br>operator. <em>A practitioner.</em></h2>
-        <div class="gold-rule"></div>
-        <p style="font-size:15px;color:var(--t2);line-height:1.8;margin-bottom:20px;" id="about-p1"></p>
-        <p style="font-size:15px;color:var(--t2);line-height:1.8;" id="about-p2"></p>
-      </div>
-      <div>
-        <div class="section-label" style="margin-top:8px;">Credentials</div>
-        <ul class="cred-list" id="cred-list"></ul>
-      </div>
-    </div>
+  <div class="bottom-ornament">
+    <span>bhaktiandbougie.travel</span>
   </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-left" id="footer-left"></div>
-  <div class="footer-center">
-    <div class="footer-brand">BHAKTI AND BOUGIE</div>
-    <div class="footer-ltd">Travel Company, Ltd. · India Only</div>
-    <div style="font-size:13px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-top:8px;font-family:'Cormorant Garamond',serif;">Powered by Fora</div>
-  </div>
-  <div class="footer-right" id="footer-right"></div>
-</footer>
-
-<!-- Footer end -->
-
-<script>
-// ── RENDER SITE CONTENT FROM SITE OBJECT ──
-function renderSite(){
-  // Hero
-  document.getElementById('hero-eyebrow').textContent   = SITE.hero_eyebrow;
-  document.getElementById('hero-cta').textContent        = SITE.hero_cta;
-  document.getElementById('hero-tagline-1').textContent  = SITE.hero_tagline_1;
-  document.getElementById('hero-tagline-2').textContent  = SITE.hero_tagline_2;
-
-  // Philosophy
-  document.getElementById('phil-quote').textContent = '\u201c' + SITE.philosophy_quote + '\u201d';
-  document.getElementById('phil-title').innerHTML   = SITE.philosophy_title_1 + ' <em>' + SITE.philosophy_title_2 + '</em><br>' + SITE.philosophy_title_3;
-  document.getElementById('phil-p1').textContent    = SITE.philosophy_p1;
-  document.getElementById('phil-p2').textContent    = SITE.philosophy_p2;
-  document.getElementById('phil-p3').textContent    = SITE.philosophy_p3;
-
-  // Yatras — main title cream, subtitle gold italic
-  document.getElementById('yatras-title').innerHTML = '<span style="color:var(--cream);">' + SITE.yatras_title + '</span><br><em style="color:var(--gold);font-size:0.7em;">' + SITE.yatras_title_em + '</em>';
-  document.getElementById('yatras-intro').textContent = SITE.yatras_intro;
-  const yatraImages = [
-    {src:'yatra-shiva-north.jpg', pos:'center'},
-    {src:'yatra-shiva-south.jpg', pos:'top'},
-    {src:'yatra-krishna.jpg', pos:'center'},
-    {src:'yatra-buddha.jpg', pos:'center'},
-    {src:'yatra-devi.jpg', pos:'center'},
-    {src:'yatra-custom.jpg', pos:'center'},
-  ];
-  document.getElementById('yatra-grid').innerHTML = SITE.yatras.map((y,i) => {
-    if(y.custom) return `
-      <div class="yatra-card" style="background:var(--gold4);border:0.5px dashed rgba(200,134,10,0.35);">
-        <img class="yatra-img" src="${yatraImages[i].src}" alt="Your Yatra" style="object-position:center;opacity:0.7;" loading="lazy"/>
-        <div class="yatra-content">
-          <div class="yatra-title" style="color:var(--gold);">${y.title}</div>
-          <div style="font-size:13px;color:var(--cream2);font-style:italic;margin-bottom:10px;">${y.subtitle}</div>
-          <div class="yatra-desc">${y.desc}</div>
-          <a href="apply.html" style="display:inline-block;margin-top:14px;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:0.5px solid rgba(200,134,10,0.5);padding:7px 16px;">Begin the conversation →</a>
-        </div>
-      </div>`;
-    return `
-      <div class="yatra-card">
-        <img class="yatra-img" src="${yatraImages[i].src}" alt="${y.title}" style="object-position:${yatraImages[i].pos};" loading="lazy"/>
-        <div class="yatra-content">
-          <div class="yatra-region">${y.region}</div>
-          <div class="yatra-title">${y.title}</div>
-          <div class="yatra-places">${y.places.join(' · ')}</div>
-          <div class="yatra-desc">${y.desc}</div>
-        </div>
-      </div>`;
-  }).join('');
-
-  // Properties — small boxes below yatra grid
-  document.getElementById('yatra-custom-card').innerHTML = `
-    <div style="margin-top:1px;">
-      <div style="padding:20px 0 12px;border-bottom:0.5px solid rgba(200,134,10,0.2);margin-bottom:1px;">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">The Bougie</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,60px);font-weight:300;line-height:1.1;color:var(--gold);">${SITE.bougie_title}</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2vw,26px);color:var(--cream);font-style:italic;margin-top:8px;">${SITE.bougie_title_em}</div>
-        <div style="font-size:16px;color:var(--t2);line-height:1.8;margin-top:16px;max-width:680px;">${SITE.bougie_intro}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,134,10,0.15);border:0.5px solid rgba(200,134,10,0.15);">
-        ${SITE.properties.map(p => `
-          <a href="${p.url}" target="_blank" style="display:block;background:var(--navy3);padding:18px 22px;transition:background 0.2s;text-decoration:none;cursor:pointer;" onmouseover="this.style.background='var(--navy2)'" onmouseout="this.style.background='var(--navy3)'">
-            <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">${p.location}</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">${p.name} <span style="font-size:11px;color:var(--t3);letter-spacing:1px;">↗</span></div>
-            <div style="font-size:12px;color:var(--t2);font-style:italic;line-height:1.5;">${p.note}</div>
-          </a>`).join('')}
-      </div>
-    </div>`;
-
-  // Experiences
-  document.getElementById('exp-title').innerHTML = SITE.experiences_title + '<br><em>' + SITE.experiences_title_em + '</em>';
-  document.getElementById('exp-intro').textContent = SITE.experiences_intro;
-  document.getElementById('exp-grid').innerHTML = SITE.experiences.map(e => `
-    <div class="exp-card">
-      <span class="exp-emoji">${e.emoji}</span>
-      <div class="exp-title">${e.title}</div>
-      <div class="exp-desc">${e.desc}</div>
-    </div>`).join('');
-
-  // About
-  document.getElementById('about-p1').textContent = SITE.about_p1;
-  document.getElementById('about-p2').textContent = SITE.about_p2;
-  document.getElementById('cred-list').innerHTML  = SITE.credentials.map(c =>
-    `<li><strong>${c.bold}</strong> — ${c.text}</li>`).join('');
-
-  // Footer
-  document.getElementById('footer-left').innerHTML =
-    `<a href="mailto:${SITE.footer_email}" style="color:var(--t2);text-decoration:none;">${SITE.footer_email}</a><br>
-     ${SITE.footer_note}`;
-
-  document.getElementById('footer-right').innerHTML =
-    `<a href="${SITE.footer_instagram}">Instagram</a><br>
-     <a href="${SITE.footer_facebook}">Facebook</a><br>
-     <span style="color:var(--t3);font-size:11px;">&copy; 2026 Bhakti &amp; Bougie Travel, Ltd.</span>`;
-}
-
-renderSite();
-
-// ── NAV SCROLL ──
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
-});
-
-// ── REVEAL ON SCROLL ──
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if(e.isIntersecting){
-      setTimeout(() => e.target.classList.add('visible'), i * 100);
-      observer.unobserve(e.target);
-    }
-  });
-}, {threshold: 0.1});
-reveals.forEach(r => observer.observe(r));
-</script>
 </body>
 </html>
