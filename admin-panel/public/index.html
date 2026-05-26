@@ -125,7 +125,18 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .crowd-moderate{background:rgba(200,134,10,0.12);color:var(--gold);}
 .crowd-high{background:rgba(204,68,68,0.12);color:#e07070;}
 .crowd-very{background:rgba(139,26,26,0.2);color:#ff8080;}
-.festival-search{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.fest-pill{background:var(--navy3);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:1px;color:var(--cream-dim);cursor:pointer;transition:all 0.2s;}
+.fest-pill:hover{border-color:var(--gold);color:var(--cream);}
+.fest-pill.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.fest-nextup-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);cursor:default;}
+.fest-nextup-item:last-child{border-bottom:none;}
+.fest-days-away{font-family:var(--font-serif);font-size:28px;color:var(--gold);line-height:1;min-width:44px;text-align:right;}
+.fest-nextup-name{font-family:var(--font-serif);font-size:15px;color:var(--cream);}
+.fest-nextup-meta{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.fest-trad-item{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.fest-trad-item:last-child{border-bottom:none;}
+.fest-trad-name{font-family:var(--font-serif);font-size:15px;color:var(--cream);}
+.fest-trad-meta{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
 .loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;letter-spacing:2px;}
 .dot-pulse::after{content:'...';animation:dots 1.5s infinite;}
 @keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...';}100%{content:'';}}
@@ -289,27 +300,53 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div id="expenses-table"><div class="loading dot-pulse">Loading expenses</div></div>
     </div>
     <div class="tab-panel" id="tab-festivals">
-      <div class="sh">Festival Database</div>
-      <div class="festival-search">
-        <input type="text" class="form-input" id="fest-city" placeholder="City or region (e.g. Kolkata, Kerala, Rajasthan)"/>
-        <input type="date" class="form-input" id="fest-from" style="max-width:160px;"/>
-        <input type="date" class="form-input" id="fest-to" style="max-width:160px;"/>
-        <select class="form-select" id="fest-type" style="max-width:180px;">
-          <option value="">All types</option>
-          <option>Hindu</option>
-          <option>Hindu/Shaiva</option>
-          <option>Hindu/Vaishnava</option>
-          <option>Sikh</option>
-          <option>Buddhist</option>
-          <option>Muslim</option>
-          <option>Harvest</option>
-          <option>Cultural</option>
-          <option>Tribal/Cultural</option>
-        </select>
-        <button class="btn btn-gold" onclick="searchFestivals()">Search</button>
-        <button class="btn btn-outline" onclick="clearFestSearch()">Clear</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;">
+
+        <!-- LEFT: Next Up -->
+        <div>
+          <div class="sh">Next Up</div>
+          <div id="fest-nextup"><div class="loading dot-pulse">Loading</div></div>
+        </div>
+
+        <!-- MIDDLE: Filter by Tradition -->
+        <div>
+          <div class="sh">Filter by Tradition</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="fest-pills">
+            <button class="fest-pill active" data-trad="">All</button>
+            <button class="fest-pill" data-trad="Shaiva">🔱 Shaiva</button>
+            <button class="fest-pill" data-trad="Vaishnava">🪈 Vaishnava</button>
+            <button class="fest-pill" data-trad="Shakta">🌺 Shakta</button>
+            <button class="fest-pill" data-trad="Harvest">🌾 Regional / Harvest</button>
+            <button class="fest-pill" data-trad="Buddhist">☸️ Buddhist / Sikh</button>
+            <button class="fest-pill" data-trad="Sufi">🕌 Sufi / Bhakti</button>
+            <button class="fest-pill" data-trad="Classical">🎭 Classical Arts</button>
+            <button class="fest-pill" data-trad="STAR">⭐ Unmissable Only</button>
+          </div>
+          <div id="fest-tradition-list"><div class="loading dot-pulse">Loading</div></div>
+        </div>
+
+        <!-- RIGHT: Trip Date Search -->
+        <div>
+          <div class="sh">Trip Date Search</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+            <div>
+              <div class="form-label">From</div>
+              <input type="date" class="form-input" id="fest-from"/>
+            </div>
+            <div>
+              <div class="form-label">To</div>
+              <input type="date" class="form-input" id="fest-to"/>
+            </div>
+            <div>
+              <div class="form-label">Region (optional)</div>
+              <input type="text" class="form-input" id="fest-city" placeholder="e.g. Kerala, Rajasthan"/>
+            </div>
+            <button class="btn btn-gold" onclick="searchFestivals()">Search Festivals</button>
+          </div>
+          <div id="festival-results"><div class="loading" style="padding:20px 0;text-align:left;">Enter dates to search</div></div>
+        </div>
+
       </div>
-      <div id="festival-results"><div class="loading">Search above or browse all festivals</div></div>
     </div>
   </main>
 </div>
@@ -664,7 +701,7 @@ function onTabChange(tab){
   if(tab==='flights')loadFlights();
   if(tab==='expenses')loadExpenses();
   if(tab==='itinerary')populateTripSelects();
-  if(tab==='festivals')searchFestivals();
+  if(tab==='festivals'){loadFestNextUp();loadFestByTradition();}
 }
 function initApp(){
   updateBST();setInterval(updateBST,60000);
@@ -1001,31 +1038,132 @@ async function populateTripSelects(){
     if(bh)bh.innerHTML=hOpts;
   }
 }
+// ── FESTIVALS: shared cache ───────────────────────────────────────────────
+let festCache=[];
+async function getAllFestivals(){
+  if(festCache.length)return festCache;
+  festCache=await(await fetch(`${API}/festivals`)).json();
+  return festCache;
+}
+
+// tradition emoji map
+const TRAD_ICON={
+  'Shaiva':'🔱','Vaishnava':'🪈','Shakta':'🌺',
+  'Buddhist':'☸️','Sikh':'☸️','Jain':'🕊️',
+  'Harvest':'🌾','Cultural':'🎭','Arts':'🎭','Dance':'🎭','Music':'🎭',
+  'Tribal':'🌿','Catholic':'✝️','Muslim':'🕌','Sufi':'🕌',
+  'Pilgrimage':'🙏','Royal':'👑',
+};
+function festIcon(f){
+  const t=f.festival_type||'';
+  for(const[k,v]of Object.entries(TRAD_ICON)){if(t.toLowerCase().includes(k.toLowerCase()))return v;}
+  return'🪔';
+}
+function daysAway(d){
+  const diff=Math.ceil((new Date(d)-new Date())/86400000);
+  return diff<0?null:diff;
+}
+
+// LEFT panel — Next Up
+async function loadFestNextUp(){
+  const el=document.getElementById('fest-nextup');
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const future=new Date(Date.now()+120*86400000).toISOString().split('T')[0];
+    const data=await(await fetch(`${API}/festivals?from=${today}&to=${future}`)).json();
+    if(!data.length){el.innerHTML='<div class="loading">None in next 120 days</div>';return;}
+    el.innerHTML=data.slice(0,12).map(f=>{
+      const da=daysAway(f.start_date);
+      const loc=[f.city,f.state].filter(Boolean).join(', ');
+      return`<div class="fest-nextup-item">
+        <div class="fest-days-away">${da===0?'TODAY':da}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="fest-nextup-name">${festIcon(f)} ${f.name}</div>
+          <div class="fest-nextup-meta">${f.festival_type||''} · ${loc}</div>
+          <div class="fest-nextup-meta">${fmtDate(f.start_date)}${da!==0?` · ${da} days`:''}${f.crowd_level==='very high'?' · ⚠️ very high crowds':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="loading">Unable to load</div>';}
+}
+
+// MIDDLE panel — Tradition filter
+let activeTrad='';
+async function loadFestByTradition(){
+  const el=document.getElementById('fest-tradition-list');
+  el.innerHTML='<div class="loading dot-pulse">Loading</div>';
+  try{
+    const all=await getAllFestivals();
+    let filtered=all;
+    if(activeTrad==='STAR'){
+      filtered=all.filter(f=>f.notes&&(f.notes.toUpperCase().includes('STAR')||f.notes.includes('⭐')));
+    } else if(activeTrad){
+      const t=activeTrad.toLowerCase();
+      filtered=all.filter(f=>{
+        const ft=(f.festival_type||'').toLowerCase();
+        if(t==='shaiva')return ft.includes('shaiv')||ft.includes('shiv');
+        if(t==='vaishnava')return ft.includes('vaishna')||ft.includes('krishna')||ft.includes('ram');
+        if(t==='shakta')return ft.includes('shakta')||ft.includes('durga')||ft.includes('devi');
+        if(t==='harvest')return ft.includes('harvest')||ft.includes('regional')||ft.includes('tribal')||ft.includes('bihu')||ft.includes('onam')||ft.includes('pongal');
+        if(t==='buddhist')return ft.includes('buddhist')||ft.includes('sikh')||ft.includes('tibetan');
+        if(t==='sufi')return ft.includes('sufi')||ft.includes('muslim')||ft.includes('catholic')||ft.includes('bhakti');
+        if(t==='classical')return ft.includes('classical')||ft.includes('dance')||ft.includes('music')||ft.includes('literary')||ft.includes('cinema')||ft.includes('cultural');
+        return false;
+      });
+    }
+    filtered=filtered.sort((a,b)=>new Date(a.start_date)-new Date(b.start_date));
+    if(!filtered.length){el.innerHTML='<div class="loading">None found</div>';return;}
+    el.innerHTML=filtered.map(f=>{
+      const[,cc]=crowdClass(f.crowd_level);
+      const loc=[f.city,f.state].filter(Boolean).join(', ');
+      return`<div class="fest-trad-item">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div class="fest-trad-name">${festIcon(f)} ${f.name}</div>
+          <span class="crowd-badge ${cc}" style="font-size:8px;">${f.crowd_level||''}</span>
+        </div>
+        <div class="fest-trad-meta">${fmtDate(f.start_date)} · ${loc}</div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="loading">Error</div>';}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('fest-pills').addEventListener('click',e=>{
+    const pill=e.target.closest('.fest-pill');if(!pill)return;
+    document.querySelectorAll('.fest-pill').forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    activeTrad=pill.dataset.trad;
+    loadFestByTradition();
+  });
+});
+
+// RIGHT panel — date search
 async function searchFestivals(){
   const el=document.getElementById('festival-results');
-  el.innerHTML='<div class="loading dot-pulse">Searching</div>';
-  const params=new URLSearchParams();
-  const city=document.getElementById('fest-city').value;
   const from=document.getElementById('fest-from').value;
   const to=document.getElementById('fest-to').value;
-  const type=document.getElementById('fest-type').value;
-  if(city)params.append('city',city);
+  const city=document.getElementById('fest-city').value;
+  if(!from&&!to&&!city){el.innerHTML='<div class="loading" style="padding:20px 0;text-align:left;">Enter dates to search</div>';return;}
+  el.innerHTML='<div class="loading dot-pulse">Searching</div>';
+  const params=new URLSearchParams();
   if(from)params.append('from',from);
   if(to)params.append('to',to);
-  if(type)params.append('type',type);
+  if(city)params.append('city',city);
   try{
     const data=await(await fetch(`${API}/festivals?${params}`)).json();
-    if(!data.length){el.innerHTML='<div class="loading">No festivals found</div>';return;}
+    if(!data.length){el.innerHTML='<div class="loading" style="padding:20px 0;text-align:left;">No festivals found</div>';return;}
     el.innerHTML=data.map(f=>{
       const[,cc]=crowdClass(f.crowd_level);
-      return`<div class="festival-card"><div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;"><div class="festival-name">${f.notes&&f.notes.includes('⭐')?'⭐ ':''}${f.name}</div><span class="crowd-badge ${cc}">${f.crowd_level||''}</span></div><div class="festival-meta">${fmtDate(f.start_date)}${f.end_date&&f.end_date!==f.start_date?' – '+fmtDate(f.end_date):''} · ${[f.city,f.region,f.state].filter(Boolean).join(', ')} · <em>${f.festival_type||''}</em></div><div class="festival-sig" style="margin-top:6px;">${f.significance||''}</div>${f.travel_impact?`<div style="font-size:12px;color:var(--cream-dim);margin-top:6px;">${f.travel_impact}</div>`:''} ${f.notes?`<div class="festival-notes">${f.notes}</div>`:''}</div>`;
+      const da=daysAway(f.start_date);
+      return`<div class="festival-card" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <div class="festival-name" style="font-size:15px;">${festIcon(f)} ${f.name}</div>
+          <span class="crowd-badge ${cc}">${f.crowd_level||''}</span>
+        </div>
+        <div class="festival-meta">${fmtDate(f.start_date)}${f.end_date&&f.end_date!==f.start_date?' – '+fmtDate(f.end_date):''} · ${[f.city,f.region,f.state].filter(Boolean).join(', ')}${da!==null?' · <strong style="color:var(--gold);">'+da+' days away</strong>':''}</div>
+        ${f.notes?`<div class="festival-notes" style="margin-top:4px;">${f.notes.substring(0,120)}</div>`:''}
+      </div>`;
     }).join('');
   }catch(e){el.innerHTML='<div class="loading">Error loading festivals</div>';}
-}
-function clearFestSearch(){
-  ['fest-city','fest-from','fest-to'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fest-type').value='';
-  searchFestivals();
 }
 function fmtDate(d){
   if(!d)return'–';
