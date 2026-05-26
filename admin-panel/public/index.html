@@ -1,10 +1,1011 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bhakti & Bougie Admin</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bhakti & Bougie — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B2A;--navy2:#111e2d;--navy3:#162333;
+  --gold:#C8860A;--gold2:#e09b18;--gold-dim:rgba(200,134,10,0.15);--gold-border:rgba(200,134,10,0.3);
+  --cream:#F2E6CC;--cream2:#E8D9B8;--cream-dim:rgba(242,230,204,0.6);
+  --crimson:#8B1A1A;--ash:#9A9490;--ash-dim:rgba(154,148,144,0.15);
+  --muted:#6A8AAA;--green:#4a9e5c;--red:#cc4444;
+  --border:rgba(200,134,10,0.25);--border-subtle:rgba(242,230,204,0.08);
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Jost',sans-serif;
+}
+body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;min-height:100vh;overflow-x:hidden;}
+#pw-screen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;transition:opacity 0.5s;}
+#pw-screen.hidden{opacity:0;pointer-events:none;}
+.pw-stripe{width:60px;height:11px;background:var(--ash);border-radius:6px;border:2px solid var(--gold);position:relative;}
+.pw-eye{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #111;}
+.pw-eye::after{content:'';position:absolute;width:11px;height:11px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #111;}
+.pw-title{font-family:var(--font-serif);font-size:26px;color:var(--cream);letter-spacing:5px;}
+.pw-rule{width:50px;height:1px;background:var(--gold);}
+.pw-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
+#pw-input{background:var(--navy2);border:1.5px solid var(--gold-border);border-radius:3px;padding:13px 20px;font-family:var(--font-sans);font-size:15px;color:var(--cream);outline:none;width:280px;text-align:center;letter-spacing:3px;}
+#pw-input:focus{border-color:var(--gold);}
+#pw-btn{background:transparent;border:1.5px solid var(--gold-border);border-radius:3px;padding:11px 32px;font-family:var(--font-sans);font-size:12px;font-weight:500;color:var(--gold);cursor:pointer;letter-spacing:3px;text-transform:uppercase;}
+#pw-btn:hover{background:var(--gold-dim);}
+#pw-error{font-size:12px;color:var(--red);min-height:16px;}
+#app{display:none;flex-direction:column;min-height:100vh;}
+#app.visible{display:flex;}
+.hdr{background:var(--navy2);border-bottom:2px solid var(--gold-border);padding:10px 24px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;position:sticky;top:0;z-index:100;}
+.hdr-brand{display:flex;align-items:center;gap:14px;}
+.tripundra{display:flex;flex-direction:column;gap:4px;}
+.t-stripe{width:48px;height:9px;background:var(--ash);border-radius:5px;border:1.5px solid var(--gold);position:relative;}
+.t-eye{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #111;}
+.t-eye::after{content:'';position:absolute;width:9px;height:9px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #111;}
+.brand-name{font-family:var(--font-serif);font-size:24px;font-weight:500;color:var(--cream);letter-spacing:4px;line-height:1;}
+.brand-tagline{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.nav-tabs{display:flex;align-items:center;gap:2px;justify-content:center;}
+.tab{padding:8px 18px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cream-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.tab:hover{color:var(--cream);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.bst-widget{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:3px;padding:6px 14px;text-align:center;}
+.bst-num{font-family:var(--font-serif);font-size:32px;color:var(--cream);line-height:1;}
+.bst-label{font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;}
+.content{flex:1;padding:24px;overflow-y:auto;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.sh{font-family:var(--font-serif);font-size:20px;color:var(--gold);letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.sh::after{content:'';flex:1;height:1px;background:var(--gold-border);}
+.sh-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sh-row .sh{margin-bottom:0;}
+.btn{font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:2px;cursor:pointer;transition:all 0.2s;border:none;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{background:var(--gold2);}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border);}
+.btn-outline:hover{background:var(--gold-dim);}
+.btn-sm{padding:5px 12px;font-size:10px;}
+.card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.tbl-wrap{background:var(--navy2);border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-bottom:24px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--navy3);border-bottom:1px solid var(--border);}
+th{padding:10px 14px;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;}
+td{padding:12px 14px;font-size:13px;color:var(--cream-dim);border-bottom:1px solid var(--border-subtle);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--ash-dim);color:var(--cream);}
+.td-primary{font-family:var(--font-serif);font-size:15px;color:var(--cream);font-weight:500;}
+.td-action{color:var(--gold);font-size:16px;cursor:pointer;text-align:right;}
+.badge{display:inline-block;padding:3px 9px;border-radius:2px;font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+.badge-enquiry{background:rgba(106,138,170,0.15);color:var(--muted);border:1px solid rgba(106,138,170,0.25);}
+.badge-confirmed{background:rgba(200,134,10,0.12);color:var(--gold);border:1px solid var(--gold-border);}
+.badge-active{background:rgba(74,158,92,0.15);color:var(--green);border:1px solid rgba(74,158,92,0.3);}
+.badge-completed{background:var(--ash-dim);color:var(--ash);border:1px solid rgba(154,148,144,0.2);}
+.badge-cancelled{background:rgba(204,68,68,0.12);color:var(--red);border:1px solid rgba(204,68,68,0.25);}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:2px;padding:9px 12px;font-family:var(--font-sans);font-size:13px;color:var(--cream);outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
+.form-select option{background:var(--navy2);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:3px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:var(--font-serif);font-size:22px;color:var(--cream);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+.cc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.clock-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:14px;text-align:center;}
+.clock-city{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.clock-time{font-family:var(--font-serif);font-size:28px;color:var(--cream);line-height:1;}
+.clock-date{font-size:10px;color:var(--ash);margin-top:3px;}
+.weather-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.weather-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:12px;}
+.w-city{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.w-temp{font-family:var(--font-serif);font-size:24px;color:var(--cream);line-height:1;}
+.w-desc{font-size:10px;color:var(--ash);margin-top:2px;}
+.w-aqi{display:inline-block;padding:2px 7px;border-radius:2px;font-size:9px;font-weight:500;letter-spacing:1px;margin-top:4px;}
+.aqi-good{background:rgba(74,158,92,0.2);color:#4a9e5c;}
+.aqi-moderate{background:rgba(200,134,10,0.2);color:var(--gold);}
+.aqi-poor{background:rgba(204,68,68,0.2);color:var(--red);}
+.aqi-hazardous{background:rgba(139,26,26,0.3);color:#ff6666;}
+.fx-card{background:var(--navy2);border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:2px;padding:16px;}
+.fx-rate{font-family:var(--font-serif);font-size:42px;color:var(--cream);line-height:1;}
+.fx-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.fx-sub{font-size:11px;color:var(--ash);margin-top:6px;}
+.cricket-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:16px;}
+.cricket-match{border-bottom:1px solid var(--border-subtle);padding-bottom:12px;margin-bottom:12px;}
+.cricket-match:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0;}
+.cricket-teams{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
+.cricket-score{font-size:13px;color:var(--gold);margin-top:4px;}
+.cricket-status{font-size:11px;color:var(--ash);margin-top:3px;}
+.festival-card{background:var(--navy2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;padding:14px;margin-bottom:10px;}
+.festival-name{font-family:var(--font-serif);font-size:17px;color:var(--cream);margin-bottom:4px;}
+.festival-meta{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;}
+.festival-sig{font-size:12px;color:var(--cream-dim);line-height:1.5;}
+.festival-notes{font-size:11px;color:var(--gold);margin-top:6px;font-style:italic;}
+.crowd-badge{display:inline-block;padding:2px 8px;border-radius:2px;font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-left:8px;}
+.crowd-low{background:rgba(74,158,92,0.15);color:#4a9e5c;}
+.crowd-moderate{background:rgba(200,134,10,0.12);color:var(--gold);}
+.crowd-high{background:rgba(204,68,68,0.12);color:#e07070;}
+.crowd-very{background:rgba(139,26,26,0.2);color:#ff8080;}
+.festival-search{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;letter-spacing:2px;}
+.dot-pulse::after{content:'...';animation:dots 1.5s infinite;}
+@keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...';}100%{content:'';}}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--gold-border);border-radius:2px;}
+</style>
 </head>
 <body>
-  <p>Admin panel coming soon.</p>
+<div id="pw-screen">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:8px;">
+    <div class="pw-stripe"></div>
+    <div class="pw-stripe" style="position:relative;"><div class="pw-eye"></div></div>
+    <div class="pw-stripe"></div>
+  </div>
+  <div class="pw-title">BHAKTI &amp; BOUGIE</div>
+  <div class="pw-rule"></div>
+  <div class="pw-sub">Command Center</div>
+  <input type="password" id="pw-input" placeholder="enter passphrase" autocomplete="off"/>
+  <button id="pw-btn">Enter</button>
+  <div id="pw-error"></div>
+</div>
+<div id="app">
+  <header class="hdr">
+    <div class="hdr-brand">
+      <div class="tripundra">
+        <div class="t-stripe"></div>
+        <div class="t-stripe" style="position:relative;"><div class="t-eye"></div></div>
+        <div class="t-stripe"></div>
+      </div>
+      <div>
+        <div class="brand-name">BHAKTI &amp; BOUGIE</div>
+        <div class="brand-tagline">Travel Company Ltd. &nbsp;·&nbsp; India Only</div>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <div class="tab active" data-tab="command">Command</div>
+      <div class="tab" data-tab="trips">Trips</div>
+      <div class="tab" data-tab="itinerary">Itinerary</div>
+      <div class="tab" data-tab="contacts">Contacts</div>
+      <div class="tab" data-tab="hotels">Hotels</div>
+      <div class="tab" data-tab="flights">Flights</div>
+      <div class="tab" data-tab="expenses">Expenses</div>
+      <div class="tab" data-tab="festivals">Festivals</div>
+    </nav>
+    <div class="bst-widget">
+      <div class="bst-label">BST Departure</div>
+      <div class="bst-num" id="bst-days">–</div>
+      <div class="bst-label">days</div>
+    </div>
+  </header>
+  <main class="content">
+    <div class="tab-panel active" id="tab-command">
+      <div class="sh">World Clocks</div>
+      <div class="cc-grid" id="clocks-grid"></div>
+      <div class="sh-row">
+        <div class="sh">India City Conditions</div>
+        <button class="btn btn-outline btn-sm" onclick="loadWeather()">↻ Refresh</button>
+      </div>
+      <div class="weather-grid" id="weather-grid">
+        <div class="loading dot-pulse">Loading weather</div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div>
+          <div class="sh">Exchange Rate</div>
+          <div class="fx-card">
+            <div class="fx-label">1 USD =</div>
+            <div class="fx-rate" id="fx-rate">–</div>
+            <div class="fx-sub" id="fx-sub">Loading...</div>
+            <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;" id="fx-extra"></div>
+          </div>
+        </div>
+        <div>
+          <div class="sh-row">
+            <div class="sh">RCB &amp; Cricket</div>
+            <button class="btn btn-outline btn-sm" onclick="loadCricket()">↻ Refresh</button>
+          </div>
+          <div class="cricket-card" id="cricket-card">
+            <div class="loading dot-pulse">Loading scores</div>
+          </div>
+        </div>
+      </div>
+      <div class="sh">Upcoming Festivals — Next 90 Days</div>
+      <div id="upcoming-festivals"><div class="loading dot-pulse">Loading</div></div>
+    </div>
+    <div class="tab-panel" id="tab-trips">
+      <div class="sh-row">
+        <div class="sh">All Trips</div>
+        <button class="btn btn-gold" onclick="openModal('trip-modal')">+ New Trip</button>
+      </div>
+      <div id="trips-table"><div class="loading dot-pulse">Loading trips</div></div>
+    </div>
+    <div class="tab-panel" id="tab-itinerary">
+      <div class="sh-row">
+        <div class="sh">Itinerary</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select class="form-select" style="width:220px;" id="itin-trip-select" onchange="loadItinerary()">
+            <option value="">Select trip...</option>
+          </select>
+          <button class="btn btn-gold" onclick="openAddDay()">+ Add Day</button>
+        </div>
+      </div>
+      <div id="itinerary-content"><div class="loading">Select a trip to view itinerary</div></div>
+    </div>
+    <div class="tab-panel" id="tab-contacts">
+      <div class="sh-row">
+        <div class="sh">Contacts</div>
+        <button class="btn btn-gold" onclick="openModal('contact-modal')">+ New Contact</button>
+      </div>
+      <div id="contacts-table"><div class="loading dot-pulse">Loading contacts</div></div>
+    </div>
+    <div class="tab-panel" id="tab-hotels">
+      <div class="sh-row">
+        <div class="sh">Hotels</div>
+        <button class="btn btn-gold" onclick="openModal('hotel-modal')">+ New Hotel</button>
+      </div>
+      <div id="hotels-table"><div class="loading dot-pulse">Loading hotels</div></div>
+      <div class="sh-row" style="margin-top:24px;">
+        <div class="sh">Hotel Bookings</div>
+        <button class="btn btn-gold" onclick="openModal('booking-modal')">+ New Booking</button>
+      </div>
+      <div id="bookings-table"><div class="loading dot-pulse">Loading bookings</div></div>
+    </div>
+    <div class="tab-panel" id="tab-flights">
+      <div class="sh-row">
+        <div class="sh">Flights</div>
+        <button class="btn btn-gold" onclick="openModal('flight-modal')">+ New Flight</button>
+      </div>
+      <div id="flights-table"><div class="loading dot-pulse">Loading flights</div></div>
+    </div>
+    <div class="tab-panel" id="tab-expenses">
+      <div class="sh-row">
+        <div class="sh">Expenses</div>
+        <div style="display:flex;gap:10px;">
+          <select class="form-select" style="width:200px;" id="exp-trip-select" onchange="loadExpenses()">
+            <option value="">All trips</option>
+          </select>
+          <button class="btn btn-outline" onclick="exportExpenses()">↓ Export CSV</button>
+          <button class="btn btn-gold" onclick="openModal('expense-modal')">+ Log Expense</button>
+        </div>
+      </div>
+      <div id="expense-summary"></div>
+      <div id="expenses-table"><div class="loading dot-pulse">Loading expenses</div></div>
+    </div>
+    <div class="tab-panel" id="tab-festivals">
+      <div class="sh">Festival Database</div>
+      <div class="festival-search">
+        <input type="text" class="form-input" id="fest-city" placeholder="City or region (e.g. Kolkata, Kerala, Rajasthan)"/>
+        <input type="date" class="form-input" id="fest-from" style="max-width:160px;"/>
+        <input type="date" class="form-input" id="fest-to" style="max-width:160px;"/>
+        <select class="form-select" id="fest-type" style="max-width:180px;">
+          <option value="">All types</option>
+          <option>Hindu</option>
+          <option>Hindu/Shaiva</option>
+          <option>Hindu/Vaishnava</option>
+          <option>Sikh</option>
+          <option>Buddhist</option>
+          <option>Muslim</option>
+          <option>Harvest</option>
+          <option>Cultural</option>
+          <option>Tribal/Cultural</option>
+        </select>
+        <button class="btn btn-gold" onclick="searchFestivals()">Search</button>
+        <button class="btn btn-outline" onclick="clearFestSearch()">Clear</button>
+      </div>
+      <div id="festival-results"><div class="loading">Search above or browse all festivals</div></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="trip-modal">
+  <div class="modal">
+    <div class="modal-title" id="trip-modal-title">New Trip</div>
+    <input type="hidden" id="trip-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Trip Title</label>
+        <input type="text" class="form-input" id="trip-title"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="trip-status">
+          <option value="enquiry">Enquiry</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" id="trip-start"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="trip-end"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Number of Pax</label>
+        <input type="number" class="form-input" id="trip-pax" value="2"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Base Price (INR)</label>
+        <input type="number" class="form-input" id="trip-price"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description / Notes</label>
+      <textarea class="form-textarea" id="trip-desc"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('trip-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTrip()">Save Trip</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="contact-modal">
+  <div class="modal">
+    <div class="modal-title" id="contact-modal-title">New Contact</div>
+    <input type="hidden" id="contact-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input type="text" class="form-input" id="contact-first"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input type="text" class="form-input" id="contact-last"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="contact-email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-input" id="contact-phone"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nationality</label>
+        <input type="text" class="form-input" id="contact-nationality"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Passport Number</label>
+        <input type="text" class="form-input" id="contact-passport"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="contact-notes"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('contact-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="hotel-modal">
+  <div class="modal">
+    <div class="modal-title">New Hotel</div>
+    <input type="hidden" id="hotel-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Hotel Name</label>
+        <input type="text" class="form-input" id="hotel-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input type="text" class="form-input" id="hotel-city"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Star Rating</label>
+        <select class="form-select" id="hotel-stars">
+          <option value="3">3★</option>
+          <option value="4">4★</option>
+          <option value="5" selected>5★</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="hotel-category">
+          <option>luxury</option>
+          <option>boutique</option>
+          <option>heritage</option>
+          <option>resort</option>
+          <option>standard</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Contact Name</label>
+        <input type="text" class="form-input" id="hotel-contact-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Email</label>
+        <input type="email" class="form-input" id="hotel-contact-email"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="hotel-notes"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('hotel-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveHotel()">Save Hotel</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="booking-modal">
+  <div class="modal">
+    <div class="modal-title">New Hotel Booking</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Trip</label>
+        <select class="form-select" id="booking-trip"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hotel</label>
+        <select class="form-select" id="booking-hotel"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Check In</label>
+        <input type="date" class="form-input" id="booking-checkin"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Check Out</label>
+        <input type="date" class="form-input" id="booking-checkout"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Room Type</label>
+        <input type="text" class="form-input" id="booking-room"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rate per Night (INR)</label>
+        <input type="number" class="form-input" id="booking-rate"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmation Number</label>
+      <input type="text" class="form-input" id="booking-conf"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('booking-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveBooking()">Save Booking</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="flight-modal">
+  <div class="modal">
+    <div class="modal-title">New Flight</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Trip</label>
+        <select class="form-select" id="flight-trip"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Flight Number</label>
+        <input type="text" class="form-input" id="flight-number" placeholder="e.g. IndiGo 6E 204"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">From</label>
+        <input type="text" class="form-input" id="flight-from" placeholder="DEL"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">To</label>
+        <input type="text" class="form-input" id="flight-to" placeholder="VNS"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Departure</label>
+        <input type="datetime-local" class="form-input" id="flight-dep"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Arrival</label>
+        <input type="datetime-local" class="form-input" id="flight-arr"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Booking Ref</label>
+        <input type="text" class="form-input" id="flight-ref"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cost (INR)</label>
+        <input type="number" class="form-input" id="flight-cost"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('flight-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveFlight()">Save Flight</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="expense-modal">
+  <div class="modal">
+    <div class="modal-title">Log Expense</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Trip</label>
+        <select class="form-select" id="expense-trip"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="expense-category">
+          <option>accommodation</option>
+          <option>flights</option>
+          <option>guides</option>
+          <option>transport</option>
+          <option>meals</option>
+          <option>entrance fees</option>
+          <option>activities</option>
+          <option>tips</option>
+          <option>miscellaneous</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-input" id="expense-desc"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Amount (INR)</label>
+        <input type="number" class="form-input" id="expense-amount"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="expense-date"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('expense-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveExpense()">Save Expense</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="day-modal">
+  <div class="modal">
+    <div class="modal-title" id="day-modal-title">Add Day</div>
+    <input type="hidden" id="day-id"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Day Number</label>
+        <input type="number" class="form-input" id="day-number" min="1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="day-date"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input type="text" class="form-input" id="day-location"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Day Title</label>
+        <input type="text" class="form-input" id="day-title"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="day-desc" style="min-height:120px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('day-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveDay()">Save Day</button>
+    </div>
+  </div>
+</div>
+<script>
+const API='https://bhaktiandbougie-production.up.railway.app/api';
+const PASSWORD='yatra2026!';
+
+document.getElementById('pw-btn').onclick=checkPassword;
+document.getElementById('pw-input').onkeydown=e=>{if(e.key==='Enter')checkPassword();};
+function checkPassword(){
+  const val=document.getElementById('pw-input').value;
+  if(val===PASSWORD){
+    const pw=document.getElementById('pw-screen');
+    pw.classList.add('hidden');
+    setTimeout(()=>{pw.style.display='none';document.getElementById('app').classList.add('visible');initApp();},500);
+  }else{
+    document.getElementById('pw-error').textContent='Incorrect passphrase';
+    document.getElementById('pw-input').value='';
+  }
+}
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.onclick=function(){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+    onTabChange(this.dataset.tab);
+  };
+});
+function onTabChange(tab){
+  if(tab==='trips')loadTrips();
+  if(tab==='contacts')loadContacts();
+  if(tab==='hotels'){loadHotels();loadBookings();}
+  if(tab==='flights')loadFlights();
+  if(tab==='expenses')loadExpenses();
+  if(tab==='itinerary')populateTripSelects();
+  if(tab==='festivals')searchFestivals();
+}
+function initApp(){
+  updateBST();setInterval(updateBST,60000);
+  renderClocks();setInterval(renderClocks,1000);
+  loadWeather();loadFX();loadCricket();loadUpcomingFestivals();loadTrips();populateTripSelects();
+}
+function updateBST(){
+  const diff=Math.ceil((new Date('2026-09-03')-new Date())/86400000);
+  document.getElementById('bst-days').textContent=diff>0?diff:'NOW';
+}
+const CLOCKS=[
+  {city:'New York',tz:'America/New_York'},
+  {city:'London',tz:'Europe/London'},
+  {city:'India IST',tz:'Asia/Kolkata'},
+  {city:'Bangkok',tz:'Asia/Bangkok'},
+];
+function renderClocks(){
+  document.getElementById('clocks-grid').innerHTML=CLOCKS.map(c=>{
+    const now=new Date();
+    const time=now.toLocaleTimeString('en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const date=now.toLocaleDateString('en-US',{timeZone:c.tz,weekday:'short',month:'short',day:'numeric'});
+    return `<div class="clock-card"><div class="clock-city">${c.city}</div><div class="clock-time">${time}</div><div class="clock-date">${date}</div></div>`;
+  }).join('');
+}
+const CITIES=[
+  {name:'Delhi',lat:28.6139,lon:77.2090},
+  {name:'Jaipur',lat:26.9124,lon:75.7873},
+  {name:'Jodhpur',lat:26.2389,lon:73.0243},
+  {name:'Udaipur',lat:24.5854,lon:73.7125},
+  {name:'Amritsar',lat:31.6340,lon:74.8723},
+  {name:'Rishikesh',lat:30.0869,lon:78.2676},
+  {name:'Srinagar',lat:34.0837,lon:74.7973},
+  {name:'Varanasi',lat:25.3176,lon:82.9739},
+  {name:'Kolkata',lat:22.5726,lon:88.3639},
+  {name:'Mumbai',lat:19.0760,lon:72.8777},
+  {name:'Goa',lat:15.2993,lon:74.1240},
+  {name:'Kochi',lat:9.9312,lon:76.2673},
+  {name:'Madurai',lat:9.9252,lon:78.1198},
+  {name:'Chennai',lat:13.0827,lon:80.2707},
+  {name:'Hyderabad',lat:17.3850,lon:78.4867},
+  {name:'Bengaluru',lat:12.9716,lon:77.5946},
+];
+function aqiLabel(a){
+  if(a<=50)return['Good','aqi-good'];
+  if(a<=100)return['Moderate','aqi-moderate'];
+  if(a<=150)return['Unhealthy','aqi-poor'];
+  return['Hazardous','aqi-hazardous'];
+}
+async function loadWeather(){
+  const grid=document.getElementById('weather-grid');
+  grid.innerHTML='<div class="loading dot-pulse">Loading weather</div>';
+  try{
+    const results=await Promise.all(CITIES.map(async city=>{
+      const w=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&timezone=Asia/Kolkata&forecast_days=1`);
+      const a=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi&timezone=Asia/Kolkata`);
+      const wd=await w.json();const ad=await a.json();
+      return{name:city.name,temp:Math.round(wd.current.temperature_2m),aqi:Math.round(ad.current?.us_aqi||0),code:wd.current.weather_code};
+    }));
+    const desc=c=>{if(c===0)return'☀️ Clear';if(c<=3)return'⛅ Partly cloudy';if(c<=49)return'🌫️ Haze';if(c<=69)return'🌧️ Rain';if(c<=79)return'❄️ Snow';return'⛈️ Storms';};
+    grid.innerHTML=results.map(r=>{
+      const[lt,lc]=aqiLabel(r.aqi);
+      return`<div class="weather-card"><div class="w-city">${r.name}</div><div class="w-temp">${r.temp}°C</div><div class="w-desc">${desc(r.code)}</div><span class="w-aqi ${lc}">AQI ${r.aqi} · ${lt}</span></div>`;
+    }).join('');
+  }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
+}
+async function loadFX(){
+  try{
+    const res=await fetch('https://open.er-api.com/v6/latest/USD');
+    const d=await res.json();
+    const inr=d.rates.INR;
+    document.getElementById('fx-rate').textContent=`₹${inr.toFixed(2)}`;
+    document.getElementById('fx-sub').textContent=`Updated: ${new Date(d.time_last_update_utc).toLocaleDateString()}`;
+    document.getElementById('fx-extra').innerHTML=`
+      <div><div class="fx-label">1 GBP =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">₹${(inr/d.rates.GBP).toFixed(2)}</div></div>
+      <div><div class="fx-label">1 EUR =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">₹${(inr/d.rates.EUR).toFixed(2)}</div></div>
+      <div><div class="fx-label">₹1,000 =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">$${(1000/inr).toFixed(2)}</div></div>`;
+  }catch(e){document.getElementById('fx-rate').textContent='–';}
+}
+async function loadCricket(){
+  const card=document.getElementById('cricket-card');
+  card.innerHTML='<div class="loading dot-pulse">Loading scores</div>';
+  try{
+    const res=await fetch('https://api.cricapi.com/v1/currentMatches?apikey=free&offset=0');
+    const d=await res.json();
+    if(!d.data||!d.data.length)throw new Error('No data');
+    const matches=d.data.filter(m=>m.teams&&(m.teams.some(t=>t.toLowerCase().includes('rcb')||t.toLowerCase().includes('royal challengers'))||m.matchType==='odi')).slice(0,3);
+    if(!matches.length){card.innerHTML='<div style="color:var(--ash);font-size:13px;">No RCB or ODI matches currently live.</div>';return;}
+    card.innerHTML=matches.map(m=>`<div class="cricket-match"><div class="cricket-teams">${m.teams?m.teams.join(' vs '):m.name}</div><div class="cricket-score">${m.score?m.score.map(s=>`${s.inning}: ${s.r}/${s.w} (${s.o})`).join(' | '):'Pending'}</div><div class="cricket-status">${m.status||''}</div></div>`).join('');
+  }catch(e){card.innerHTML='<div style="color:var(--ash);font-size:13px;">Cricket scores unavailable during off-season.</div>';}
+}
+async function loadUpcomingFestivals(){
+  const el=document.getElementById('upcoming-festivals');
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const future=new Date(Date.now()+90*86400000).toISOString().split('T')[0];
+    const res=await fetch(`${API}/festivals?from=${today}&to=${future}`);
+    const data=await res.json();
+    if(!data.length){el.innerHTML='<div class="loading">No festivals in next 90 days</div>';return;}
+    el.innerHTML=data.slice(0,8).map(f=>{
+      const[,cc]=crowdClass(f.crowd_level);
+      return`<div class="festival-card"><div style="display:flex;align-items:baseline;gap:8px;"><div class="festival-name">${f.name}</div><span class="crowd-badge ${cc}">${f.crowd_level||''}</span></div><div class="festival-meta">${fmtDate(f.start_date)} · ${f.city||f.region}, ${f.state}</div><div class="festival-sig">${(f.significance||'').substring(0,150)}...</div>${f.notes?`<div class="festival-notes">${f.notes.substring(0,100)}</div>`:''}</div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="loading">Unable to load festivals</div>';}
+}
+function crowdClass(l){
+  if(!l)return['',''];
+  if(l==='low')return['Low','crowd-low'];
+  if(l==='moderate')return['Moderate','crowd-moderate'];
+  if(l==='high')return['High','crowd-high'];
+  return['Very High','crowd-very'];
+}
+let tripsCache=[];
+async function loadTrips(){
+  const el=document.getElementById('trips-table');
+  try{
+    const res=await fetch(`${API}/trips`);
+    tripsCache=await res.json();
+    if(!tripsCache.length){el.innerHTML='<div class="loading">No trips yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Trip</th><th>Dates</th><th>Pax</th><th>Base Price</th><th>Status</th><th></th></tr></thead><tbody>${tripsCache.map(t=>`<tr><td class="td-primary">${t.title}</td><td>${fmtDate(t.start_date)} – ${fmtDate(t.end_date)}</td><td>${t.num_pax}</td><td>₹${Number(t.base_price||0).toLocaleString('en-IN')}</td><td><span class="badge badge-${t.status}">${t.status}</span></td><td class="td-action" onclick="editTrip('${t.id}')">✎</td></tr>`).join('')}</tbody></table></div>`;
+    populateTripSelects();
+  }catch(e){el.innerHTML='<div class="loading">Unable to load trips</div>';}
+}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function editTrip(id){
+  const t=tripsCache.find(x=>x.id===id);if(!t)return;
+  document.getElementById('trip-modal-title').textContent='Edit Trip';
+  document.getElementById('trip-id').value=t.id;
+  document.getElementById('trip-title').value=t.title;
+  document.getElementById('trip-status').value=t.status;
+  document.getElementById('trip-start').value=t.start_date?.split('T')[0]||'';
+  document.getElementById('trip-end').value=t.end_date?.split('T')[0]||'';
+  document.getElementById('trip-pax').value=t.num_pax;
+  document.getElementById('trip-price').value=t.base_price;
+  document.getElementById('trip-desc').value=t.description||'';
+  openModal('trip-modal');
+}
+async function saveTrip(){
+  const id=document.getElementById('trip-id').value;
+  const body={title:document.getElementById('trip-title').value,status:document.getElementById('trip-status').value,start_date:document.getElementById('trip-start').value,end_date:document.getElementById('trip-end').value,num_pax:document.getElementById('trip-pax').value,base_price:document.getElementById('trip-price').value,description:document.getElementById('trip-desc').value};
+  await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('trip-modal');
+  document.getElementById('trip-id').value='';
+  document.getElementById('trip-modal-title').textContent='New Trip';
+  loadTrips();
+}
+let contactsCache=[];
+async function loadContacts(){
+  const el=document.getElementById('contacts-table');
+  try{
+    const res=await fetch(`${API}/contacts`);
+    contactsCache=await res.json();
+    if(!contactsCache.length){el.innerHTML='<div class="loading">No contacts yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Nationality</th><th></th></tr></thead><tbody>${contactsCache.map(c=>`<tr><td class="td-primary">${c.first_name} ${c.last_name}</td><td>${c.email||'–'}</td><td>${c.phone||'–'}</td><td>${c.nationality||'–'}</td><td class="td-action" onclick="editContact('${c.id}')">✎</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load contacts</div>';}
+}
+function editContact(id){
+  const c=contactsCache.find(x=>x.id===id);if(!c)return;
+  document.getElementById('contact-modal-title').textContent='Edit Contact';
+  document.getElementById('contact-id').value=c.id;
+  document.getElementById('contact-first').value=c.first_name;
+  document.getElementById('contact-last').value=c.last_name;
+  document.getElementById('contact-email').value=c.email||'';
+  document.getElementById('contact-phone').value=c.phone||'';
+  document.getElementById('contact-nationality').value=c.nationality||'';
+  document.getElementById('contact-passport').value=c.passport_number||'';
+  document.getElementById('contact-notes').value=c.notes||'';
+  openModal('contact-modal');
+}
+async function saveContact(){
+  const id=document.getElementById('contact-id').value;
+  const body={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,nationality:document.getElementById('contact-nationality').value,passport_number:document.getElementById('contact-passport').value,notes:document.getElementById('contact-notes').value};
+  await fetch(id?`${API}/contacts/${id}`:`${API}/contacts`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('contact-modal');
+  document.getElementById('contact-id').value='';
+  loadContacts();
+}
+let hotelsCache=[];
+async function loadHotels(){
+  const el=document.getElementById('hotels-table');
+  try{
+    const res=await fetch(`${API}/hotels`);
+    hotelsCache=await res.json();
+    if(!hotelsCache.length){el.innerHTML='<div class="loading">No hotels yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Hotel</th><th>City</th><th>Stars</th><th>Category</th><th></th></tr></thead><tbody>${hotelsCache.map(h=>`<tr><td class="td-primary">${h.name}</td><td>${h.city||'–'}</td><td>${'★'.repeat(h.star_rating||5)}</td><td>${h.category||'–'}</td><td class="td-action" onclick="editHotel('${h.id}')">✎</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load hotels</div>';}
+}
+function editHotel(id){
+  const h=hotelsCache.find(x=>x.id===id);if(!h)return;
+  document.getElementById('hotel-id').value=h.id;
+  document.getElementById('hotel-name').value=h.name;
+  document.getElementById('hotel-city').value=h.city||'';
+  document.getElementById('hotel-stars').value=h.star_rating||5;
+  document.getElementById('hotel-category').value=h.category||'luxury';
+  document.getElementById('hotel-contact-name').value=h.contact_name||'';
+  document.getElementById('hotel-contact-email').value=h.contact_email||'';
+  document.getElementById('hotel-notes').value=h.notes||'';
+  openModal('hotel-modal');
+}
+async function saveHotel(){
+  const id=document.getElementById('hotel-id').value;
+  const body={name:document.getElementById('hotel-name').value,city:document.getElementById('hotel-city').value,star_rating:document.getElementById('hotel-stars').value,category:document.getElementById('hotel-category').value,contact_name:document.getElementById('hotel-contact-name').value,contact_email:document.getElementById('hotel-contact-email').value,notes:document.getElementById('hotel-notes').value};
+  await fetch(id?`${API}/hotels/${id}`:`${API}/hotels`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('hotel-modal');
+  document.getElementById('hotel-id').value='';
+  loadHotels();
+}
+async function loadBookings(){
+  const el=document.getElementById('bookings-table');
+  try{
+    const res=await fetch(`${API}/hotel-bookings`);
+    const b=await res.json();
+    if(!b.length){el.innerHTML='<div class="loading">No bookings yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Hotel</th><th>Trip</th><th>Check In</th><th>Check Out</th><th>Total</th></tr></thead><tbody>${b.map(x=>`<tr><td class="td-primary">${x.hotel_name||'–'}</td><td>${x.trip_title||'–'}</td><td>${fmtDate(x.check_in)}</td><td>${fmtDate(x.check_out)}</td><td>₹${Number(x.total_cost||0).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load bookings</div>';}
+}
+async function saveBooking(){
+  const body={trip_id:document.getElementById('booking-trip').value,hotel_id:document.getElementById('booking-hotel').value,check_in:document.getElementById('booking-checkin').value,check_out:document.getElementById('booking-checkout').value,room_type:document.getElementById('booking-room').value,rate_per_night:document.getElementById('booking-rate').value,confirmation_number:document.getElementById('booking-conf').value};
+  await fetch(`${API}/hotel-bookings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('booking-modal');loadBookings();
+}
+async function loadFlights(){
+  const el=document.getElementById('flights-table');
+  try{
+    const res=await fetch(`${API}/flights`);
+    const flights=await res.json();
+    if(!flights.length){el.innerHTML='<div class="loading">No flights yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Flight</th><th>Route</th><th>Departure</th><th>Trip</th><th>Cost</th></tr></thead><tbody>${flights.map(f=>`<tr><td class="td-primary">${f.flight_number||'–'}</td><td>${f.departure_airport} → ${f.arrival_airport}</td><td>${fmtDate(f.departure_time)}</td><td>${f.trip_title||'–'}</td><td>₹${Number(f.cost||0).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load flights</div>';}
+}
+async function saveFlight(){
+  const body={trip_id:document.getElementById('flight-trip').value,flight_number:document.getElementById('flight-number').value,departure_airport:document.getElementById('flight-from').value,arrival_airport:document.getElementById('flight-to').value,departure_time:document.getElementById('flight-dep').value,arrival_time:document.getElementById('flight-arr').value,booking_reference:document.getElementById('flight-ref').value,cost:document.getElementById('flight-cost').value};
+  await fetch(`${API}/flights`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('flight-modal');loadFlights();
+}
+async function loadExpenses(){
+  const el=document.getElementById('expenses-table');
+  const summary=document.getElementById('expense-summary');
+  const tripId=document.getElementById('exp-trip-select').value;
+  try{
+    const url=tripId?`${API}/expenses?trip_id=${tripId}`:`${API}/expenses`;
+    const expenses=await(await fetch(url)).json();
+    const total=expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+    const bycat={};
+    expenses.forEach(e=>{bycat[e.category]=(bycat[e.category]||0)+Number(e.amount||0);});
+    summary.innerHTML=`<div class="card" style="margin-bottom:16px;"><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;"><div><div class="form-label">Total</div><div style="font-family:var(--font-serif);font-size:32px;color:var(--red);">₹${total.toLocaleString('en-IN')}</div></div>${Object.entries(bycat).map(([cat,amt])=>`<div><div class="form-label">${cat}</div><div style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">₹${Number(amt).toLocaleString('en-IN')}</div></div>`).join('')}</div></div>`;
+    if(!expenses.length){el.innerHTML='<div class="loading">No expenses yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Trip</th><th>Category</th><th>Description</th><th>Amount</th></tr></thead><tbody>${expenses.map(e=>`<tr><td>${fmtDate(e.expense_date)}</td><td>${e.trip_title||'–'}</td><td><span class="badge badge-confirmed">${e.category}</span></td><td>${e.description||'–'}</td><td style="font-family:var(--font-serif);color:var(--red);">₹${Number(e.amount||0).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load expenses</div>';}
+}
+async function saveExpense(){
+  const body={trip_id:document.getElementById('expense-trip').value,category:document.getElementById('expense-category').value,description:document.getElementById('expense-desc').value,amount:document.getElementById('expense-amount').value,expense_date:document.getElementById('expense-date').value};
+  await fetch(`${API}/expenses`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('expense-modal');loadExpenses();
+}
+async function exportExpenses(){
+  const tripId=document.getElementById('exp-trip-select').value;
+  const url=tripId?`${API}/expenses?trip_id=${tripId}`:`${API}/expenses`;
+  const expenses=await(await fetch(url)).json();
+  const csv=['Date,Trip,Category,Description,Amount',...expenses.map(e=>`${e.expense_date||''},${e.trip_title||''},${e.category},"${e.description||''}",${e.amount}`)].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='bb-expenses.csv';a.click();
+}
+let currentItinTripId=null;
+async function loadItinerary(){
+  const tripId=document.getElementById('itin-trip-select').value;
+  currentItinTripId=tripId;
+  const el=document.getElementById('itinerary-content');
+  if(!tripId){el.innerHTML='<div class="loading">Select a trip</div>';return;}
+  try{
+    const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
+    const days=trip.days||[];
+    const fests=await(await fetch(`${API}/festivals?from=${trip.start_date?.split('T')[0]}&to=${trip.end_date?.split('T')[0]}`)).json();
+    const festHtml=fests.length?`<div class="card" style="border-left:3px solid var(--gold);margin-bottom:16px;"><div style="font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">FESTIVAL OVERLAPS</div>${fests.map(f=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border-subtle);"><strong style="color:var(--cream);">${f.name}</strong> · ${fmtDate(f.start_date)} · ${f.city||f.region}</div>`).join('')}</div>`:'';
+    const daysHtml=days.length===0?'<div class="loading">No days yet.</div>':days.sort((a,b)=>a.day_number-b.day_number).map(d=>`<div class="card" style="margin-bottom:12px;border-left:3px solid var(--border);"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><div style="display:flex;gap:12px;align-items:baseline;"><span style="font-family:var(--font-serif);font-size:22px;color:var(--gold);">Day ${d.day_number}</span><span style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${d.title||''}</span></div><div style="display:flex;gap:12px;align-items:center;"><span style="font-size:11px;color:var(--muted);">${fmtDate(d.date)} · ${d.location||''}</span><span style="color:var(--gold);cursor:pointer;" onclick="editDay('${d.id}','${tripId}')">✎</span></div></div><div style="font-size:13px;color:var(--cream-dim);line-height:1.6;">${d.description||''}</div></div>`).join('');
+    el.innerHTML=festHtml+daysHtml;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load itinerary</div>';}
+}
+function openAddDay(){
+  if(!currentItinTripId){alert('Select a trip first');return;}
+  document.getElementById('day-modal-title').textContent='Add Day';
+  document.getElementById('day-id').value='';
+  document.getElementById('day-number').value='';
+  document.getElementById('day-date').value='';
+  document.getElementById('day-location').value='';
+  document.getElementById('day-title').value='';
+  document.getElementById('day-desc').value='';
+  openModal('day-modal');
+}
+async function editDay(dayId,tripId){
+  const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
+  const d=(trip.days||[]).find(x=>x.id===dayId);if(!d)return;
+  document.getElementById('day-modal-title').textContent='Edit Day';
+  document.getElementById('day-id').value=d.id;
+  document.getElementById('day-number').value=d.day_number;
+  document.getElementById('day-date').value=d.date?.split('T')[0]||'';
+  document.getElementById('day-location').value=d.location||'';
+  document.getElementById('day-title').value=d.title||'';
+  document.getElementById('day-desc').value=d.description||'';
+  openModal('day-modal');
+}
+async function saveDay(){
+  const id=document.getElementById('day-id').value;
+  const body={trip_id:currentItinTripId,day_number:document.getElementById('day-number').value,date:document.getElementById('day-date').value,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value,description:document.getElementById('day-desc').value};
+  await fetch(id?`${API}/days/${id}`:`${API}/days`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('day-modal');loadItinerary();
+}
+async function populateTripSelects(){
+  if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
+  const opts=tripsCache.map(t=>`<option value="${t.id}">${t.title}</option>`).join('');
+  ['itin-trip-select','booking-trip','flight-trip','expense-trip'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=opts;
+  });
+  document.getElementById('exp-trip-select').innerHTML='<option value="">All trips</option>'+opts;
+  if(hotelsCache.length){
+    const hOpts=hotelsCache.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
+    const bh=document.getElementById('booking-hotel');
+    if(bh)bh.innerHTML=hOpts;
+  }
+}
+async function searchFestivals(){
+  const el=document.getElementById('festival-results');
+  el.innerHTML='<div class="loading dot-pulse">Searching</div>';
+  const params=new URLSearchParams();
+  const city=document.getElementById('fest-city').value;
+  const from=document.getElementById('fest-from').value;
+  const to=document.getElementById('fest-to').value;
+  const type=document.getElementById('fest-type').value;
+  if(city)params.append('city',city);
+  if(from)params.append('from',from);
+  if(to)params.append('to',to);
+  if(type)params.append('type',type);
+  try{
+    const data=await(await fetch(`${API}/festivals?${params}`)).json();
+    if(!data.length){el.innerHTML='<div class="loading">No festivals found</div>';return;}
+    el.innerHTML=data.map(f=>{
+      const[,cc]=crowdClass(f.crowd_level);
+      return`<div class="festival-card"><div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;"><div class="festival-name">${f.notes&&f.notes.includes('⭐')?'⭐ ':''}${f.name}</div><span class="crowd-badge ${cc}">${f.crowd_level||''}</span></div><div class="festival-meta">${fmtDate(f.start_date)}${f.end_date&&f.end_date!==f.start_date?' – '+fmtDate(f.end_date):''} · ${[f.city,f.region,f.state].filter(Boolean).join(', ')} · <em>${f.festival_type||''}</em></div><div class="festival-sig" style="margin-top:6px;">${f.significance||''}</div>${f.travel_impact?`<div style="font-size:12px;color:var(--cream-dim);margin-top:6px;">${f.travel_impact}</div>`:''} ${f.notes?`<div class="festival-notes">${f.notes}</div>`:''}</div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="loading">Error loading festivals</div>';}
+}
+function clearFestSearch(){
+  ['fest-city','fest-from','fest-to'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fest-type').value='';
+  searchFestivals();
+}
+function fmtDate(d){
+  if(!d)return'–';
+  return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+}
+function fmtDateTime(d){
+  if(!d)return'–';
+  return new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.add('hidden');});
+});
+</script>
 </body>
 </html>
