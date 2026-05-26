@@ -219,12 +219,30 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div id="weather-grid" style="margin-bottom:20px;"></div>
       <div class="grid-2" style="margin-bottom:20px;">
         <div>
-          <div class="sh">Exchange Rate</div>
+          <div class="sh-row">
+            <div class="sh">Exchange Rate</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <select class="form-select" id="fx-currency-select" style="width:90px;" onchange="loadFX()">
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+                <option value="EUR">EUR</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+                <option value="SGD">SGD</option>
+                <option value="AED">AED</option>
+              </select>
+              <button class="btn btn-outline btn-sm" onclick="loadFX()">↻</button>
+            </div>
+          </div>
           <div class="fx-card">
-            <div class="fx-label">1 USD =</div>
+            <div class="fx-label" id="fx-label">1 USD =</div>
             <div class="fx-rate" id="fx-rate">–</div>
             <div class="fx-sub" id="fx-sub">Loading...</div>
-            <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;" id="fx-extra"></div>
+            <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+              <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:13px;" placeholder="1" min="0" oninput="calcFX()">
+              <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
+            </div>
+            <canvas id="fx-sparkline" width="260" height="48" style="margin-top:14px;display:block;"></canvas>
           </div>
         </div>
         <div>
@@ -311,18 +329,17 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <!-- MIDDLE: Filter by Tradition -->
         <div>
           <div class="sh">Filter by Tradition</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="fest-pills">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;" id="fest-pills">
             <button class="fest-pill active" data-trad="">All</button>
             <button class="fest-pill" data-trad="Shaiva">🔱 Shaiva</button>
             <button class="fest-pill" data-trad="Vaishnava">🪈 Vaishnava</button>
             <button class="fest-pill" data-trad="Shakta">🌺 Shakta</button>
-            <button class="fest-pill" data-trad="Harvest">🌾 Regional / Harvest</button>
+            <button class="fest-pill" data-trad="Regional">🌾 Regional</button>
             <button class="fest-pill" data-trad="Buddhist">☸️ Buddhist / Sikh</button>
             <button class="fest-pill" data-trad="Sufi">🕌 Sufi / Bhakti</button>
             <button class="fest-pill" data-trad="Classical">🎭 Classical Arts</button>
             <button class="fest-pill" data-trad="STAR">⭐ Unmissable Only</button>
           </div>
-          <div id="fest-tradition-list"><div class="loading dot-pulse">Loading</div></div>
         </div>
 
         <!-- RIGHT: Trip Date Search -->
@@ -701,7 +718,7 @@ function onTabChange(tab){
   if(tab==='flights')loadFlights();
   if(tab==='expenses')loadExpenses();
   if(tab==='itinerary')populateTripSelects();
-  if(tab==='festivals'){loadFestNextUp();loadFestByTradition();}
+  if(tab==='festivals'){loadFestNextUp();}
 }
 function initApp(){
   updateBST();setInterval(updateBST,60000);
@@ -756,55 +773,107 @@ async function loadWeather(){
   const city=CITIES[idx];
   grid.innerHTML='<div class="loading dot-pulse">Loading weather</div>';
   try{
-    const [w,a,f]=await Promise.all([
+    const [w,a]=await Promise.all([
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia/Kolkata&forecast_days=1`),
       fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi&timezone=Asia/Kolkata`),
     ]);
     const wd=await w.json();const ad=await a.json();
-    const temp=Math.round(wd.current.temperature_2m);
+    const tempC=Math.round(wd.current.temperature_2m);
+    const tempF=Math.round(tempC*9/5+32);
     const hi=Math.round(wd.daily.temperature_2m_max[0]);
     const lo=Math.round(wd.daily.temperature_2m_min[0]);
     const aqi=Math.round(ad.current?.us_aqi||0);
     const code=wd.current.weather_code;
-    const desc=c=>{if(c===0)return'☀️ Clear';if(c<=3)return'⛅ Partly cloudy';if(c<=49)return'🌫️ Haze';if(c<=69)return'🌧️ Rain';if(c<=79)return'❄️ Snow';return'⛈️ Storms';};
-    const[lt,lc]=aqiLabel(aqi);
-    grid.innerHTML=`<div class="weather-card" style="max-width:340px;">
-      <div class="w-city" style="font-size:11px;margin-bottom:8px;">${city.name}</div>
-      <div style="display:flex;align-items:baseline;gap:12px;">
-        <div class="w-temp" style="font-size:48px;">${temp}°C</div>
-        <div style="font-size:13px;color:var(--ash);">
-          <div>↑ ${hi}°  ↓ ${lo}°</div>
-          <div style="margin-top:2px;">${desc(code)}</div>
+    const emoji=c=>{if(c===0)return'☀️';if(c<=3)return'⛅';if(c<=49)return'🌫️';if(c<=69)return'🌧️';if(c<=79)return'❄️';return'⛈️';};
+    const desc=c=>{if(c===0)return'Clear';if(c<=3)return'Partly Cloudy';if(c<=49)return'Haze';if(c<=69)return'Rain';if(c<=79)return'Snow';return'Storms';};
+    const aqiColor=a=>{if(a<=50)return'#4a9e5c';if(a<=100)return'#c8a800';if(a<=150)return'#e07830';return'#cc4444';};
+    grid.innerHTML=`<div class="weather-card" style="max-width:360px;">
+      <div class="w-city" style="font-size:11px;margin-bottom:10px;">${city.name}</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+        <div style="font-size:44px;line-height:1;">${emoji(code)}</div>
+        <div>
+          <div class="w-temp" style="font-size:26px;line-height:1;">${tempC}°C / ${tempF}°F</div>
+          <div style="font-size:12px;color:var(--ash);margin-top:4px;">${desc(code)}</div>
+          <div style="font-size:12px;color:var(--ash);margin-top:2px;">↑ ${hi}°C  ↓ ${lo}°C</div>
         </div>
       </div>
-      <span class="w-aqi ${lc}" style="margin-top:10px;display:inline-block;">AQI ${aqi} · ${lt}</span>
+      <div style="font-size:13px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>
     </div>`;
   }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
 }
+let fxRate=0;
 async function loadFX(){
+  const cur=(document.getElementById('fx-currency-select')?.value)||'USD';
+  document.getElementById('fx-label').textContent=`1 ${cur} =`;
+  document.getElementById('fx-rate').textContent='–';
+  document.getElementById('fx-sub').textContent='Loading...';
   try{
-    const res=await fetch('https://open.er-api.com/v6/latest/USD');
+    const res=await fetch('https://open.er-api.com/v6/latest/INR');
     const d=await res.json();
-    const inr=d.rates.INR;
-    document.getElementById('fx-rate').textContent=`₹${inr.toFixed(2)}`;
+    fxRate=d.rates[cur]?1/d.rates[cur]:0;
+    document.getElementById('fx-rate').textContent=`₹${fxRate.toFixed(2)}`;
     document.getElementById('fx-sub').textContent=`Updated: ${new Date(d.time_last_update_utc).toLocaleDateString()}`;
-    document.getElementById('fx-extra').innerHTML=`
-      <div><div class="fx-label">1 GBP =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">₹${(inr/d.rates.GBP).toFixed(2)}</div></div>
-      <div><div class="fx-label">1 EUR =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">₹${(inr/d.rates.EUR).toFixed(2)}</div></div>
-      <div><div class="fx-label">₹1,000 =</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">$${(1000/inr).toFixed(2)}</div></div>`;
+    calcFX();
+    loadFXSparkline(cur);
   }catch(e){document.getElementById('fx-rate').textContent='–';}
+}
+function calcFX(){
+  const amt=parseFloat(document.getElementById('fx-input')?.value)||1;
+  document.getElementById('fx-converted').textContent=fxRate?`= ₹${(amt*fxRate).toFixed(2)}`:'= ₹–';
+}
+async function loadFXSparkline(cur){
+  const canvas=document.getElementById('fx-sparkline');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const today=new Date();
+  const dates=[];
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);dates.push(d.toISOString().split('T')[0]);}
+  try{
+    const rates=await Promise.all(dates.map(dt=>
+      fetch(`https://open.er-api.com/v6/history/INR/${dt}`).then(r=>r.json()).then(d=>d.rates[cur]?1/d.rates[cur]:null)
+    ));
+    const valid=rates.filter(r=>r!==null);
+    if(valid.length<2)return;
+    const w=canvas.width,h=canvas.height,pad=6;
+    ctx.clearRect(0,0,w,h);
+    const min=Math.min(...valid),max=Math.max(...valid),range=max-min||0.01;
+    const pts=valid.map((r,i)=>[pad+(i/(valid.length-1))*(w-pad*2),h-pad-((r-min)/range)*(h-pad*2)]);
+    ctx.beginPath();ctx.strokeStyle='#c8a800';ctx.lineWidth=1.5;ctx.lineJoin='round';
+    pts.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+    ctx.stroke();
+    pts.forEach(([x,y],i)=>{
+      ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);
+      ctx.fillStyle=i===pts.length-1?'#fff':'rgba(200,168,0,0.5)';ctx.fill();
+    });
+  }catch(e){}
 }
 async function loadCricket(){
   const card=document.getElementById('cricket-card');
-  card.innerHTML='<div class="loading dot-pulse">Loading scores</div>';
+  card.innerHTML='<div class="loading dot-pulse">Loading RCB</div>';
   try{
-    const res=await fetch('https://api.cricapi.com/v1/currentMatches?apikey=free&offset=0');
-    const d=await res.json();
-    if(!d.data||!d.data.length)throw new Error('No data');
-    const matches=d.data.filter(m=>m.teams&&(m.teams.some(t=>t.toLowerCase().includes('rcb')||t.toLowerCase().includes('royal challengers'))||m.matchType==='odi')).slice(0,3);
-    if(!matches.length){card.innerHTML='<div style="color:var(--ash);font-size:13px;">No RCB or ODI matches currently live.</div>';return;}
-    card.innerHTML=matches.map(m=>`<div class="cricket-match"><div class="cricket-teams">${m.teams?m.teams.join(' vs '):m.name}</div><div class="cricket-score">${m.score?m.score.map(s=>`${s.inning}: ${s.r}/${s.w} (${s.o})`).join(' | '):'Pending'}</div><div class="cricket-status">${m.status||''}</div></div>`).join('');
-  }catch(e){card.innerHTML='<div style="color:var(--ash);font-size:13px;">Cricket scores unavailable during off-season.</div>';}
+    const res=await fetch(`${API}/rcb`,{method:'POST'});
+    const m=await res.json();
+    const statusColor=m.status==='WON'?'#4a9e5c':m.status==='LOST'?'#cc4444':m.status==='LIVE'?'#c8a800':'var(--ash)';
+    card.innerHTML=`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:${statusColor};text-transform:uppercase;">${m.status||'–'}</span>
+        <span style="font-size:12px;color:var(--ash);">vs ${m.opponent||'–'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--cream);margin-bottom:10px;">${m.result||'–'}</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;background:rgba(198,28,28,0.15);border:1px solid rgba(198,28,28,0.3);border-radius:2px;padding:8px;text-align:center;">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">RCB</div>
+          <div style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${m.rcb_score||'–'}</div>
+        </div>
+        <div style="flex:1;background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:8px;text-align:center;">
+          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">${(m.opponent||'OPP').substring(0,8).toUpperCase()}</div>
+          <div style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${m.opp_score||'–'}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--ash);margin-bottom:10px;">📍 ${m.venue||'–'} &nbsp;·&nbsp; 📅 ${m.date||'–'}</div>
+      ${m.next_match?`<div style="font-size:11px;color:var(--gold);border-top:1px solid var(--border-subtle);padding-top:8px;margin-top:4px;">▶ NEXT: ${m.next_match}</div>`:''}
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;">Ee Sala Cup Namde! 🏆</div>`;
+  }catch(e){card.innerHTML='<div style="color:var(--ash);font-size:13px;">RCB data unavailable.</div>';}
 }
 async function loadUpcomingFestivals(){
   const el=document.getElementById('upcoming-festivals');
@@ -1038,15 +1107,7 @@ async function populateTripSelects(){
     if(bh)bh.innerHTML=hOpts;
   }
 }
-// ── FESTIVALS: shared cache ───────────────────────────────────────────────
-let festCache=[];
-async function getAllFestivals(){
-  if(festCache.length)return festCache;
-  festCache=await(await fetch(`${API}/festivals`)).json();
-  return festCache;
-}
-
-// tradition emoji map
+// ── FESTIVALS ────────────────────────────────────────────────────────────────
 const TRAD_ICON={
   'Shaiva':'🔱','Vaishnava':'🪈','Shakta':'🌺',
   'Buddhist':'☸️','Sikh':'☸️','Jain':'🕊️',
@@ -1063,76 +1124,76 @@ function daysAway(d){
   const diff=Math.ceil((new Date(d)-new Date())/86400000);
   return diff<0?null:diff;
 }
+function tradDotColor(f){
+  const t=(f.festival_type||'').toLowerCase();
+  if(t.includes('shaiv')||t.includes('shiv'))return'#ff6b35';
+  if(t.includes('vaishna')||t.includes('krishna')||t.includes('ram'))return'#f0c040';
+  if(t.includes('shakta')||t.includes('durga')||t.includes('devi'))return'#a855f7';
+  if(t.includes('harvest')||t.includes('regional')||t.includes('tribal'))return'#4a9e5c';
+  if(t.includes('buddhist')||t.includes('sikh')||t.includes('tibetan'))return'#3b82f6';
+  if(t.includes('sufi')||t.includes('muslim')||t.includes('bhakti'))return'#06b6d4';
+  if(t.includes('classical')||t.includes('dance')||t.includes('music')||t.includes('arts'))return'#ec4899';
+  return'#c8a800';
+}
 
-// LEFT panel — Next Up
+let festUpcoming=[];
+let activeTrad='';
+
 async function loadFestNextUp(){
   const el=document.getElementById('fest-nextup');
+  el.innerHTML='<div class="loading dot-pulse">Loading</div>';
   try{
     const today=new Date().toISOString().split('T')[0];
-    const future=new Date(Date.now()+120*86400000).toISOString().split('T')[0];
-    const data=await(await fetch(`${API}/festivals?from=${today}&to=${future}`)).json();
-    if(!data.length){el.innerHTML='<div class="loading">None in next 120 days</div>';return;}
-    el.innerHTML=data.slice(0,12).map(f=>{
-      const da=daysAway(f.start_date);
-      const loc=[f.city,f.state].filter(Boolean).join(', ');
-      return`<div class="fest-nextup-item">
-        <div class="fest-days-away">${da===0?'TODAY':da}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="fest-nextup-name">${festIcon(f)} ${f.name}</div>
-          <div class="fest-nextup-meta">${f.festival_type||''} · ${loc}</div>
-          <div class="fest-nextup-meta">${fmtDate(f.start_date)}${da!==0?` · ${da} days`:''}${f.crowd_level==='very high'?' · ⚠️ very high crowds':''}</div>
-        </div>
-      </div>`;
-    }).join('');
+    const future=new Date(Date.now()+365*86400000).toISOString().split('T')[0];
+    festUpcoming=await(await fetch(`${API}/festivals?from=${today}&to=${future}`)).json();
+    renderFestNextUp();
   }catch(e){el.innerHTML='<div class="loading">Unable to load</div>';}
 }
 
-// MIDDLE panel — Tradition filter
-let activeTrad='';
-async function loadFestByTradition(){
-  const el=document.getElementById('fest-tradition-list');
-  el.innerHTML='<div class="loading dot-pulse">Loading</div>';
-  try{
-    const all=await getAllFestivals();
-    let filtered=all;
-    if(activeTrad==='STAR'){
-      filtered=all.filter(f=>f.notes&&(f.notes.toUpperCase().includes('STAR')||f.notes.includes('⭐')));
-    } else if(activeTrad){
-      const t=activeTrad.toLowerCase();
-      filtered=all.filter(f=>{
-        const ft=(f.festival_type||'').toLowerCase();
-        if(t==='shaiva')return ft.includes('shaiv')||ft.includes('shiv');
-        if(t==='vaishnava')return ft.includes('vaishna')||ft.includes('krishna')||ft.includes('ram');
-        if(t==='shakta')return ft.includes('shakta')||ft.includes('durga')||ft.includes('devi');
-        if(t==='harvest')return ft.includes('harvest')||ft.includes('regional')||ft.includes('tribal')||ft.includes('bihu')||ft.includes('onam')||ft.includes('pongal');
-        if(t==='buddhist')return ft.includes('buddhist')||ft.includes('sikh')||ft.includes('tibetan');
-        if(t==='sufi')return ft.includes('sufi')||ft.includes('muslim')||ft.includes('catholic')||ft.includes('bhakti');
-        if(t==='classical')return ft.includes('classical')||ft.includes('dance')||ft.includes('music')||ft.includes('literary')||ft.includes('cinema')||ft.includes('cultural');
-        return false;
-      });
-    }
-    filtered=filtered.sort((a,b)=>new Date(a.start_date)-new Date(b.start_date));
-    if(!filtered.length){el.innerHTML='<div class="loading">None found</div>';return;}
-    el.innerHTML=filtered.map(f=>{
-      const[,cc]=crowdClass(f.crowd_level);
-      const loc=[f.city,f.state].filter(Boolean).join(', ');
-      return`<div class="fest-trad-item">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;">
-          <div class="fest-trad-name">${festIcon(f)} ${f.name}</div>
-          <span class="crowd-badge ${cc}" style="font-size:8px;">${f.crowd_level||''}</span>
-        </div>
-        <div class="fest-trad-meta">${fmtDate(f.start_date)} · ${loc}</div>
-      </div>`;
-    }).join('');
-  }catch(e){el.innerHTML='<div class="loading">Error</div>';}
+function renderFestNextUp(){
+  const el=document.getElementById('fest-nextup');
+  if(!el)return;
+  let filtered=festUpcoming;
+  if(activeTrad==='STAR'){
+    filtered=festUpcoming.filter(f=>f.notes&&f.notes.includes('⭐'));
+  } else if(activeTrad){
+    const t=activeTrad.toLowerCase();
+    filtered=festUpcoming.filter(f=>{
+      const ft=(f.festival_type||'').toLowerCase();
+      if(t==='shaiva')return ft.includes('shaiv')||ft.includes('shiv');
+      if(t==='vaishnava')return ft.includes('vaishna')||ft.includes('krishna')||ft.includes('ram');
+      if(t==='shakta')return ft.includes('shakta')||ft.includes('durga')||ft.includes('devi');
+      if(t==='regional')return ft.includes('harvest')||ft.includes('regional')||ft.includes('tribal')||ft.includes('bihu')||ft.includes('onam')||ft.includes('pongal');
+      if(t==='buddhist')return ft.includes('buddhist')||ft.includes('sikh')||ft.includes('tibetan');
+      if(t==='sufi')return ft.includes('sufi')||ft.includes('muslim')||ft.includes('catholic')||ft.includes('bhakti');
+      if(t==='classical')return ft.includes('classical')||ft.includes('dance')||ft.includes('music')||ft.includes('literary')||ft.includes('cinema')||ft.includes('cultural');
+      return false;
+    });
+  }
+  if(!filtered.length){el.innerHTML='<div class="loading">None found</div>';return;}
+  el.innerHTML=filtered.slice(0,6).map(f=>{
+    const da=daysAway(f.start_date);
+    const loc=[f.city,f.state].filter(Boolean).join(', ');
+    const dot=tradDotColor(f);
+    return`<div class="fest-nextup-item">
+      <span style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:5px;"></span>
+      <div style="flex:1;min-width:0;">
+        <div class="fest-nextup-name">${f.name}</div>
+        <div class="fest-nextup-meta">${f.festival_type||''} · ${loc}</div>
+        <div class="fest-nextup-meta">${fmtDate(f.start_date)}</div>
+      </div>
+      <div class="fest-days-away">${da===0?'TODAY':da!==null?da:'–'}</div>
+    </div>`;
+  }).join('');
 }
+
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('fest-pills').addEventListener('click',e=>{
     const pill=e.target.closest('.fest-pill');if(!pill)return;
     document.querySelectorAll('.fest-pill').forEach(p=>p.classList.remove('active'));
     pill.classList.add('active');
     activeTrad=pill.dataset.trad;
-    loadFestByTradition();
+    renderFestNextUp();
   });
 });
 
@@ -1152,15 +1213,11 @@ async function searchFestivals(){
     const data=await(await fetch(`${API}/festivals?${params}`)).json();
     if(!data.length){el.innerHTML='<div class="loading" style="padding:20px 0;text-align:left;">No festivals found</div>';return;}
     el.innerHTML=data.map(f=>{
-      const[,cc]=crowdClass(f.crowd_level);
       const da=daysAway(f.start_date);
-      return`<div class="festival-card" style="margin-bottom:8px;">
-        <div style="display:flex;align-items:baseline;gap:8px;">
-          <div class="festival-name" style="font-size:15px;">${festIcon(f)} ${f.name}</div>
-          <span class="crowd-badge ${cc}">${f.crowd_level||''}</span>
-        </div>
-        <div class="festival-meta">${fmtDate(f.start_date)}${f.end_date&&f.end_date!==f.start_date?' – '+fmtDate(f.end_date):''} · ${[f.city,f.region,f.state].filter(Boolean).join(', ')}${da!==null?' · <strong style="color:var(--gold);">'+da+' days away</strong>':''}</div>
-        ${f.notes?`<div class="festival-notes" style="margin-top:4px;">${f.notes.substring(0,120)}</div>`:''}
+      const loc=[f.city,f.region,f.state].filter(Boolean).join(', ');
+      return`<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+        <div class="fest-nextup-name" style="font-size:14px;">${festIcon(f)} ${f.name}</div>
+        <div class="fest-nextup-meta">${fmtDate(f.start_date)} · ${loc}${da!==null?' · <strong style="color:var(--gold);">'+da+' days</strong>':''}</div>
       </div>`;
     }).join('');
   }catch(e){el.innerHTML='<div class="loading">Error loading festivals</div>';}

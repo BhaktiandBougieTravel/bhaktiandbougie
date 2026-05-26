@@ -30,6 +30,29 @@ app.use('/api/expenses',       expensesRouter);
 app.use('/api/days',           daysRouter);
 app.use('/api/festivals',      festivalsRouter);
 
+app.post('/api/rcb', async (_req, res) => {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: 'Give me the latest RCB Royal Challengers Bengaluru IPL 2026 match result and their next scheduled match. Respond ONLY in JSON no markdown with keys: result, rcb_score, opp_score, opponent, venue, date, status (WON/LOST/LIVE/UPCOMING), next_match' }],
+      }),
+    });
+    const d = await response.json();
+    const raw = d.content?.[0]?.text || '{}';
+    res.json(JSON.parse(raw));
+  } catch (e) {
+    res.status(500).json({ error: 'RCB data unavailable' });
+  }
+});
+
 // Central error handler
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
