@@ -183,11 +183,29 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="cc-grid" id="clocks-grid"></div>
       <div class="sh-row">
         <div class="sh">India City Conditions</div>
-        <button class="btn btn-outline btn-sm" onclick="loadWeather()">↻ Refresh</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-select" id="weather-city-select" style="width:160px;" onchange="loadWeather()">
+            <option value="0">Delhi</option>
+            <option value="1">Jaipur</option>
+            <option value="2">Jodhpur</option>
+            <option value="3">Udaipur</option>
+            <option value="4">Amritsar</option>
+            <option value="5">Rishikesh</option>
+            <option value="6">Srinagar</option>
+            <option value="7">Varanasi</option>
+            <option value="8">Kolkata</option>
+            <option value="9">Mumbai</option>
+            <option value="10">Goa</option>
+            <option value="11">Kochi</option>
+            <option value="12">Madurai</option>
+            <option value="13">Chennai</option>
+            <option value="14">Hyderabad</option>
+            <option value="15">Bengaluru</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="loadWeather()">↻ Refresh</button>
+        </div>
       </div>
-      <div class="weather-grid" id="weather-grid">
-        <div class="loading dot-pulse">Loading weather</div>
-      </div>
+      <div id="weather-grid" style="margin-bottom:20px;"></div>
       <div class="grid-2" style="margin-bottom:20px;">
         <div>
           <div class="sh">Exchange Rate</div>
@@ -658,10 +676,10 @@ function updateBST(){
   document.getElementById('bst-days').textContent=diff>0?diff:'NOW';
 }
 const CLOCKS=[
-  {city:'New York',tz:'America/New_York'},
-  {city:'London',tz:'Europe/London'},
   {city:'India IST',tz:'Asia/Kolkata'},
-  {city:'Bangkok',tz:'Asia/Bangkok'},
+  {city:'Vermont ET',tz:'America/New_York'},
+  {city:'Dubai GST',tz:'Asia/Dubai'},
+  {city:'London GMT',tz:'Europe/London'},
 ];
 function renderClocks(){
   document.getElementById('clocks-grid').innerHTML=CLOCKS.map(c=>{
@@ -697,19 +715,33 @@ function aqiLabel(a){
 }
 async function loadWeather(){
   const grid=document.getElementById('weather-grid');
+  const idx=parseInt(document.getElementById('weather-city-select')?.value||0);
+  const city=CITIES[idx];
   grid.innerHTML='<div class="loading dot-pulse">Loading weather</div>';
   try{
-    const results=await Promise.all(CITIES.map(async city=>{
-      const w=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&timezone=Asia/Kolkata&forecast_days=1`);
-      const a=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi&timezone=Asia/Kolkata`);
-      const wd=await w.json();const ad=await a.json();
-      return{name:city.name,temp:Math.round(wd.current.temperature_2m),aqi:Math.round(ad.current?.us_aqi||0),code:wd.current.weather_code};
-    }));
+    const [w,a,f]=await Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia/Kolkata&forecast_days=1`),
+      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.lat}&longitude=${city.lon}&current=us_aqi&timezone=Asia/Kolkata`),
+    ]);
+    const wd=await w.json();const ad=await a.json();
+    const temp=Math.round(wd.current.temperature_2m);
+    const hi=Math.round(wd.daily.temperature_2m_max[0]);
+    const lo=Math.round(wd.daily.temperature_2m_min[0]);
+    const aqi=Math.round(ad.current?.us_aqi||0);
+    const code=wd.current.weather_code;
     const desc=c=>{if(c===0)return'☀️ Clear';if(c<=3)return'⛅ Partly cloudy';if(c<=49)return'🌫️ Haze';if(c<=69)return'🌧️ Rain';if(c<=79)return'❄️ Snow';return'⛈️ Storms';};
-    grid.innerHTML=results.map(r=>{
-      const[lt,lc]=aqiLabel(r.aqi);
-      return`<div class="weather-card"><div class="w-city">${r.name}</div><div class="w-temp">${r.temp}°C</div><div class="w-desc">${desc(r.code)}</div><span class="w-aqi ${lc}">AQI ${r.aqi} · ${lt}</span></div>`;
-    }).join('');
+    const[lt,lc]=aqiLabel(aqi);
+    grid.innerHTML=`<div class="weather-card" style="max-width:340px;">
+      <div class="w-city" style="font-size:11px;margin-bottom:8px;">${city.name}</div>
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <div class="w-temp" style="font-size:48px;">${temp}°C</div>
+        <div style="font-size:13px;color:var(--ash);">
+          <div>↑ ${hi}°  ↓ ${lo}°</div>
+          <div style="margin-top:2px;">${desc(code)}</div>
+        </div>
+      </div>
+      <span class="w-aqi ${lc}" style="margin-top:10px;display:inline-block;">AQI ${aqi} · ${lt}</span>
+    </div>`;
   }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
 }
 async function loadFX(){
