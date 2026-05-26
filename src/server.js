@@ -9,6 +9,7 @@ const hotelBookingsRouter = require('./routes/hotelBookings');
 const flightsRouter      = require('./routes/flights');
 const expensesRouter     = require('./routes/expenses');
 const daysRouter         = require('./routes/days');
+const festivalsRouter    = require('./routes/festivals');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use('/api/hotel-bookings', hotelBookingsRouter);
 app.use('/api/flights',        flightsRouter);
 app.use('/api/expenses',       expensesRouter);
 app.use('/api/days',           daysRouter);
+app.use('/api/festivals',      festivalsRouter);
 
 // Central error handler
 app.use((err, _req, res, _next) => {
