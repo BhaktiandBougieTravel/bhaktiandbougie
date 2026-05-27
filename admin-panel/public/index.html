@@ -1675,8 +1675,8 @@ async function loadItinerary(){
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
       const timedItems=[];
       dayTrains.forEach(t=>{
-        const dep=t.departure_time?t.departure_time.slice(0,5):'–';
-        const arr=t.arrival_time?t.arrival_time.slice(0,5):'–';
+        const dep=t.departure_time?utcHHMM(t.departure_time):'–';
+        const arr=t.arrival_time?utcHHMM(t.arrival_time):'–';
         timedItems.push({time:t.departure_time?t.departure_time.slice(0,5):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
       });
       dayFlights.forEach(f=>{
@@ -1873,7 +1873,7 @@ async function loadTrnList(){
     const trains=await(await fetch(`${API}/trains?trip_id=${encodeURIComponent(tripId)}&date=${date}`)).json();
     if(!Array.isArray(trains)||!trains.length){el.innerHTML='';return;}
     el.innerHTML=trains.map(t=>{
-      const dep=t.departure_time?t.departure_time.slice(0,5):'';
+      const dep=t.departure_time?utcHHMM(t.departure_time):'';
       const tnum=[t.carrier,t.train_number].filter(Boolean).join(' ');
       const route=t.departure_station&&t.arrival_station?t.departure_station+'→'+t.arrival_station:'';
       const lbl=[tnum,route,dep].filter(Boolean).join(' ');
@@ -1909,8 +1909,8 @@ async function editTrn(id){
     entryField(te,'train_number').value=t.train_number||'';
     entryField(te,'departure_station').value=t.departure_station||'';
     entryField(te,'arrival_station').value=t.arrival_station||'';
-    entryField(te,'dep_time').value=t.departure_time?t.departure_time.slice(0,5):'';
-    entryField(te,'arr_time').value=t.arrival_time?t.arrival_time.slice(0,5):'';
+    entryField(te,'dep_time').value=t.departure_time?utcHHMM(t.departure_time):'';
+    entryField(te,'arr_time').value=t.arrival_time?utcHHMM(t.arrival_time):'';
     entryField(te,'class').value=t.class||'';
     entryField(te,'pnr').value=t.pnr||'';
     entryField(te,'cost').value=t.cost||'';
@@ -1994,6 +1994,7 @@ function setXfrEntryType(btn){
   e.querySelectorAll('.xfr-type').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
+function utcHHMM(ts){const d=new Date(ts);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
 function addDaysStr(dateStr,n){
   const d=new Date(dateStr+'T12:00:00Z');
   d.setUTCDate(d.getUTCDate()+n);
