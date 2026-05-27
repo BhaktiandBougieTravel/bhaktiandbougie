@@ -2041,7 +2041,8 @@ async function openAddDay(){
   document.getElementById('day-modal-trip-id').value=currentItinTripId;
   populateDayHotelSelects();
   try{
-    const trip=tripsCache.find(t=>t.id===currentItinTripId);
+    let trip=tripsCache.find(t=>t.id===currentItinTripId);
+    if(!trip){const res=await fetch(`${API}/trips/${currentItinTripId}`);trip=await res.json();}
     const days=await(await fetch(`${API}/days?trip_id=${currentItinTripId}`)).json();
     const maxNum=days.reduce((m,d)=>Math.max(m,d.day_number||0),0);
     const nextNum=maxNum+1;
