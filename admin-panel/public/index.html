@@ -1673,13 +1673,19 @@ async function loadItinerary(){
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
-      const arrivingFlights=flights.filter(f=>f.arrival_time&&f.departure_time&&new Date(f.arrival_time).toISOString().slice(0,10)===ds&&new Date(f.departure_time).toISOString().slice(0,10)!==ds);
+      const arrivingFlights=flights.filter(f=>{
+        if(!f.arrival_time||!f.departure_time)return false;
+        const arrDs=(f.arrival_time).split('T')[0];
+        const depDs=(f.departure_time).split('T')[0];
+        return arrDs===ds&&depDs!==ds;
+      });
       const arrivingHtml=arrivingFlights.map(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
         const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
         const arr=utcHHMM(f.arrival_time);
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
-        return`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">Arrives ${arr}</div></div></div>`;
+        const ref=f.booking_ref||'';
+        return`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">Arrives ${arr}${ref?' · ref '+ref:''}</div></div></div>`;
       }).join('');
       const timedItems=[];
       dayTrains.forEach(t=>{
@@ -1692,7 +1698,7 @@ async function loadItinerary(){
         const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
         const dep=f.departure_time?utcHHMM(f.departure_time):'–';
         const arr=f.arrival_time?utcHHMM(f.arrival_time):'–';
-        const nextDay=f.departure_time&&f.arrival_time&&new Date(f.arrival_time).toISOString().slice(0,10)>new Date(f.departure_time).toISOString().slice(0,10);
+        const nextDay=f.departure_time&&f.arrival_time&&(f.arrival_time).split('T')[0]>(f.departure_time).split('T')[0];
         const arrStr=arr+(nextDay?'<sup style="color:var(--gold);font-size:10px;">+1</sup>':'');
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
         const ref=f.booking_ref||'';
