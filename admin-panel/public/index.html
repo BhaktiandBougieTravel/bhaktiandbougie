@@ -414,7 +414,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <input type="hidden" id="trip-id"/>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Trip Title</label>
+        <label class="form-label">Trip Title <span style="color:#cc4444;">*</span></label>
         <input type="text" class="form-input" id="trip-title"/>
       </div>
       <div class="form-group">
@@ -430,11 +430,11 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Start Date</label>
+        <label class="form-label">Start Date <span style="color:#cc4444;">*</span></label>
         <input type="date" class="form-input" id="trip-start"/>
       </div>
       <div class="form-group">
-        <label class="form-label">End Date</label>
+        <label class="form-label">End Date <span style="color:#cc4444;">*</span></label>
         <input type="date" class="form-input" id="trip-end"/>
       </div>
     </div>
@@ -452,8 +452,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="form-group">
         <label class="form-label">Currency</label>
         <select class="form-select" id="trip-currency">
-          <option value="INR" selected>INR</option>
-          <option value="USD">USD</option>
+          <option value="INR">INR</option>
+          <option value="USD" selected>USD</option>
           <option value="GBP">GBP</option>
           <option value="EUR">EUR</option>
         </select>
