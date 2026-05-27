@@ -190,16 +190,16 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
   </header>
   <main class="content">
     <div class="tab-panel active" id="tab-command">
-      <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:stretch;margin-bottom:20px;">
 
         <!-- Col 1: Clocks 2×2 -->
-        <div class="fx-card" style="padding:12px;">
+        <div class="fx-card" style="padding:12px;display:flex;flex-direction:column;justify-content:center;">
           <div id="clocks-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
         </div>
 
         <!-- Col 2: Currency -->
-        <div class="fx-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="fx-card" style="display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <div class="fx-label" style="margin-bottom:0;">Exchange Rate</div>
             <div style="display:flex;gap:6px;align-items:center;">
               <select class="form-select" id="fx-currency-select" style="width:80px;" onchange="loadFX()">
@@ -217,16 +217,16 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="fx-label" id="fx-label">1 USD =</div>
           <div class="fx-rate" id="fx-rate">–</div>
           <div class="fx-sub" id="fx-sub">Loading...</div>
-          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
             <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:13px;" placeholder="1" min="0" oninput="calcFX()">
             <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
           </div>
-          <canvas id="fx-sparkline" width="260" height="48" style="margin-top:14px;display:block;"></canvas>
+          <canvas id="fx-sparkline" width="260" height="48" style="margin-top:auto;padding-top:12px;display:block;width:100%;box-sizing:border-box;"></canvas>
         </div>
 
         <!-- Col 3: Weather -->
-        <div class="fx-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="fx-card" style="display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <div class="fx-label" style="margin-bottom:0;">City Weather</div>
             <select class="form-select" id="weather-city-select" style="width:130px;" onchange="loadWeather()">
               <option value="0">Delhi</option>
@@ -247,16 +247,16 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
               <option value="15">Bengaluru</option>
             </select>
           </div>
-          <div id="weather-grid"></div>
+          <div id="weather-grid" style="flex:1;"></div>
         </div>
 
         <!-- Col 4: RCB -->
-        <div class="fx-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="fx-card" style="display:flex;flex-direction:column;justify-content:space-between;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <div class="fx-label" style="margin-bottom:0;">RCB &amp; Cricket</div>
             <button class="btn btn-outline btn-sm" onclick="loadCricket()">↻</button>
           </div>
-          <div id="cricket-card"></div>
+          <div id="cricket-card" style="flex:1;"></div>
         </div>
 
       </div>
