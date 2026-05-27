@@ -1874,10 +1874,12 @@ async function loadTrnList(){
     if(!Array.isArray(trains)||!trains.length){el.innerHTML='';return;}
     el.innerHTML=trains.map(t=>{
       const dep=t.departure_time?t.departure_time.slice(0,5):'';
-      const lbl=[t.train_number,t.origin_station&&t.dest_station?t.origin_station+'→'+t.dest_station:'',dep].filter(Boolean).join(' ');
+      const tnum=[t.carrier,t.train_number].filter(Boolean).join(' ');
+      const route=t.origin_station&&t.dest_station?t.origin_station+'→'+t.dest_station:'';
+      const lbl=[tnum,route,dep].filter(Boolean).join(' ');
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚂 ${lbl||'Train'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editTrn('${t.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
     }).join('');
-  }catch(e){el.innerHTML='';}
+  }catch(e){el.innerHTML='';console.error('[loadTrnList]',e);}
 }
 async function saveTrain(){
   const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
@@ -1886,14 +1888,18 @@ async function saveTrain(){
   const te=document.querySelector('.trn-entry');
   const trn={trip_id:tripId,carrier:entryField(te,'carrier').value,train_number:entryField(te,'train_number').value,origin_station:entryField(te,'origin_station').value,dest_station:entryField(te,'dest_station').value,departure_date:dayDate,departure_time:entryField(te,'dep_time').value||null,arrival_time:entryField(te,'arr_time').value||null,class:entryField(te,'class').value,pnr:entryField(te,'pnr').value,cost:parseFloat(entryField(te,'cost').value)||null,currency:entryField(te,'currency').value||'INR',notes:entryField(te,'notes').value};
   const tid=document.getElementById('trn-edit-id').value;
+  console.log('[saveTrain]',tid?'PATCH':'POST', trn);
   try{
-    await fetch(tid?`${API}/trains/${tid}`:`${API}/trains`,{method:tid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(trn)});
+    const r=await fetch(tid?`${API}/trains/${tid}`:`${API}/trains`,{method:tid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(trn)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveTrain] error response:',err);alert('Failed to save train: '+(err.error||r.status));return;}
     newTrnItem();loadTrnList();
-  }catch(e){alert('Failed to save train');}
+  }catch(e){console.error('[saveTrain]',e);alert('Failed to save train');}
 }
 async function editTrn(id){
+  console.log('[editTrn] id:', id);
   try{
     const t=await(await fetch(`${API}/trains/${id}`)).json();
+    console.log('[editTrn] data:', t);
     const te=document.querySelector('.trn-entry');
     document.getElementById('trn-edit-id').value=id;
     const lbl=document.getElementById('trn-form-label');if(lbl)lbl.textContent='Edit Train';
@@ -1908,7 +1914,7 @@ async function editTrn(id){
     entryField(te,'cost').value=t.cost||'';
     entryField(te,'currency').value=t.currency||'INR';
     entryField(te,'notes').value=t.notes||'';
-  }catch(e){}
+  }catch(e){console.error('[editTrn]',e);}
 }
 function newTrnItem(){
   document.getElementById('trn-edit-id').value='';
@@ -1918,6 +1924,7 @@ function newTrnItem(){
   te.querySelectorAll('input').forEach(el=>el.value='');
   te.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
 }
+const XFR_LABEL={E:'Emirates Limo',H:'Hotel Transfer',U:'Uber/Taxi',P:'Private'};
 async function loadXfrList(){
   const el=document.getElementById('xfr-list');
   if(!el)return;
@@ -1929,10 +1936,12 @@ async function loadXfrList(){
     if(!Array.isArray(xfrs)||!xfrs.length){el.innerHTML='';return;}
     el.innerHTML=xfrs.map(x=>{
       const time=x.pickup_time?x.pickup_time.slice(0,5):'';
-      const lbl=[x.type,x.pickup_location&&x.dropoff_location?x.pickup_location+'→'+x.dropoff_location:'',time].filter(Boolean).join(' ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl||'Transfer'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editXfr('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      const badge=XFR_LABEL[x.type]||x.type||'Transfer';
+      const route=x.pickup_location&&x.dropoff_location?x.pickup_location+'→'+x.dropoff_location:'';
+      const lbl=[badge,route,time].filter(Boolean).join(' ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editXfr('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
     }).join('');
-  }catch(e){el.innerHTML='';}
+  }catch(e){el.innerHTML='';console.error('[loadXfrList]',e);}
 }
 async function saveTransfer(){
   const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
@@ -1942,14 +1951,18 @@ async function saveTransfer(){
   const activeType=xe.querySelector('.xfr-type.active');
   const xfr={trip_id:tripId,type:activeType?activeType.dataset.type:'E',vendor:'',pickup_location:entryField(xe,'from').value,dropoff_location:entryField(xe,'to').value,transport_date:dayDate,pickup_time:entryField(xe,'time').value||null,confirmation_number:entryField(xe,'ref').value,notes:entryField(xe,'notes').value};
   const xid=document.getElementById('xfr-edit-id').value;
+  console.log('[saveTransfer]',xid?'PATCH':'POST', xfr);
   try{
-    await fetch(xid?`${API}/ground-transport/${xid}`:`${API}/ground-transport`,{method:xid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(xfr)});
+    const r=await fetch(xid?`${API}/ground-transport/${xid}`:`${API}/ground-transport`,{method:xid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(xfr)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveTransfer] error response:',err);alert('Failed to save transfer: '+(err.error||r.status));return;}
     newXfrItem();loadXfrList();
-  }catch(e){alert('Failed to save transfer');}
+  }catch(e){console.error('[saveTransfer]',e);alert('Failed to save transfer');}
 }
 async function editXfr(id){
+  console.log('[editXfr] id:', id);
   try{
     const gt=await(await fetch(`${API}/ground-transport/${id}`)).json();
+    console.log('[editXfr] data:', gt);
     const xe=document.querySelector('.xfr-entry');
     document.getElementById('xfr-edit-id').value=id;
     const lbl=document.getElementById('xfr-form-label');if(lbl)lbl.textContent='Edit Transfer';
@@ -1959,7 +1972,7 @@ async function editXfr(id){
     entryField(xe,'time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
     entryField(xe,'ref').value=gt.confirmation_number||'';
     entryField(xe,'notes').value=gt.notes||'';
-  }catch(e){}
+  }catch(e){console.error('[editXfr]',e);}
 }
 function newXfrItem(){
   document.getElementById('xfr-edit-id').value='';
