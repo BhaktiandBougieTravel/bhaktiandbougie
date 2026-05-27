@@ -849,10 +849,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="form-group"><label class="form-label">To (IATA)</label><input type="text" class="form-input" data-field="dest_airport" placeholder="DEL" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Departure</label><input type="time" class="form-input" data-field="dep_time"/></div>
+          <div class="form-group"><label class="form-label">Departure</label><input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="dep_time"/></div>
           <div class="form-group"><label class="form-label">Arrival</label>
             <div style="display:flex;gap:8px;align-items:center;">
-              <input type="time" class="form-input" data-field="arr_time" style="flex:1;"/>
+              <input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="arr_time" style="flex:1;"/>
               <label style="font-size:11px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" data-field="next_day"/> +1 day</label>
             </div>
           </div>
@@ -889,8 +889,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="form-group"><label class="form-label">To Station</label><input type="text" class="form-input" data-field="dest_station"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Departure</label><input type="time" class="form-input" data-field="dep_time"/></div>
-          <div class="form-group"><label class="form-label">Arrival</label><input type="time" class="form-input" data-field="arr_time"/></div>
+          <div class="form-group"><label class="form-label">Departure</label><input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="dep_time"/></div>
+          <div class="form-group"><label class="form-label">Arrival</label><input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="arr_time"/></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Class</label><input type="text" class="form-input" data-field="class" placeholder="First AC"/></div>
@@ -929,7 +929,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="form-group"><label class="form-label">To</label><input type="text" class="form-input" data-field="to"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Pickup Time</label><input type="time" class="form-input" data-field="time"/></div>
+          <div class="form-group"><label class="form-label">Pickup Time</label><input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="time"/></div>
           <div class="form-group"><label class="form-label">Confirmation</label><input type="text" class="form-input" data-field="ref"/></div>
         </div>
         <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" data-field="notes"/></div>
@@ -1012,7 +1012,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group">
           <label class="form-label">Check-in Time</label>
-          <input type="time" class="form-input" id="ci-time" value="14:00"/>
+          <input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" id="ci-time" value="14:00"/>
         </div>
       </div>
       <div class="form-group" style="display:flex;align-items:center;gap:10px;">
@@ -1040,7 +1040,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group">
           <label class="form-label">Check-out Time</label>
-          <input type="time" class="form-input" id="co-time" value="11:00"/>
+          <input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" id="co-time" value="11:00"/>
         </div>
       </div>
       <div class="form-group">
@@ -1103,7 +1103,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Pickup Time</label>
-        <input type="time" class="form-input" id="gt-time"/>
+        <input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" id="gt-time"/>
       </div>
       <div class="form-group">
         <label class="form-label">Cost</label>
