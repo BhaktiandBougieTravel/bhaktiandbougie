@@ -157,6 +157,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .day-section{display:none;border-left:3px solid var(--gold-border);padding:14px 16px;margin-top:10px;background:rgba(22,35,51,0.6);border-radius:0 2px 2px 0;}
 .day-section.visible{display:block;}
 .day-sec-hdr{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.day-type-row{display:flex;gap:10px;margin-bottom:14px;}
+.day-type-btn{flex:1;padding:10px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all 0.2s;background:var(--navy3);border:1.5px solid var(--border);color:var(--cream-dim);text-align:center;}
+.day-type-btn:hover:not(.active){border-color:var(--gold);color:var(--cream);}
+.day-type-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
 </style>
 </head>
 <body>
@@ -778,6 +782,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <input type="hidden" id="day-modal-trip-id"/>
     <input type="hidden" id="day-edit-item-type"/>
     <input type="hidden" id="day-edit-item-id"/>
+    <div class="day-type-row">
+      <button type="button" class="day-type-btn active" id="daytype-stay" onclick="setDayType('stay')">🏨 Stay Day</button>
+      <button type="button" class="day-type-btn" id="daytype-travel" onclick="setDayType('travel')">✈️ Travel Day</button>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Day Number</label>
@@ -788,25 +796,35 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <input type="date" class="form-input" id="day-date"/>
       </div>
     </div>
-    <div class="form-row">
+    <div id="day-stay-row">
       <div class="form-group">
         <label class="form-label">City / Location</label>
         <input type="text" class="form-input" id="day-location"/>
       </div>
+    </div>
+    <div class="form-row" id="day-travel-row" style="display:none;">
       <div class="form-group">
-        <label class="form-label">Day Title</label>
-        <input type="text" class="form-input" id="day-title" placeholder="e.g. Arrive Dubai"/>
+        <label class="form-label">Leaving</label>
+        <input type="text" class="form-input" id="day-leaving" placeholder="Dubai"/>
       </div>
+      <div class="form-group">
+        <label class="form-label">Arriving</label>
+        <input type="text" class="form-input" id="day-arriving" placeholder="Udaipur"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Day Title</label>
+      <input type="text" class="form-input" id="day-title" placeholder="e.g. Exploring Udaipur"/>
     </div>
     <div style="padding:12px 0 4px;border-top:1px solid var(--border);margin-top:8px;">
       <div class="form-label" style="margin-bottom:10px;">What's happening today?</div>
       <div class="day-toggle-row">
-        <button type="button" class="day-toggle" data-sec="flight" onclick="toggleDaySec('flight')">✈️ Flight</button>
-        <button type="button" class="day-toggle" data-sec="train" onclick="toggleDaySec('train')">🚂 Train</button>
-        <button type="button" class="day-toggle" data-sec="transfer" onclick="toggleDaySec('transfer')">🚗 Transfer</button>
+        <button type="button" class="day-toggle travel-only" data-sec="flight" onclick="toggleDaySec('flight')" style="display:none;">✈️ Flight</button>
+        <button type="button" class="day-toggle travel-only" data-sec="train" onclick="toggleDaySec('train')" style="display:none;">🚂 Train</button>
+        <button type="button" class="day-toggle travel-only" data-sec="transfer" onclick="toggleDaySec('transfer')" style="display:none;">🚗 Transfer</button>
         <button type="button" class="day-toggle" data-sec="driver" onclick="toggleDaySec('driver')">🚗 Driver</button>
-        <button type="button" class="day-toggle" data-sec="checkin" onclick="toggleDaySec('checkin')">🏨 Check-in</button>
-        <button type="button" class="day-toggle" data-sec="checkout" onclick="toggleDaySec('checkout')">🏨 Check-out</button>
+        <button type="button" class="day-toggle travel-only" data-sec="checkin" onclick="toggleDaySec('checkin')" style="display:none;">🏨 Check-in</button>
+        <button type="button" class="day-toggle travel-only" data-sec="checkout" onclick="toggleDaySec('checkout')" style="display:none;">🏨 Check-out</button>
         <button type="button" class="day-toggle" data-sec="notes" onclick="toggleDaySec('notes')">📝 Notes</button>
       </div>
     </div>
@@ -1732,7 +1750,7 @@ async function loadItinerary(){
               <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">${dow.toUpperCase()}</span>
               <span style="font-size:13px;color:var(--cream);">${fmtDate(d.date)}</span>
             </div>
-            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${[d.location,d.title].filter(Boolean).join(' — ')}</div>`:''}
+            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${d.day_type==='travel'?(dayFlights.length?'✈️':dayTrains.length?'🚂':'🚗'):'🏨'} ${[d.location,d.title].filter(Boolean).join(' — ')}</div>`:''}
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
             <span style="color:var(--gold);cursor:pointer;font-size:12px;padding:4px;" onclick="editDay('${d.id}','${tripId}')">✎</span>
@@ -1775,6 +1793,19 @@ function setDrvType(type){
 }
 function getActiveXfr(){return['E','H','U','P'].find(t=>document.getElementById('xfr-type-'+t)?.classList.contains('active'))||'E';}
 function getActiveDrv(){return['D','C'].find(t=>document.getElementById('drv-type-'+t)?.classList.contains('active'))||'D';}
+function getDayType(){return document.getElementById('daytype-travel').classList.contains('active')?'travel':'stay';}
+function setDayType(type){
+  const isTravel=type==='travel';
+  document.getElementById('daytype-stay').classList.toggle('active',!isTravel);
+  document.getElementById('daytype-travel').classList.toggle('active',isTravel);
+  document.getElementById('day-stay-row').style.display=isTravel?'none':'';
+  document.getElementById('day-travel-row').style.display=isTravel?'':'none';
+  document.getElementById('day-title').placeholder=isTravel?'e.g. Dubai → Udaipur':'e.g. Exploring Udaipur';
+  document.querySelectorAll('.day-toggle.travel-only').forEach(btn=>{
+    btn.style.display=isTravel?'':'none';
+    if(!isTravel){const sec=btn.getAttribute('data-sec');if(sec)hideDaySec(sec);}
+  });
+}
 function syncCoHotel(){
   const v=document.getElementById('ci-hotel-id').value;
   const co=document.getElementById('co-hotel-id');
@@ -1791,7 +1822,8 @@ async function populateDayHotelSelects(){
   ['ci-hotel-id','co-hotel-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
 }
 function resetDayModal(){
-  ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  setDayType('stay');
   ['flight','train','transfer','driver','checkin','checkout','notes'].forEach(s=>hideDaySec(s));
   setFlightType('INT');setXfrType('E');setDrvType('D');
   ['flt-airline','flt-number','flt-from','flt-to','flt-dep-time','flt-arr-time','flt-ref','flt-notes',
@@ -1838,7 +1870,10 @@ function openDayAdd(tripId,date,dayId){
     const d=itinDaysCache.find(x=>x.id===dayId);
     if(d){
       document.getElementById('day-number').value=d.day_number;
-      document.getElementById('day-location').value=d.location||'';
+      const dt=d.day_type||'stay';
+      setDayType(dt);
+      if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
+      else document.getElementById('day-location').value=d.location||'';
       document.getElementById('day-title').value=d.title||'';
     }
   }
@@ -1856,7 +1891,10 @@ async function editDay(dayId,tripId){
     document.getElementById('day-id').value=d.id;
     document.getElementById('day-number').value=d.day_number;
     document.getElementById('day-date').value=d.date?.split('T')[0]||'';
-    document.getElementById('day-location').value=d.location||'';
+    const dt=d.day_type||'stay';
+    setDayType(dt);
+    if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
+    else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
@@ -1876,7 +1914,10 @@ async function editDayItem(type,itemId,tripId,dayId){
     document.getElementById('day-id').value=d.id;
     document.getElementById('day-number').value=d.day_number;
     document.getElementById('day-date').value=d.date?.split('T')[0]||'';
-    document.getElementById('day-location').value=d.location||'';
+    const dt=d.day_type||'stay';
+    setDayType(dt);
+    if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
+    else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
@@ -1965,7 +2006,9 @@ async function saveDay(){
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const dayNum=parseInt(document.getElementById('day-number').value)||null;
   if(!dayId&&!dayNum){alert('Day number is required');return;}
-  const dayBody={trip_id:tripId,date:dayDate,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value};
+  const dayType=getDayType();
+  const loc=dayType==='travel'?[document.getElementById('day-leaving').value,document.getElementById('day-arriving').value].filter(Boolean).join(' → '):document.getElementById('day-location').value;
+  const dayBody={trip_id:tripId,date:dayDate,location:loc,title:document.getElementById('day-title').value,day_type:dayType};
   if(!dayId)dayBody.day_number=dayNum;
   else if(dayNum)dayBody.day_number=dayNum;
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;

@@ -40,12 +40,12 @@ router.post('/',
   body('date').isDate(),
   validate,
   async (req, res, next) => {
-    const { trip_id, day_number, date, location, title, description, notes } = req.body;
+    const { trip_id, day_number, date, location, title, description, notes, day_type } = req.body;
     try {
       const { rows } = await pool.query(
-        `INSERT INTO days (trip_id, day_number, date, location, title, description, notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-        [trip_id, day_number, date, location, title, description, notes]
+        `INSERT INTO days (trip_id, day_number, date, location, title, description, notes, day_type)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+        [trip_id, day_number, date, location, title, description, notes, day_type || 'stay']
       );
       res.status(201).json(rows[0]);
     } catch (err) {
@@ -90,7 +90,7 @@ router.post('/bulk',
 
 // PATCH /api/days/:id
 router.patch('/:id', param('id').isUUID(), validate, async (req, res, next) => {
-  const allowed = ['day_number', 'date', 'location', 'title', 'description', 'notes'];
+  const allowed = ['day_number', 'date', 'location', 'title', 'description', 'notes', 'day_type'];
   const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
   if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update' });
   const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(', ');
