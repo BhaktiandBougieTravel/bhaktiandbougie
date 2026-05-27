@@ -1005,6 +1005,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label">City</label>
+          <input type="text" class="form-input" id="ci-hotel-city" placeholder="e.g. Udaipur"/>
+        </div>
+        <div class="form-group">
           <label class="form-label">Room Type</label>
           <input type="text" class="form-input" id="ci-room-type"/>
         </div>
@@ -1678,6 +1682,7 @@ async function loadItinerary(){
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
+      const dayHotelName=checkIns.length?(hotelsCache.find(h=>h.id===checkIns[0]?.hotel_id)?.name||''):(bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?hotelsCache.find(h=>h.id===bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?.hotel_id)?.name||'':'');
       const arrivingFlights=flights.filter(f=>{
         if(!f.arrival_time||!f.departure_time)return false;
         const arrDs=(f.arrival_time).split('T')[0];
@@ -1737,7 +1742,7 @@ async function loadItinerary(){
               <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">${dow.toUpperCase()}</span>
               <span style="font-size:13px;color:var(--cream);">${fmtDate(d.date)}</span>
             </div>
-            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${d.day_type==='travel'?(dayFlights.length?'✈️':dayTrains.length?'🚂':'🚗'):'🏨'} ${d.location||''}${d.day_type!=='travel'&&d.title&&d.title!==d.location?' — '+d.title:''}</div>`:''}
+            ${(d.location||d.title||dayHotelName)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${d.day_type==='travel'?(dayFlights.length?'✈️':dayTrains.length?'🚂':'🚗'):'🏨'} ${d.location||''}${d.day_type!=='travel'&&dayHotelName?' · '+dayHotelName:d.day_type!=='travel'&&d.title&&d.title!==d.location?' — '+d.title:''}</div>`:''}
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
             <span style="color:var(--gold);cursor:pointer;font-size:12px;padding:4px;" onclick="editDay('${d.id}','${tripId}')">✎</span>
@@ -2035,7 +2040,7 @@ function resetDayModal(){
   newFltItem();newTrnItem();newXfrItem();
   setDrvType('D');
   ['drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
-   'ci-hotel-name','ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+   'ci-hotel-name','ci-hotel-city','ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const cin=document.getElementById('ci-nights');if(cin)cin.value='1';;
   const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
   const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
@@ -2236,7 +2241,7 @@ async function saveDay(){
   await Promise.allSettled(saves);
   if(isSectionActive('checkin')){
     const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
-    const ciLoc=document.getElementById('day-location').value||'';
+    const ciCity=(document.getElementById('ci-hotel-city').value||'').trim()||(document.getElementById('day-location').value||'').trim();
     try{
       const existingDays=await(await fetch(`${API}/days?trip_id=${tripId}`)).json();
       const existingDates=new Set(existingDays.map(d=>(d.date||'').split('T')[0]));
@@ -2247,8 +2252,8 @@ async function saveDay(){
         if(!existingDates.has(date)){
           stayCount++;
           const isLast=n===ciNights;
-          const title=ciLoc?ciLoc+' Day '+stayCount:'Day '+stayCount;
-          await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date,day_number:++maxNum,day_type:isLast?'travel':'stay',title,location:ciLoc})});
+          const title=ciCity?ciCity+' Day '+stayCount:'Day '+stayCount;
+          await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date,day_number:++maxNum,day_type:isLast?'travel':'stay',title,location:ciCity})});
         }
       }
     }catch(e){}
