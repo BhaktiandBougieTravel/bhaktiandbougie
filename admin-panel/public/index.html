@@ -190,39 +190,19 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
   </header>
   <main class="content">
     <div class="tab-panel active" id="tab-command">
-      <div class="sh">World Clocks</div>
-      <div class="cc-grid" id="clocks-grid"></div>
-      <div class="sh-row">
-        <div class="sh">India City Conditions</div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select class="form-select" id="weather-city-select" style="width:160px;" onchange="loadWeather()">
-            <option value="0">Delhi</option>
-            <option value="1">Jaipur</option>
-            <option value="2">Jodhpur</option>
-            <option value="3">Udaipur</option>
-            <option value="4">Amritsar</option>
-            <option value="5">Rishikesh</option>
-            <option value="6">Srinagar</option>
-            <option value="7">Varanasi</option>
-            <option value="8">Kolkata</option>
-            <option value="9">Mumbai</option>
-            <option value="10">Goa</option>
-            <option value="11">Kochi</option>
-            <option value="12">Madurai</option>
-            <option value="13">Chennai</option>
-            <option value="14">Hyderabad</option>
-            <option value="15">Bengaluru</option>
-          </select>
-          <button class="btn btn-outline btn-sm" onclick="loadWeather()">↻ Refresh</button>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:24px;">
+
+        <!-- Col 1: World Clocks 2x2 -->
+        <div class="fx-card" style="padding:12px;">
+          <div id="clocks-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
         </div>
-      </div>
-      <div id="weather-grid" style="margin-bottom:20px;"></div>
-      <div class="grid-2" style="margin-bottom:20px;">
-        <div>
-          <div class="sh-row">
-            <div class="sh">Exchange Rate</div>
+
+        <!-- Col 2: Exchange Rate -->
+        <div class="fx-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="fx-label" style="margin-bottom:0;">Exchange Rate</div>
             <div style="display:flex;gap:6px;align-items:center;">
-              <select class="form-select" id="fx-currency-select" style="width:90px;" onchange="loadFX()">
+              <select class="form-select" id="fx-currency-select" style="width:80px;" onchange="loadFX()">
                 <option value="USD">USD</option>
                 <option value="GBP">GBP</option>
                 <option value="EUR">EUR</option>
@@ -234,26 +214,51 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
               <button class="btn btn-outline btn-sm" onclick="loadFX()">↻</button>
             </div>
           </div>
-          <div class="fx-card">
-            <div class="fx-label" id="fx-label">1 USD =</div>
-            <div class="fx-rate" id="fx-rate">–</div>
-            <div class="fx-sub" id="fx-sub">Loading...</div>
-            <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
-              <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:13px;" placeholder="1" min="0" oninput="calcFX()">
-              <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
-            </div>
-            <canvas id="fx-sparkline" width="260" height="48" style="margin-top:14px;display:block;"></canvas>
+          <div class="fx-label" id="fx-label">1 USD =</div>
+          <div class="fx-rate" id="fx-rate">–</div>
+          <div class="fx-sub" id="fx-sub">Loading...</div>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+            <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:13px;" placeholder="1" min="0" oninput="calcFX()">
+            <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
           </div>
+          <canvas id="fx-sparkline" width="260" height="48" style="margin-top:14px;display:block;"></canvas>
         </div>
-        <div>
-          <div class="sh-row">
-            <div class="sh">RCB &amp; Cricket</div>
-            <button class="btn btn-outline btn-sm" onclick="loadCricket()">↻ Refresh</button>
+
+        <!-- Col 3: City Weather -->
+        <div class="fx-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="fx-label" style="margin-bottom:0;">City Weather</div>
+            <select class="form-select" id="weather-city-select" style="width:130px;" onchange="loadWeather()">
+              <option value="0">Delhi</option>
+              <option value="1">Jaipur</option>
+              <option value="2">Jodhpur</option>
+              <option value="3">Udaipur</option>
+              <option value="4">Amritsar</option>
+              <option value="5">Rishikesh</option>
+              <option value="6">Srinagar</option>
+              <option value="7">Varanasi</option>
+              <option value="8">Kolkata</option>
+              <option value="9">Mumbai</option>
+              <option value="10">Goa</option>
+              <option value="11">Kochi</option>
+              <option value="12">Madurai</option>
+              <option value="13">Chennai</option>
+              <option value="14">Hyderabad</option>
+              <option value="15">Bengaluru</option>
+            </select>
           </div>
-          <div class="cricket-card" id="cricket-card">
-            <div class="loading dot-pulse">Loading scores</div>
-          </div>
+          <div id="weather-grid"></div>
         </div>
+
+        <!-- Col 4: RCB & Cricket -->
+        <div class="fx-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="fx-label" style="margin-bottom:0;">RCB &amp; Cricket</div>
+            <button class="btn btn-outline btn-sm" onclick="loadCricket()">↻</button>
+          </div>
+          <div id="cricket-card"></div>
+        </div>
+
       </div>
       <div class="sh">Upcoming Festivals — Next 90 Days</div>
       <div id="upcoming-festivals"><div class="loading dot-pulse">Loading</div></div>
@@ -787,7 +792,7 @@ async function loadWeather(){
     const emoji=c=>{if(c===0)return'☀️';if(c<=3)return'⛅';if(c<=49)return'🌫️';if(c<=69)return'🌧️';if(c<=79)return'❄️';return'⛈️';};
     const desc=c=>{if(c===0)return'Clear';if(c<=3)return'Partly Cloudy';if(c<=49)return'Haze';if(c<=69)return'Rain';if(c<=79)return'Snow';return'Storms';};
     const aqiColor=a=>{if(a<=50)return'#4a9e5c';if(a<=100)return'#c8a800';if(a<=150)return'#e07830';return'#cc4444';};
-    grid.innerHTML=`<div class="weather-card" style="max-width:360px;">
+    grid.innerHTML=`
       <div class="w-city" style="font-size:11px;margin-bottom:10px;">${city.name}</div>
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
         <div style="font-size:44px;line-height:1;">${emoji(code)}</div>
@@ -797,8 +802,7 @@ async function loadWeather(){
           <div style="font-size:12px;color:var(--ash);margin-top:2px;">↑ ${hi}°C  ↓ ${lo}°C</div>
         </div>
       </div>
-      <div style="font-size:13px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>
-    </div>`;
+      <div style="font-size:13px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>`;
   }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
 }
 let fxRate=0;
@@ -851,30 +855,18 @@ async function loadCricket(){
   const card=document.getElementById('cricket-card');
   card.innerHTML='<div class="loading dot-pulse">Loading RCB</div>';
   try{
-    const res=await fetch(`${API}/rcb`,{method:'POST'});
-    const m=await res.json();
-    const statusColor=m.status==='WON'?'#4a9e5c':m.status==='LOST'?'#cc4444':m.status==='LIVE'?'#c8a800':'var(--ash)';
-    card.innerHTML=`
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:${statusColor};text-transform:uppercase;">${m.status||'–'}</span>
-        <span style="font-size:12px;color:var(--ash);">vs ${m.opponent||'–'}</span>
-      </div>
-      <div style="font-size:13px;color:var(--cream);margin-bottom:10px;">${m.result||'–'}</div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;">
-        <div style="flex:1;background:rgba(198,28,28,0.15);border:1px solid rgba(198,28,28,0.3);border-radius:2px;padding:8px;text-align:center;">
-          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">RCB</div>
-          <div style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${m.rcb_score||'–'}</div>
-        </div>
-        <div style="flex:1;background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:8px;text-align:center;">
-          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:4px;">${(m.opponent||'OPP').substring(0,8).toUpperCase()}</div>
-          <div style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${m.opp_score||'–'}</div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--ash);margin-bottom:10px;">📍 ${m.venue||'–'} &nbsp;·&nbsp; 📅 ${m.date||'–'}</div>
-      ${m.next_match?`<div style="font-size:11px;color:var(--gold);border-top:1px solid var(--border-subtle);padding-top:8px;margin-top:4px;">▶ NEXT: ${m.next_match}</div>`:''}
-      <div style="font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;">Ee Sala Cup Namde! 🏆</div>`;
-  }catch(e){card.innerHTML='<div style="color:var(--ash);font-size:13px;">RCB data unavailable.</div>';}
+    const res=await fetch(API+'/rcb',{method:'POST',headers:{'Content-Type':'application/json'}});
+    const d=await res.json();
+    if(!d||d.error)throw new Error('No data');
+    const won=d.status==='WON';
+    const live=d.status==='LIVE';
+    card.innerHTML=`<div class="cricket-match"><div style="font-size:10px;letter-spacing:2px;color:${won?'#6abf40':live?'#e05050':'var(--red)'};">${d.status||'FINAL'}</div><div class="cricket-teams">RCB vs ${d.opponent||'—'}</div><div class="cricket-score" style="color:${won?'#6abf40':'var(--red)'};">${d.result||'—'}</div><div style="display:flex;gap:12px;margin-top:8px;"><div style="background:rgba(139,26,26,0.3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">RCB</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">${d.rcb_score||'—'}</div></div><div style="background:var(--navy3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">OPP</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">${d.opp_score||'—'}</div></div></div><div style="font-size:11px;color:var(--ash);margin-top:8px;">${d.venue||''} · ${d.date||''}</div>${d.next_match?`<div style="font-size:11px;color:var(--gold);margin-top:6px;">${d.next_match}</div>`:''}<div style="font-size:11px;color:var(--gold);margin-top:8px;font-style:italic;">Ee Sala Cup Namde! 🏆</div></div>`;
+  }catch(e){
+    card.innerHTML='<div style="color:var(--ash);font-size:13px;">Could not load RCB data — <span style="color:var(--gold);cursor:pointer;" onclick="loadCricket()">retry</span></div>';
+  }
 }
+loadCricket();
+setInterval(loadCricket,600000);
 async function loadUpcomingFestivals(){
   const el=document.getElementById('upcoming-festivals');
   try{
