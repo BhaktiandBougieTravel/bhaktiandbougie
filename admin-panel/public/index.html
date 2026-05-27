@@ -190,14 +190,14 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
   </header>
   <main class="content">
     <div class="tab-panel active" id="tab-command">
-      <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:24px;">
+      <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:20px;">
 
-        <!-- Col 1: World Clocks 2x2 -->
+        <!-- Col 1: Clocks 2×2 -->
         <div class="fx-card" style="padding:12px;">
           <div id="clocks-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
         </div>
 
-        <!-- Col 2: Exchange Rate -->
+        <!-- Col 2: Currency -->
         <div class="fx-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div class="fx-label" style="margin-bottom:0;">Exchange Rate</div>
@@ -224,7 +224,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <canvas id="fx-sparkline" width="260" height="48" style="margin-top:14px;display:block;"></canvas>
         </div>
 
-        <!-- Col 3: City Weather -->
+        <!-- Col 3: Weather -->
         <div class="fx-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div class="fx-label" style="margin-bottom:0;">City Weather</div>
@@ -250,7 +250,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div id="weather-grid"></div>
         </div>
 
-        <!-- Col 4: RCB & Cricket -->
+        <!-- Col 4: RCB -->
         <div class="fx-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div class="fx-label" style="margin-bottom:0;">RCB &amp; Cricket</div>
@@ -794,15 +794,18 @@ async function loadWeather(){
     const aqiColor=a=>{if(a<=50)return'#4a9e5c';if(a<=100)return'#c8a800';if(a<=150)return'#e07830';return'#cc4444';};
     grid.innerHTML=`
       <div class="w-city" style="font-size:11px;margin-bottom:10px;">${city.name}</div>
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
         <div style="font-size:44px;line-height:1;">${emoji(code)}</div>
         <div>
           <div class="w-temp" style="font-size:26px;line-height:1;">${tempC}°C / ${tempF}°F</div>
           <div style="font-size:12px;color:var(--ash);margin-top:4px;">${desc(code)}</div>
-          <div style="font-size:12px;color:var(--ash);margin-top:2px;">↑ ${hi}°C  ↓ ${lo}°C</div>
+          <div style="font-size:12px;color:var(--ash);margin-top:2px;">↑ ${hi}°C &nbsp; ↓ ${lo}°C</div>
         </div>
       </div>
-      <div style="font-size:13px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>`;
+      <div style="height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:5px;">
+        <div style="height:100%;width:${Math.min(aqi/300*100,100).toFixed(1)}%;background:${aqiColor(aqi)};border-radius:2px;"></div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>`;
   }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
 }
 let fxRate=0;
