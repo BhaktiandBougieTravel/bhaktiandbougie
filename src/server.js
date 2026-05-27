@@ -134,10 +134,13 @@ app.get('/api/trains', async (req, res, next) => {
 app.post('/api/trains', async (req, res, next) => {
   try {
     const { trip_id, carrier, train_number, origin_station, dest_station, departure_date, departure_time, arrival_time, class: cls, pnr, cost, currency, notes } = req.body;
+    if (!trip_id) return res.status(400).json({ error: 'trip_id required' });
     const result = await pool.query(
       `INSERT INTO train_journeys (trip_id,carrier,train_number,origin_station,dest_station,departure_date,departure_time,arrival_time,class,pnr,cost,currency,notes)
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-      [trip_id, carrier, train_number, origin_station, dest_station, departure_date||null, departure_time||null, arrival_time||null, cls, pnr, cost||null, currency||'INR', notes]
+      [trip_id, carrier||null, train_number||null, origin_station||null, dest_station||null,
+       departure_date||null, departure_time||null, arrival_time||null,
+       cls||null, pnr||null, cost?parseFloat(cost):null, currency||'INR', notes||null]
     );
     res.status(201).json(result.rows[0]);
   } catch (e) { next(e); }

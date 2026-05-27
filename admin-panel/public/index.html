@@ -1251,6 +1251,7 @@ document.getElementById('pw-input').onkeydown=e=>{if(e.key==='Enter')checkPasswo
 function checkPassword(){
   const val=document.getElementById('pw-input').value;
   if(val===PASSWORD){
+    sessionStorage.setItem('bb_auth','true');
     const pw=document.getElementById('pw-screen');
     pw.classList.add('hidden');
     setTimeout(()=>{pw.style.display='none';document.getElementById('app').classList.add('visible');initApp();},500);
@@ -1265,6 +1266,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     this.classList.add('active');
     document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+    sessionStorage.setItem('bb_active_tab',this.dataset.tab);
     onTabChange(this.dataset.tab);
   };
 });
@@ -1282,6 +1284,12 @@ function onTabChange(tab){
 function initApp(){
   renderClocks();setInterval(renderClocks,1000);
   loadWeather();loadFX();loadCmdFestivals();loadTrips();populateTripSelects();
+  const savedTab=sessionStorage.getItem('bb_active_tab');
+  if(savedTab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===savedTab));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+savedTab));
+    onTabChange(savedTab);
+  }
 }
 const CLOCKS=[
   {city:'India IST',tz:'Asia/Kolkata'},
@@ -1292,7 +1300,7 @@ const CLOCKS=[
 function renderClocks(){
   document.getElementById('clocks-grid').innerHTML=CLOCKS.map(c=>{
     const now=new Date();
-    const time=now.toLocaleTimeString('en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const time=now.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
     const date=now.toLocaleDateString('en-US',{timeZone:c.tz,weekday:'short',month:'short',day:'numeric'});
     return `<div class="clock-card"><div class="clock-city">${c.city}</div><div class="clock-time">${time}</div><div class="clock-date">${date}</div></div>`;
   }).join('');
@@ -2217,11 +2225,18 @@ function fmtDate(d){
 }
 function fmtDateTime(d){
   if(!d)return'–';
-  return new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  return new Date(d).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false});
 }
 document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  if(overlay.id==='day-modal')return;
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.add('hidden');});
 });
+if(sessionStorage.getItem('bb_auth')==='true'){
+  const pw=document.getElementById('pw-screen');
+  pw.style.display='none';
+  document.getElementById('app').classList.add('visible');
+  initApp();
+}
 </script>
 </body>
 </html>
