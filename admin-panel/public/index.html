@@ -825,6 +825,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <button type="button" class="day-toggle" data-sec="driver" onclick="toggleDaySec('driver')">🚗 Driver</button>
         <button type="button" class="day-toggle travel-only" data-sec="checkin" onclick="toggleDaySec('checkin')" style="display:none;">🏨 Check-in</button>
         <button type="button" class="day-toggle travel-only" data-sec="checkout" onclick="toggleDaySec('checkout')" style="display:none;">🏨 Check-out</button>
+        <button type="button" class="day-toggle" data-sec="activities" onclick="toggleDaySec('activities')">✨ Activities</button>
         <button type="button" class="day-toggle" data-sec="notes" onclick="toggleDaySec('notes')">📝 Notes</button>
       </div>
     </div>
@@ -1075,6 +1076,13 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveCheckout()">Save Check-out</button>
         <button type="button" class="btn btn-outline btn-sm" onclick="newCoItem()">Cancel</button>
+      </div>
+    </div>
+    <!-- ACTIVITIES -->
+    <div class="day-section" id="day-sec-activities">
+      <div class="day-sec-hdr" style="color:var(--gold);">ACTIVITIES</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="day-activities-text" style="min-height:100px;" placeholder="e.g. Morning aarti at Dashashwamedh Ghat · Afternoon boat ride on the Ganges · Evening Tresind dinner"></textarea>
       </div>
     </div>
     <!-- NOTES -->
@@ -1759,6 +1767,8 @@ async function loadItinerary(){
       });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
       let items=timedItems.map(x=>x.html).join('');
+      const act=d.activities||'';
+      if(act)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('activities','','${tripId}','${d.id}')"><span class="itin-emoji">✨</span><div class="itin-body"><div class="itin-note">${act}</div></div>${P}</div>`;
       const note=d.notes||d.description||'';
       if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div>${P}</div>`;
       const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — use + to add</div>`:'';
@@ -2277,7 +2287,7 @@ async function populateDayHotelSelects(){
 function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setDayType('stay');
-  ['flight','train','transfer','driver','checkin','checkout','notes'].forEach(s=>hideDaySec(s));
+  ['flight','train','transfer','driver','checkin','checkout','activities','notes'].forEach(s=>hideDaySec(s));
   ['flt-list','trn-list','xfr-list','drv-list','ci-list','co-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   ['flt-edit-id','trn-edit-id','xfr-edit-id','drv-edit-id','ci-edit-id','co-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const fl=document.getElementById('flt-form-label');if(fl)fl.textContent='New Flight';
@@ -2286,6 +2296,8 @@ function resetDayModal(){
   const dl=document.getElementById('drv-form-label');if(dl)dl.textContent='New Driver';
   const cil=document.getElementById('ci-form-label');if(cil)cil.textContent='New Check-in';
   const col=document.getElementById('co-form-label');if(col)col.textContent='New Check-out';
+  const at=document.getElementById('day-activities-text');if(at)at.value='';
+  const nt=document.getElementById('day-notes-text');if(nt)nt.value='';
   newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();
 }
 async function openAddDay(){
@@ -2353,6 +2365,7 @@ async function editDay(dayId,tripId){
     if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
+    if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
     await populateDayHotelSelects();
@@ -2376,6 +2389,7 @@ async function editDayItem(type,itemId,tripId,dayId){
     if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
+    if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
   }
@@ -2401,6 +2415,8 @@ async function editDayItem(type,itemId,tripId,dayId){
       showDaySec('checkout');
       await editCo(itemId);
     }
+  } else if(type==='activities'){
+    showDaySec('activities');
   } else if(type==='notes'){
     showDaySec('notes');
   }
@@ -2419,6 +2435,7 @@ async function saveDay(){
   const dayBody={trip_id:tripId,date:dayDate,location:loc,title:document.getElementById('day-title').value,day_type:dayType};
   if(!dayId)dayBody.day_number=dayNum;
   else if(dayNum)dayBody.day_number=dayNum;
+  if(isSectionActive('activities'))dayBody.activities=document.getElementById('day-activities-text').value;
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
   closeModal('day-modal');
