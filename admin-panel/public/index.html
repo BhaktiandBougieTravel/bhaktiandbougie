@@ -1748,7 +1748,9 @@ async function loadItinerary(){
       });
       checkOuts.forEach(b=>{
         const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
-        timedItems.push({time:'99:04',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkout','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div></div>${P}</div>`});
+        const coTm=(b.notes||'').match(/Check-out:\s*(\d{2}:\d{2})/);
+        const coSort=coTm?coTm[1]:'99:04';
+        timedItems.push({time:coSort,html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkout','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}${coTm?' · '+coTm[1]:''}</div></div>${P}</div>`});
       });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
       let items=timedItems.map(x=>x.html).join('');
@@ -2194,7 +2196,11 @@ async function loadCoList(){
   try{
     const bookings=await(await fetch(`${API}/hotel-bookings?trip_id=${encodeURIComponent(tripId)}`)).json();
     const checkouts=bookings.filter(b=>(b.check_out||'').split('T')[0]===date);
-    el.innerHTML=checkouts.length?checkouts.map(b=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${b.hotel_name||'Hotel'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCo('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`).join(''):'';
+    el.innerHTML=checkouts.length?checkouts.map(b=>{
+      const tm=(b.notes||'').match(/Check-out:\s*(\d{2}:\d{2})/);
+      const lbl=[b.hotel_name||'Hotel',tm?tm[1]:''].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCo('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+    }).join(''):'';
     const open=bookings.filter(b=>(b.check_in||'').split('T')[0]<=date);
     const sel=document.getElementById('co-booking-id');
     if(sel)sel.innerHTML='<option value="">— Select booking —</option>'+open.map(b=>`<option value="${b.id}">${b.hotel_name||'Hotel'} (in: ${(b.check_in||'').split('T')[0]})</option>`).join('');
@@ -2207,10 +2213,12 @@ async function saveCheckout(){
   const cid=document.getElementById('co-edit-id').value;
   const bookingId=cid||document.getElementById('co-booking-id').value;
   if(!bookingId){alert('Select a booking to check out');return;}
-  const body={check_out:dayDate};
+  const coTime=document.getElementById('co-time').value;
   const coNotes=document.getElementById('co-notes').value;
-  if(coNotes)body.notes=coNotes;
-  console.log('[saveCheckout] posting:', body, 'id:', bookingId);
+  const noteParts=[coTime?'Check-out: '+coTime:'',coNotes].filter(Boolean).join(' · ');
+  const body={check_out:dayDate};
+  if(noteParts)body.notes=noteParts;
+  console.log('[saveCheckout] patching:', bookingId, body);
   try{
     const r=await fetch(`${API}/hotel-bookings/${bookingId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveCheckout] error:',err);alert('Failed to save check-out: '+(err.error||r.status));return;}
@@ -2226,7 +2234,10 @@ async function editCo(id){
     const lbl=document.getElementById('co-form-label');if(lbl)lbl.textContent='Edit Check-out';
     const sel=document.getElementById('co-booking-id');
     if(sel){const opt=document.createElement('option');opt.value=id;opt.textContent=b.hotel_name||'Hotel';sel.appendChild(opt);sel.value=id;}
-    document.getElementById('co-notes').value=b.notes||'';
+    const tm=(b.notes||'').match(/Check-out:\s*(\d{2}:\d{2})/);
+    document.getElementById('co-time').value=tm?tm[1]:'11:00';
+    const userNotes=(b.notes||'').replace(/^Check-out:\s*\d{2}:\d{2}\s*·?\s*/,'').trim();
+    document.getElementById('co-notes').value=userNotes;
   }catch(e){console.error('[editCo]',e);}
 }
 function newCoItem(){
