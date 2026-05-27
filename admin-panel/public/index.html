@@ -2229,6 +2229,7 @@ async function saveCheckout(){
   }catch(e){console.error('[saveCheckout]',e);alert('Failed to save check-out');}
 }
 async function editCo(id){
+  console.log('[editCo] called');
   console.log('[editCo] id:', id);
   try{
     const b=await(await fetch(`${API}/hotel-bookings/${id}`)).json();
@@ -2237,9 +2238,13 @@ async function editCo(id){
     const lbl=document.getElementById('co-form-label');if(lbl)lbl.textContent='Edit Check-out';
     const sel=document.getElementById('co-booking-id');
     if(sel){const opt=document.createElement('option');opt.value=id;opt.textContent=b.hotel_name||'Hotel';sel.appendChild(opt);sel.value=id;}
-    const tm=(b.notes||'').match(/Check-out:\s*(\d{2}:\d{2})/);
+    const raw=b.notes||'';
+    const tm=raw.match(/Check-out:\s*(\d{2}:\d{2})/);
     document.getElementById('co-time').value=tm?tm[1]:'11:00';
-    const userNotes=(b.notes||'').replace(/^Check-out:\s*\d{2}:\d{2}\s*·?\s*/,'').trim();
+    // Only show notes saved at checkout time; everything else is check-in metadata.
+    // If no Check-out: entry exists yet, notes field stays blank.
+    const coSection=tm?raw.replace(/^.*?Check-out:\s*\d{2}:\d{2}\s*·?\s*/,''):'';
+    const userNotes=coSection.replace(/Check-in:.*?(?:·\s*|$)/gs,'').trim();
     document.getElementById('co-notes').value=userNotes;
   }catch(e){console.error('[editCo]',e);}
 }
