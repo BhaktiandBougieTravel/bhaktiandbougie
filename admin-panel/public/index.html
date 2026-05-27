@@ -1825,7 +1825,7 @@ async function loadFltList(){
     const flights=await(await fetch(`${API}/flights?trip_id=${encodeURIComponent(tripId)}&date=${date}`)).json();
     if(!Array.isArray(flights)||!flights.length){el.innerHTML='';return;}
     el.innerHTML=flights.map(f=>{
-      const dep=f.departure_time?new Date(f.departure_time).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'UTC'}):'';
+      const dep=f.departure_time?(f.departure_time||'').split('T')[1]?.slice(0,5)||'':'';
       const fnum=[f.airline,f.flight_number].filter(Boolean).join(' ');
       const lbl=[fnum,f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'',dep].filter(Boolean).join(' ');
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✈️ ${lbl||'Flight'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editFlt('${f.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
@@ -1844,7 +1844,7 @@ async function saveFlight(){
   const depT=entryField(fe,'dep_time').value;
   const arrT=entryField(fe,'arr_time').value;
   const arrDate=entryField(fe,'next_day').checked?addDaysStr(dayDate,1):dayDate;
-  const flt={trip_id:tripId,flight_type:isInt?'INT':'DOM',airline:entryField(fe,'airline').value,flight_number:entryField(fe,'flight_number').value,origin_airport:from,dest_airport:to,departure_time:depT?`${dayDate}T${depT}:00.000Z`:`${dayDate}T00:00:00.000Z`,arrival_time:arrT?`${arrDate}T${arrT}:00.000Z`:`${arrDate}T23:59:00.000Z`,cabin_class:entryField(fe,'cabin_class').value,booking_ref:entryField(fe,'booking_ref').value,notes:entryField(fe,'notes').value};
+  const flt={trip_id:tripId,flight_type:isInt?'INT':'DOM',airline:entryField(fe,'airline').value,flight_number:entryField(fe,'flight_number').value,origin_airport:from,dest_airport:to,departure_date:dayDate,departure_time:depT||'00:00',arrival_date:arrDate,arrival_time:arrT||'23:59',cabin_class:entryField(fe,'cabin_class').value,booking_ref:entryField(fe,'booking_ref').value,notes:entryField(fe,'notes').value};
   const fid=document.getElementById('flt-edit-id').value;
   try{
     await fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)});
@@ -1864,8 +1864,8 @@ async function editFlt(id){
     entryField(fe,'flight_number').value=f.flight_number||'';
     entryField(fe,'origin_airport').value=f.origin_airport||'';
     entryField(fe,'dest_airport').value=f.dest_airport||'';
-    if(f.departure_time){const d=new Date(f.departure_time);entryField(fe,'dep_time').value=String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
-    if(f.arrival_time){const d=new Date(f.arrival_time);const hhmm=String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');entryField(fe,'arr_time').value=hhmm;const depVal=entryField(fe,'dep_time').value;entryField(fe,'next_day').checked=!!(depVal&&hhmm<depVal);}
+    if(f.departure_time){entryField(fe,'dep_time').value=(f.departure_time||'').split('T')[1]?.slice(0,5)||'';}
+    if(f.arrival_time){const hhmm=(f.arrival_time||'').split('T')[1]?.slice(0,5)||'';entryField(fe,'arr_time').value=hhmm;const depDs=(f.departure_time||'').split('T')[0];const arrDs=(f.arrival_time||'').split('T')[0];entryField(fe,'next_day').checked=arrDs>depDs;}
     entryField(fe,'cabin_class').value=f.cabin_class||'economy';
     entryField(fe,'booking_ref').value=f.booking_ref||'';
     entryField(fe,'notes').value=f.notes||'';
@@ -2012,7 +2012,7 @@ function setXfrEntryType(btn){
   e.querySelectorAll('.xfr-type').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
-function utcHHMM(ts){const d=new Date(ts);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}
+function utcHHMM(ts){const t=(ts||'').split('T')[1];return t?t.slice(0,5):'–';}
 function addDaysStr(dateStr,n){
   const d=new Date(dateStr+'T12:00:00Z');
   d.setUTCDate(d.getUTCDate()+n);

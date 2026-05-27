@@ -34,25 +34,29 @@ router.get('/:id', param('id').isUUID(), validate, async (req, res, next) => {
 });
 
 // POST /api/flights
+// Expects departure_date (YYYY-MM-DD), departure_time (HH:MM),
+//         arrival_date  (YYYY-MM-DD), arrival_time  (HH:MM)
+// Stored as plain TIMESTAMP with no timezone conversion.
 router.post('/',
   body('trip_id').isUUID(),
   body('origin_airport').isLength({ min: 3, max: 3 }),
   body('dest_airport').isLength({ min: 3, max: 3 }),
-  body('departure_time').isISO8601(),
-  body('arrival_time').isISO8601(),
   validate,
   async (req, res, next) => {
     const { trip_id, flight_number, airline, origin_airport, dest_airport,
-            departure_time, arrival_time, booking_ref, num_passengers,
-            cabin_class, flight_type, total_cost, currency, status, notes } = req.body;
+            departure_date, departure_time, arrival_date, arrival_time,
+            booking_ref, num_passengers, cabin_class, flight_type,
+            total_cost, currency, status, notes } = req.body;
+    const depDatetime = departure_date && departure_time ? `${departure_date}T${departure_time}:00` : null;
+    const arrDatetime = arrival_date && arrival_time ? `${arrival_date}T${arrival_time}:00` : null;
     try {
       const { rows } = await pool.query(
         `INSERT INTO flights (trip_id, flight_number, airline, origin_airport, dest_airport,
            departure_time, arrival_time, booking_ref, num_passengers, cabin_class,
            flight_type, total_cost, currency, status, notes)
-         VALUES ($1,$2,$3,$4,$5,$6::timestamp,$7::timestamp,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
         [trip_id, flight_number, airline, origin_airport, dest_airport,
-         departure_time, arrival_time, booking_ref, num_passengers || 1,
+         depDatetime, arrDatetime, booking_ref, num_passengers || 1,
          cabin_class || 'economy', flight_type || 'DOM', total_cost, currency || 'INR', status || 'pending', notes]
       );
       res.status(201).json(rows[0]);
@@ -61,11 +65,14 @@ router.post('/',
 );
 
 // PATCH /api/flights/:id
+// Accepts departure_date + departure_time and/or arrival_date + arrival_time as separate fields.
 router.patch('/:id', param('id').isUUID(), validate, async (req, res, next) => {
+  const { departure_date, departure_time, arrival_date, arrival_time, ...rest } = req.body;
   const allowed = ['flight_number', 'airline', 'origin_airport', 'dest_airport',
-    'departure_time', 'arrival_time', 'booking_ref', 'num_passengers',
-    'cabin_class', 'flight_type', 'total_cost', 'currency', 'status', 'notes'];
-  const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    'booking_ref', 'num_passengers', 'cabin_class', 'flight_type', 'total_cost', 'currency', 'status', 'notes'];
+  const updates = Object.fromEntries(Object.entries(rest).filter(([k]) => allowed.includes(k)));
+  if (departure_date && departure_time) updates.departure_time = `${departure_date}T${departure_time}:00`;
+  if (arrival_date && arrival_time) updates.arrival_time = `${arrival_date}T${arrival_time}:00`;
   if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update' });
   const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(', ');
   try {
