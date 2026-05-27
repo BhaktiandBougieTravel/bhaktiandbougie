@@ -1807,8 +1807,9 @@ async function loadFltList(){
     const flights=await(await fetch(`${API}/flights?trip_id=${encodeURIComponent(tripId)}&date=${date}`)).json();
     if(!Array.isArray(flights)||!flights.length){el.innerHTML='';return;}
     el.innerHTML=flights.map(f=>{
-      const dep=f.departure_time?new Date(f.departure_time).toISOString().slice(11,16):'';
-      const lbl=[f.flight_number,f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'',dep].filter(Boolean).join(' ');
+      const dep=f.departure_time?new Date(f.departure_time).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'UTC'}):'';
+      const fnum=[f.airline,f.flight_number].filter(Boolean).join('');
+      const lbl=[fnum,f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'',dep].filter(Boolean).join(' ');
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✈️ ${lbl||'Flight'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editFlt('${f.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
     }).join('');
   }catch(e){el.innerHTML='';}
@@ -1833,8 +1834,10 @@ async function saveFlight(){
   }catch(e){alert('Failed to save flight');}
 }
 async function editFlt(id){
+  console.log('[editFlt] called with id:', id);
   try{
     const f=await(await fetch(`${API}/flights/${id}`)).json();
+    console.log('[editFlt] flight data:', f);
     const fe=document.querySelector('.flt-entry');
     document.getElementById('flt-edit-id').value=id;
     const lbl=document.getElementById('flt-form-label');if(lbl)lbl.textContent='Edit Flight';
@@ -1843,12 +1846,12 @@ async function editFlt(id){
     entryField(fe,'flight_number').value=f.flight_number||'';
     entryField(fe,'origin_airport').value=f.origin_airport||'';
     entryField(fe,'dest_airport').value=f.dest_airport||'';
-    if(f.departure_time)entryField(fe,'dep_time').value=new Date(f.departure_time).toISOString().slice(11,16);
-    if(f.arrival_time)entryField(fe,'arr_time').value=new Date(f.arrival_time).toISOString().slice(11,16);
+    if(f.departure_time){const t=new Date(f.departure_time);entryField(fe,'dep_time').value=t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'UTC'});}
+    if(f.arrival_time){const t=new Date(f.arrival_time);entryField(fe,'arr_time').value=t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'UTC'});}
     entryField(fe,'cabin_class').value=f.cabin_class||'economy';
     entryField(fe,'booking_ref').value=f.booking_ref||'';
     entryField(fe,'notes').value=f.notes||'';
-  }catch(e){}
+  }catch(e){console.error('[editFlt] error:', e);}
 }
 function newFltItem(){
   document.getElementById('flt-edit-id').value='';
