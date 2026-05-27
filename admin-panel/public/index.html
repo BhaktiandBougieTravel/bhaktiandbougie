@@ -1668,6 +1668,7 @@ async function loadItinerary(){
     const cards=days.map(d=>{
       const ds=(d.date||'').split('T')[0];
       const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
+      console.log('[flights debug] ds:', ds, 'flight dep dates:', flights.map(f=>f.departure_time?.split('T')[0]));
       const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
       const dayTrains=trainList.filter(t=>(t.journey_date||'').split('T')[0]===ds);
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
