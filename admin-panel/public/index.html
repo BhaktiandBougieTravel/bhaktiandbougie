@@ -870,7 +870,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveFlight()">Save Flight</button>
-        <button type="button" class="btn btn-outline btn-sm" onclick="newFltItem()">Clear</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newFltItem()">Cancel</button>
       </div>
     </div>
     <!-- TRAIN -->
@@ -906,7 +906,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveTrain()">Save Train</button>
-        <button type="button" class="btn btn-outline btn-sm" onclick="newTrnItem()">Clear</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newTrnItem()">Cancel</button>
       </div>
     </div>
     <!-- TRANSFER -->
@@ -936,7 +936,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveTransfer()">Save Transfer</button>
-        <button type="button" class="btn btn-outline btn-sm" onclick="newXfrItem()">Clear</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newXfrItem()">Cancel</button>
       </div>
     </div>
     <!-- DRIVER -->
@@ -1677,22 +1677,23 @@ async function loadItinerary(){
       dayTrains.forEach(t=>{
         const dep=t.departure_time?utcHHMM(t.departure_time):'–';
         const arr=t.arrival_time?utcHHMM(t.arrival_time):'–';
-        timedItems.push({time:t.departure_time?t.departure_time.slice(0,5):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
+        timedItems.push({time:t.departure_time?utcHHMM(t.departure_time):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
       });
       dayFlights.forEach(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
         const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
-        const dep=f.departure_time?new Date(f.departure_time).toISOString().slice(11,16):'–';
-        const arr=f.arrival_time?new Date(f.arrival_time).toISOString().slice(11,16):'–';
+        const dep=f.departure_time?utcHHMM(f.departure_time):'–';
+        const arr=f.arrival_time?utcHHMM(f.arrival_time):'–';
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
         const ref=f.booking_ref||'';
-        timedItems.push({time:f.departure_time?new Date(f.departure_time).toISOString().slice(11,16):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arr}${ref?' · ref '+ref:''}</div></div></div>`});
+        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arr}${ref?' · ref '+ref:''}</div></div></div>`});
       });
       dayTrans.forEach(t=>{
         const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${t.type||'–'}</span>`;
         const route=[t.pickup_location,t.dropoff_location].filter(Boolean).join(' → ')||'–';
         const isDriver=t.type==='D'||t.type==='C';
-        timedItems.push({time:t.pickup_time?t.pickup_time.slice(0,5):'99:02',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('${isDriver?'driver':'transfer'}','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[t.pickup_time?t.pickup_time.slice(0,5):null,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`});
+        const ptime=t.pickup_time?t.pickup_time.slice(0,5):'';
+        timedItems.push({time:ptime||'99:02',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('${isDriver?'driver':'transfer'}','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[ptime||null,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`});
       });
       checkOuts.forEach(b=>{
         const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
