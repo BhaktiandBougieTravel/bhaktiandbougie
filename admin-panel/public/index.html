@@ -996,9 +996,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hotel</label>
-          <select class="form-select" id="ci-hotel-id" onchange="syncCoHotel()">
-            <option value="">— Select hotel —</option>
-          </select>
+          <input type="text" class="form-input" id="ci-hotel-name" placeholder="e.g. Taj Lake Palace"/>
         </div>
         <div class="form-group">
           <label class="form-label">Room Type</label>
@@ -1799,11 +1797,7 @@ function setDayType(type){
     if(!isTravel){const sec=btn.getAttribute('data-sec');if(sec)hideDaySec(sec);}
   });
 }
-function syncCoHotel(){
-  const v=document.getElementById('ci-hotel-id').value;
-  const co=document.getElementById('co-hotel-id');
-  if(co&&v&&!co.value)co.value=v;
-}
+function syncCoHotel(){}
 function entryField(e,f){return e.querySelector('[data-field="'+f+'"]');}
 function resetEntries(cls){
   const all=document.querySelectorAll(cls);
@@ -2021,7 +2015,7 @@ function addDaysStr(dateStr,n){
 async function populateDayHotelSelects(){
   if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(e){}
   const opts='<option value="">— Select hotel —</option>'+hotelsCache.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
-  ['ci-hotel-id','co-hotel-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+  const co=document.getElementById('co-hotel-id');if(co)co.innerHTML=opts;
 }
 function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -2035,7 +2029,7 @@ function resetDayModal(){
   newFltItem();newTrnItem();newXfrItem();
   setDrvType('D');
   ['drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
-   'ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+   'ci-hotel-name','ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
   const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
   const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
@@ -2160,7 +2154,7 @@ async function editDayItem(type,itemId,tripId,dayId){
     try{
       const b=await(await fetch(`${API}/hotel-bookings/${itemId}`)).json();
       if(type==='checkin'){
-        document.getElementById('ci-hotel-id').value=b.hotel_id||'';
+        document.getElementById('ci-hotel-name').value=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'';
         document.getElementById('ci-room-type').value=b.room_type||'';
         document.getElementById('ci-ref').value=b.confirmation_number||'';
         document.getElementById('ci-notes').value=b.notes||'';
@@ -2203,12 +2197,19 @@ async function saveDay(){
     saves.push(fetch(did?`${API}/ground-transport/${did}`:`${API}/ground-transport`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(drv)}));
   }
   if(isSectionActive('checkin')){
-    const hotelId=document.getElementById('ci-hotel-id').value;
-    if(hotelId){
-      const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
-      const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,1),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
-      const cid=(editType==='checkin'&&editId)?editId:null;
-      saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
+    const hotelName=document.getElementById('ci-hotel-name').value.trim();
+    if(hotelName){
+      let hotel=hotelsCache.find(h=>h.name.toLowerCase()===hotelName.toLowerCase());
+      if(!hotel){
+        try{const hr=await fetch(`${API}/hotels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:hotelName})});hotel=await hr.json();if(hotel?.id)hotelsCache.push(hotel);}catch(e){}
+      }
+      const hotelId=hotel?.id;
+      if(hotelId){
+        const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
+        const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,1),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
+        const cid=(editType==='checkin'&&editId)?editId:null;
+        saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
+      }
     }
   }
   if(isSectionActive('checkout')){
