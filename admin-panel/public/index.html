@@ -942,6 +942,9 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <!-- DRIVER -->
     <div class="day-section" id="day-sec-driver">
       <div class="day-sec-hdr">🚗 Driver</div>
+      <input type="hidden" id="drv-edit-id"/>
+      <div id="drv-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="drv-form-label">New Driver</div>
       <div class="form-group">
         <div class="day-toggle-row">
           <button type="button" class="day-toggle active" id="drv-type-D" onclick="setDrvType('D')" style="padding:4px 12px;font-size:11px;">D — Hired Driver</button>
@@ -989,10 +992,17 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <label class="form-label">Notes</label>
         <input type="text" class="form-input" id="drv-notes"/>
       </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveDriver()">Save Driver</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newDrvItem()">Cancel</button>
+      </div>
     </div>
     <!-- HOTEL CHECK-IN -->
     <div class="day-section" id="day-sec-checkin">
       <div class="day-sec-hdr">🏨 Hotel Check-in</div>
+      <input type="hidden" id="ci-edit-id"/>
+      <div id="ci-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="ci-form-label">New Check-in</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hotel</label>
@@ -1035,15 +1045,22 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <label class="form-label">Notes</label>
         <input type="text" class="form-input" id="ci-notes"/>
       </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveCheckin()">Save Check-in</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newCiItem()">Cancel</button>
+      </div>
     </div>
     <!-- HOTEL CHECK-OUT -->
     <div class="day-section" id="day-sec-checkout">
       <div class="day-sec-hdr">🏨 Hotel Check-out</div>
+      <input type="hidden" id="co-edit-id"/>
+      <div id="co-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="co-form-label">New Check-out</div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Hotel</label>
-          <select class="form-select" id="co-hotel-id">
-            <option value="">— Select hotel —</option>
+          <label class="form-label">Booking</label>
+          <select class="form-select" id="co-booking-id">
+            <option value="">— Select booking —</option>
           </select>
         </div>
         <div class="form-group">
@@ -1054,6 +1071,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="form-group">
         <label class="form-label">Notes</label>
         <input type="text" class="form-input" id="co-notes"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveCheckout()">Save Check-out</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newCoItem()">Cancel</button>
       </div>
     </div>
     <!-- NOTES -->
@@ -1766,6 +1787,9 @@ function toggleDaySec(name){
     if(name==='flight')loadFltList();
     else if(name==='train')loadTrnList();
     else if(name==='transfer')loadXfrList();
+    else if(name==='driver')loadDrvList();
+    else if(name==='checkin')loadCiList();
+    else if(name==='checkout')loadCoList();
   }
 }
 function showDaySec(name){
@@ -1774,6 +1798,9 @@ function showDaySec(name){
   if(name==='flight')loadFltList();
   else if(name==='train')loadTrnList();
   else if(name==='transfer')loadXfrList();
+  else if(name==='driver')loadDrvList();
+  else if(name==='checkin')loadCiList();
+  else if(name==='checkout')loadCoList();
 }
 function hideDaySec(name){
   document.getElementById('day-sec-'+name).classList.remove('visible');
@@ -2007,6 +2034,206 @@ function newXfrItem(){
   xe.querySelectorAll('input').forEach(el=>el.value='');
   setXfrType('E');
 }
+// ── DRIVER instant-save ────────────────────────────────────────────────────
+async function loadDrvList(){
+  const el=document.getElementById('drv-list');
+  if(!el)return;
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const date=document.getElementById('day-date').value;
+  if(!tripId||!date){el.innerHTML='';return;}
+  try{
+    const items=await(await fetch(`${API}/ground-transport?trip_id=${encodeURIComponent(tripId)}&date=${date}&types=D,C`)).json();
+    if(!Array.isArray(items)||!items.length){el.innerHTML='';return;}
+    el.innerHTML=items.map(x=>{
+      const badge=x.type==='D'?'Hired Driver':'City Driver';
+      const lbl=[badge,x.vendor,x.pickup_location].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editDrv('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';console.error('[loadDrvList]',e);}
+}
+async function saveDriver(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayDate=document.getElementById('day-date').value;
+  if(!tripId||!dayDate){alert('Trip and date are required');return;}
+  const endDate=document.getElementById('drv-end').value;
+  const coverage=document.getElementById('drv-coverage').value;
+  const drvNotes=[coverage?'Coverage: '+coverage:'',endDate?'End: '+endDate:'',document.getElementById('drv-notes').value].filter(Boolean).join(' · ');
+  const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation:document.getElementById('drv-ref').value,notes:drvNotes};
+  const did=document.getElementById('drv-edit-id').value;
+  console.log('[saveDriver]',did?'PATCH':'POST',drv);
+  try{
+    const r=await fetch(did?`${API}/ground-transport/${did}`:`${API}/ground-transport`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(drv)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveDriver] error:',err);alert('Failed to save driver: '+(err.error||r.status));return;}
+    newDrvItem();loadDrvList();
+  }catch(e){console.error('[saveDriver]',e);alert('Failed to save driver');}
+}
+async function editDrv(id){
+  console.log('[editDrv] id:', id);
+  try{
+    const gt=await(await fetch(`${API}/ground-transport/${id}`)).json();
+    console.log('[editDrv] data:', gt);
+    document.getElementById('drv-edit-id').value=id;
+    const lbl=document.getElementById('drv-form-label');if(lbl)lbl.textContent='Edit Driver';
+    setDrvType(gt.type||'D');
+    document.getElementById('drv-name').value=gt.vendor||'';
+    document.getElementById('drv-start').value=gt.transport_date?(gt.transport_date||'').split('T')[0]:'';
+    document.getElementById('drv-end').value='';
+    document.getElementById('drv-coverage').value=gt.pickup_location||'';
+    document.getElementById('drv-ref').value=gt.confirmation||'';
+    document.getElementById('drv-cost').value=gt.cost||'';
+    document.getElementById('drv-currency').value=gt.currency||'INR';
+    document.getElementById('drv-notes').value=gt.notes||'';
+  }catch(e){console.error('[editDrv]',e);}
+}
+function newDrvItem(){
+  document.getElementById('drv-edit-id').value='';
+  const lbl=document.getElementById('drv-form-label');if(lbl)lbl.textContent='New Driver';
+  ['drv-name','drv-coverage','drv-end','drv-ref','drv-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
+  const ec=document.getElementById('drv-cost');if(ec)ec.value='';
+  const ds=document.getElementById('drv-start');if(ds)ds.value='';
+  setDrvType('D');
+}
+// ── CHECK-IN instant-save ──────────────────────────────────────────────────
+async function loadCiList(){
+  const el=document.getElementById('ci-list');
+  if(!el)return;
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const date=document.getElementById('day-date').value;
+  if(!tripId||!date){el.innerHTML='';return;}
+  try{
+    const bookings=await(await fetch(`${API}/hotel-bookings?trip_id=${encodeURIComponent(tripId)}`)).json();
+    const items=bookings.filter(b=>(b.check_in||'').split('T')[0]===date);
+    if(!items.length){el.innerHTML='';return;}
+    el.innerHTML=items.map(b=>{
+      const nights=b.check_in&&b.check_out?Math.round((new Date(b.check_out)-new Date(b.check_in))/86400000):0;
+      const lbl=[b.hotel_name||'Hotel',nights?nights+' night'+(nights>1?'s':''):'',b.confirmation_number?'#'+b.confirmation_number:''].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCi('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';console.error('[loadCiList]',e);}
+}
+async function saveCheckin(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayDate=document.getElementById('day-date').value;
+  if(!tripId||!dayDate){alert('Trip and date are required');return;}
+  const hotelName=document.getElementById('ci-hotel-name').value.trim();
+  if(!hotelName){alert('Hotel name is required');return;}
+  const ciCity=(document.getElementById('ci-hotel-city').value||'').trim()||(document.getElementById('day-location').value||'').trim();
+  const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
+  if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(e){}
+  let hotel=hotelsCache.find(h=>h.name.toLowerCase()===hotelName.toLowerCase());
+  if(!hotel){
+    try{
+      const hr=await fetch(`${API}/hotels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:hotelName,city:ciCity})});
+      const hotelRes=await hr.json();
+      console.log('[saveCheckin] hotel POST status:', hr.status, 'response:', hotelRes);
+      if(hotelRes?.id){hotel=hotelRes;hotelsCache.push(hotel);}
+    }catch(e){console.error('[saveCheckin] hotel POST error:', e);}
+  }
+  if(!hotel?.id){alert('Could not find or create hotel');return;}
+  const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
+  const ci={trip_id:tripId,hotel_id:hotel.id,check_in:dayDate,check_out:addDaysStr(dayDate,ciNights),room_type:document.getElementById('ci-room-type').value||null,confirmation_number:document.getElementById('ci-ref').value||null,notes:noteParts||null};
+  const cid=document.getElementById('ci-edit-id').value;
+  console.log('[saveCheckin] posting:', ci, 'cid:', cid);
+  try{
+    const r=await fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveCheckin] error:',err);alert('Failed to save check-in: '+(err.error||r.status));return;}
+    try{
+      const existingDays=await(await fetch(`${API}/days?trip_id=${tripId}`)).json();
+      const existingDates=new Set(existingDays.map(d=>(d.date||'').split('T')[0]));
+      let maxNum=existingDays.reduce((m,d)=>Math.max(m,d.day_number||0),0);
+      let stayCount=0;
+      for(let n=1;n<=ciNights;n++){
+        const date=addDaysStr(dayDate,n);
+        if(!existingDates.has(date)){
+          stayCount++;
+          const isLast=n===ciNights;
+          const title=ciCity?ciCity+' Day '+stayCount:'Day '+stayCount;
+          await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date,day_number:++maxNum,day_type:isLast?'travel':'stay',title,location:ciCity})});
+        }
+      }
+    }catch(e){console.error('[saveCheckin] auto-create days error:',e);}
+    newCiItem();loadCiList();loadItinerary();
+  }catch(e){console.error('[saveCheckin]',e);alert('Failed to save check-in');}
+}
+async function editCi(id){
+  console.log('[editCi] id:', id);
+  try{
+    const b=await(await fetch(`${API}/hotel-bookings/${id}`)).json();
+    console.log('[editCi] data:', b);
+    document.getElementById('ci-edit-id').value=id;
+    const lbl=document.getElementById('ci-form-label');if(lbl)lbl.textContent='Edit Check-in';
+    document.getElementById('ci-hotel-name').value=b.hotel_name||hotelsCache.find(h=>h.id===b.hotel_id)?.name||'';
+    document.getElementById('ci-hotel-city').value=b.city||'';
+    document.getElementById('ci-room-type').value=b.room_type||'';
+    document.getElementById('ci-ref').value=b.confirmation_number||'';
+    if(b.check_in&&b.check_out){
+      const nights=Math.round((new Date(b.check_out)-new Date(b.check_in))/86400000);
+      document.getElementById('ci-nights').value=Math.max(1,nights);
+    }
+    document.getElementById('ci-notes').value=b.notes||'';
+  }catch(e){console.error('[editCi]',e);}
+}
+function newCiItem(){
+  document.getElementById('ci-edit-id').value='';
+  const lbl=document.getElementById('ci-form-label');if(lbl)lbl.textContent='New Check-in';
+  ['ci-hotel-name','ci-hotel-city','ci-room-type','ci-ref','ci-notes','ci-perks'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const cin=document.getElementById('ci-nights');if(cin)cin.value='1';
+  const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
+  const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
+}
+// ── CHECK-OUT instant-save ─────────────────────────────────────────────────
+async function loadCoList(){
+  const el=document.getElementById('co-list');
+  if(!el)return;
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const date=document.getElementById('day-date').value;
+  if(!tripId||!date){el.innerHTML='';return;}
+  try{
+    const bookings=await(await fetch(`${API}/hotel-bookings?trip_id=${encodeURIComponent(tripId)}`)).json();
+    const checkouts=bookings.filter(b=>(b.check_out||'').split('T')[0]===date);
+    el.innerHTML=checkouts.length?checkouts.map(b=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${b.hotel_name||'Hotel'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCo('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`).join(''):'';
+    const open=bookings.filter(b=>(b.check_in||'').split('T')[0]<=date);
+    const sel=document.getElementById('co-booking-id');
+    if(sel)sel.innerHTML='<option value="">— Select booking —</option>'+open.map(b=>`<option value="${b.id}">${b.hotel_name||'Hotel'} (in: ${(b.check_in||'').split('T')[0]})</option>`).join('');
+  }catch(e){el.innerHTML='';console.error('[loadCoList]',e);}
+}
+async function saveCheckout(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayDate=document.getElementById('day-date').value;
+  if(!tripId||!dayDate){alert('Trip and date are required');return;}
+  const cid=document.getElementById('co-edit-id').value;
+  const bookingId=cid||document.getElementById('co-booking-id').value;
+  if(!bookingId){alert('Select a booking to check out');return;}
+  const body={check_out:dayDate};
+  const coNotes=document.getElementById('co-notes').value;
+  if(coNotes)body.notes=coNotes;
+  console.log('[saveCheckout] posting:', body, 'id:', bookingId);
+  try{
+    const r=await fetch(`${API}/hotel-bookings/${bookingId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveCheckout] error:',err);alert('Failed to save check-out: '+(err.error||r.status));return;}
+    newCoItem();loadCoList();loadItinerary();
+  }catch(e){console.error('[saveCheckout]',e);alert('Failed to save check-out');}
+}
+async function editCo(id){
+  console.log('[editCo] id:', id);
+  try{
+    const b=await(await fetch(`${API}/hotel-bookings/${id}`)).json();
+    console.log('[editCo] data:', b);
+    document.getElementById('co-edit-id').value=id;
+    const lbl=document.getElementById('co-form-label');if(lbl)lbl.textContent='Edit Check-out';
+    const sel=document.getElementById('co-booking-id');
+    if(sel){const opt=document.createElement('option');opt.value=id;opt.textContent=b.hotel_name||'Hotel';sel.appendChild(opt);sel.value=id;}
+    document.getElementById('co-notes').value=b.notes||'';
+  }catch(e){console.error('[editCo]',e);}
+}
+function newCoItem(){
+  document.getElementById('co-edit-id').value='';
+  const lbl=document.getElementById('co-form-label');if(lbl)lbl.textContent='New Check-out';
+  const sel=document.getElementById('co-booking-id');if(sel)sel.value='';
+  document.getElementById('co-notes').value='';
+  const cot=document.getElementById('co-time');if(cot)cot.value='11:00';
+}
 function setFltEntryType(btn,type){
   const e=btn.closest('.flt-entry');
   e.querySelector('.flt-type-INT').classList.toggle('active',type==='INT');
@@ -2025,27 +2252,20 @@ function addDaysStr(dateStr,n){
 }
 async function populateDayHotelSelects(){
   if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(e){}
-  const opts='<option value="">— Select hotel —</option>'+hotelsCache.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
-  const co=document.getElementById('co-hotel-id');if(co)co.innerHTML=opts;
 }
 function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setDayType('stay');
   ['flight','train','transfer','driver','checkin','checkout','notes'].forEach(s=>hideDaySec(s));
-  ['flt-list','trn-list','xfr-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
-  ['flt-edit-id','trn-edit-id','xfr-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['flt-list','trn-list','xfr-list','drv-list','ci-list','co-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  ['flt-edit-id','trn-edit-id','xfr-edit-id','drv-edit-id','ci-edit-id','co-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const fl=document.getElementById('flt-form-label');if(fl)fl.textContent='New Flight';
   const tl=document.getElementById('trn-form-label');if(tl)tl.textContent='New Train';
   const xl=document.getElementById('xfr-form-label');if(xl)xl.textContent='New Transfer';
-  newFltItem();newTrnItem();newXfrItem();
-  setDrvType('D');
-  ['drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
-   'ci-hotel-name','ci-hotel-city','ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  const cin=document.getElementById('ci-nights');if(cin)cin.value='1';;
-  const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
-  const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
-  const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
-  const cot=document.getElementById('co-time');if(cot)cot.value='11:00';
+  const dl=document.getElementById('drv-form-label');if(dl)dl.textContent='New Driver';
+  const cil=document.getElementById('ci-form-label');if(cil)cil.textContent='New Check-in';
+  const col=document.getElementById('co-form-label');if(col)col.textContent='New Check-out';
+  newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();
 }
 async function openAddDay(){
   if(!currentItinTripId){alert('Select a trip first');return;}
@@ -2145,38 +2365,21 @@ async function editDayItem(type,itemId,tripId,dayId){
     showDaySec('train');
     await editTrn(itemId);
   } else if((type==='transfer'||type==='driver')&&itemId){
-    try{
-      const gt=await(await fetch(`${API}/ground-transport/${itemId}`)).json();
-      if(type==='transfer'){
-        showDaySec('transfer');
-        await editXfr(itemId);
-      } else {
-        setDrvType(gt.type||'D');
-        document.getElementById('drv-name').value=gt.vendor||'';
-        document.getElementById('drv-start').value=gt.transport_date?gt.transport_date.split('T')[0]:'';
-        document.getElementById('drv-coverage').value=gt.pickup_location||'';
-        document.getElementById('drv-ref').value=gt.confirmation||'';
-        document.getElementById('drv-cost').value=gt.cost||'';
-        document.getElementById('drv-currency').value=gt.currency||'INR';
-        document.getElementById('drv-notes').value=gt.notes||'';
-        showDaySec('driver');
-      }
-    }catch(e){}
+    if(type==='transfer'){
+      showDaySec('transfer');
+      await editXfr(itemId);
+    } else {
+      showDaySec('driver');
+      await editDrv(itemId);
+    }
   } else if((type==='checkin'||type==='checkout')&&itemId){
-    try{
-      const b=await(await fetch(`${API}/hotel-bookings/${itemId}`)).json();
-      if(type==='checkin'){
-        document.getElementById('ci-hotel-name').value=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'';
-        document.getElementById('ci-room-type').value=b.room_type||'';
-        document.getElementById('ci-ref').value=b.confirmation_number||'';
-        document.getElementById('ci-notes').value=b.notes||'';
-        showDaySec('checkin');
-      } else {
-        document.getElementById('co-hotel-id').value=b.hotel_id||'';
-        document.getElementById('co-notes').value=b.notes||'';
-        showDaySec('checkout');
-      }
-    }catch(e){}
+    if(type==='checkin'){
+      showDaySec('checkin');
+      await editCi(itemId);
+    } else {
+      showDaySec('checkout');
+      await editCo(itemId);
+    }
   } else if(type==='notes'){
     showDaySec('notes');
   }
@@ -2187,8 +2390,6 @@ async function saveDay(){
   const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
   const dayId=document.getElementById('day-id').value;
   const dayDate=document.getElementById('day-date').value;
-  const editType=document.getElementById('day-edit-item-type').value;
-  const editId=document.getElementById('day-edit-item-id').value;
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const dayNum=parseInt(document.getElementById('day-number').value)||null;
   if(!dayId&&!dayNum){alert('Day number is required');return;}
@@ -2199,75 +2400,6 @@ async function saveDay(){
   else if(dayNum)dayBody.day_number=dayNum;
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
-  const saves=[];
-  if(isSectionActive('driver')){
-    const endDate=document.getElementById('drv-end').value;
-    const coverage=document.getElementById('drv-coverage').value;
-    const drvNotes=[coverage?'Coverage: '+coverage:'',endDate?'End: '+endDate:'',document.getElementById('drv-notes').value].filter(Boolean).join(' · ');
-    const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation:document.getElementById('drv-ref').value,notes:drvNotes};
-    const did=(editType==='driver'&&editId)?editId:null;
-    saves.push(fetch(did?`${API}/ground-transport/${did}`:`${API}/ground-transport`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(drv)}));
-  }
-  if(isSectionActive('checkin')){
-    const hotelName=document.getElementById('ci-hotel-name').value.trim();
-    const ciCity=(document.getElementById('ci-hotel-city').value||'').trim()||(document.getElementById('day-location').value||'').trim();
-    const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
-    console.log('[checkin] hotelName:', hotelName, 'ciCity:', ciCity, 'tripId:', tripId, 'dayDate:', dayDate, 'nights:', ciNights);
-    if(hotelName){
-      let hotel=hotelsCache.find(h=>h.name.toLowerCase()===hotelName.toLowerCase());
-      console.log('[checkin] found in cache:', hotel);
-      if(!hotel){
-        try{
-          const hr=await fetch(`${API}/hotels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:hotelName,city:ciCity})});
-          const hotelRes=await hr.json();
-          console.log('[checkin] hotel POST status:', hr.status, 'response:', hotelRes);
-          if(hotelRes?.id){hotel=hotelRes;hotelsCache.push(hotel);}
-        }catch(e){console.error('[checkin] hotel POST error:', e);}
-      }
-      const hotelId=hotel?.id;
-      console.log('[checkin] hotelId:', hotelId);
-      if(hotelId){
-        const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
-        const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,ciNights),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
-        const cid=(editType==='checkin'&&editId)?editId:null;
-        console.log('[checkin] saving booking:', ci, 'cid:', cid);
-        saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
-      }
-    }
-  }
-  if(isSectionActive('checkout')){
-    const coHotelId=document.getElementById('co-hotel-id').value;
-    const coid=(editType==='checkout'&&editId)?editId:null;
-    if(coid){
-      saves.push(fetch(`${API}/hotel-bookings/${coid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({check_out:dayDate,notes:document.getElementById('co-notes').value||undefined})}));
-    } else if(coHotelId){
-      try{
-        const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
-        const existing=(trip.hotel_bookings||[]).find(b=>b.hotel_id===coHotelId);
-        if(existing)saves.push(fetch(`${API}/hotel-bookings/${existing.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({check_out:dayDate})}));
-      }catch(e){}
-    }
-  }
-  await Promise.allSettled(saves);
-  if(isSectionActive('checkin')){
-    const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
-    const ciCity=(document.getElementById('ci-hotel-city').value||'').trim()||(document.getElementById('day-location').value||'').trim();
-    try{
-      const existingDays=await(await fetch(`${API}/days?trip_id=${tripId}`)).json();
-      const existingDates=new Set(existingDays.map(d=>(d.date||'').split('T')[0]));
-      let maxNum=existingDays.reduce((m,d)=>Math.max(m,d.day_number||0),0);
-      let stayCount=0;
-      for(let n=1;n<=ciNights;n++){
-        const date=addDaysStr(dayDate,n);
-        if(!existingDates.has(date)){
-          stayCount++;
-          const isLast=n===ciNights;
-          const title=ciCity?ciCity+' Day '+stayCount:'Day '+stayCount;
-          await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date,day_number:++maxNum,day_type:isLast?'travel':'stay',title,location:ciCity})});
-        }
-      }
-    }catch(e){}
-  }
   closeModal('day-modal');
   loadItinerary();
 }
