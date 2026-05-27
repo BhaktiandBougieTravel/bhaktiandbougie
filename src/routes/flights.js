@@ -10,16 +10,16 @@ const validate = (req, res, next) => {
   next();
 };
 
-// GET /api/flights?trip_id=<uuid>
+// GET /api/flights?trip_id=<uuid>&date=YYYY-MM-DD
 router.get('/', async (req, res, next) => {
   try {
-    const { trip_id } = req.query;
-    const { rows } = trip_id
-      ? await pool.query(
-          'SELECT * FROM flights WHERE trip_id = $1 ORDER BY departure_time',
-          [trip_id]
-        )
-      : await pool.query('SELECT * FROM flights ORDER BY departure_time');
+    const { trip_id, date } = req.query;
+    const conditions = [];
+    const params = [];
+    if (trip_id) { params.push(trip_id); conditions.push(`trip_id = $${params.length}`); }
+    if (date) { params.push(date); conditions.push(`departure_time::date = $${params.length}`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const { rows } = await pool.query(`SELECT * FROM flights ${where} ORDER BY departure_time`, params);
     res.json(rows);
   } catch (err) { next(err); }
 });

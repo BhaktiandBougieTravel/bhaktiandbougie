@@ -80,11 +80,14 @@ app.post('/api/rcb', async (_req, res) => {
 
 app.get('/api/ground-transport', async (req, res, next) => {
   try {
-    const { trip_id } = req.query;
-    const q = trip_id
-      ? 'SELECT gt.*, t.title as trip_title FROM ground_transport gt LEFT JOIN trips t ON gt.trip_id=t.id WHERE gt.trip_id=$1 ORDER BY gt.transport_date,gt.pickup_time'
-      : 'SELECT gt.*, t.title as trip_title FROM ground_transport gt LEFT JOIN trips t ON gt.trip_id=t.id ORDER BY gt.transport_date,gt.pickup_time';
-    const result = trip_id ? await pool.query(q, [trip_id]) : await pool.query(q);
+    const { trip_id, date, types } = req.query;
+    const conditions = [];
+    const params = [];
+    if (trip_id) { params.push(trip_id); conditions.push(`gt.trip_id=$${params.length}`); }
+    if (date) { params.push(date); conditions.push(`gt.transport_date=$${params.length}`); }
+    if (types) { params.push(types.split(',')); conditions.push(`gt.type=ANY($${params.length})`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const result = await pool.query(`SELECT gt.*, t.title as trip_title FROM ground_transport gt LEFT JOIN trips t ON gt.trip_id=t.id ${where} ORDER BY gt.transport_date,gt.pickup_time`, params);
     res.json(result.rows);
   } catch (e) { next(e); }
 });
@@ -122,11 +125,13 @@ app.patch('/api/ground-transport/:id', async (req, res, next) => {
 
 app.get('/api/trains', async (req, res, next) => {
   try {
-    const { trip_id } = req.query;
-    const q = trip_id
-      ? 'SELECT * FROM train_journeys WHERE trip_id=$1 ORDER BY departure_date,departure_time'
-      : 'SELECT * FROM train_journeys ORDER BY departure_date,departure_time';
-    const result = trip_id ? await pool.query(q, [trip_id]) : await pool.query(q);
+    const { trip_id, date } = req.query;
+    const conditions = [];
+    const params = [];
+    if (trip_id) { params.push(trip_id); conditions.push(`trip_id=$${params.length}`); }
+    if (date) { params.push(date); conditions.push(`departure_date=$${params.length}`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const result = await pool.query(`SELECT * FROM train_journeys ${where} ORDER BY departure_date,departure_time`, params);
     res.json(result.rows || []);
   } catch (e) { next(e); }
 });
