@@ -187,13 +187,6 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
   </header>
   <main class="content">
     <div class="tab-panel active" id="tab-command">
-      <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:20px;padding:14px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:2px;">
-        <div style="font-family:var(--font-serif);font-size:56px;color:var(--cream);line-height:1;" id="bst-days">–</div>
-        <div>
-          <div style="font-family:var(--font-serif);font-size:20px;color:var(--gold);letter-spacing:2px;">days until BST departure</div>
-          <div style="font-size:10px;color:var(--ash);letter-spacing:3px;text-transform:uppercase;margin-top:3px;">Sacred India Journey · Sep 3 2026</div>
-        </div>
-      </div>
       <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:stretch;margin-bottom:20px;">
 
         <!-- Col 1: Clocks 2×2 -->
@@ -961,13 +954,8 @@ function onTabChange(tab){
   if(tab==='guides')loadGuides();
 }
 function initApp(){
-  updateBST();setInterval(updateBST,60000);
   renderClocks();setInterval(renderClocks,1000);
   loadWeather();loadFX();loadCmdFestivals();loadTrips();populateTripSelects();
-}
-function updateBST(){
-  const diff=Math.ceil((new Date('2026-09-03')-new Date())/86400000);
-  document.getElementById('bst-days').textContent=diff>0?diff:'NOW';
 }
 const CLOCKS=[
   {city:'India IST',tz:'Asia/Kolkata'},
