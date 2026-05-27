@@ -885,8 +885,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="form-group"><label class="form-label">Train Number</label><input type="text" class="form-input" data-field="train_number"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">From Station</label><input type="text" class="form-input" data-field="origin_station"/></div>
-          <div class="form-group"><label class="form-label">To Station</label><input type="text" class="form-input" data-field="dest_station"/></div>
+          <div class="form-group"><label class="form-label">From Station</label><input type="text" class="form-input" data-field="departure_station"/></div>
+          <div class="form-group"><label class="form-label">To Station</label><input type="text" class="form-input" data-field="arrival_station"/></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Departure</label><input type="text" class="form-input" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]" data-field="dep_time"/></div>
@@ -1669,7 +1669,7 @@ async function loadItinerary(){
       const ds=(d.date||'').split('T')[0];
       const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
       const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
-      const dayTrains=trainList.filter(t=>(t.departure_date||'').split('T')[0]===ds);
+      const dayTrains=trainList.filter(t=>(t.journey_date||'').split('T')[0]===ds);
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
@@ -1677,7 +1677,7 @@ async function loadItinerary(){
       dayTrains.forEach(t=>{
         const dep=t.departure_time?t.departure_time.slice(0,5):'–';
         const arr=t.arrival_time?t.arrival_time.slice(0,5):'–';
-        timedItems.push({time:t.departure_time?t.departure_time.slice(0,5):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.origin_station||'–'} → ${t.dest_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
+        timedItems.push({time:t.departure_time?t.departure_time.slice(0,5):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
       });
       dayFlights.forEach(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
@@ -1875,7 +1875,7 @@ async function loadTrnList(){
     el.innerHTML=trains.map(t=>{
       const dep=t.departure_time?t.departure_time.slice(0,5):'';
       const tnum=[t.carrier,t.train_number].filter(Boolean).join(' ');
-      const route=t.origin_station&&t.dest_station?t.origin_station+'→'+t.dest_station:'';
+      const route=t.departure_station&&t.arrival_station?t.departure_station+'→'+t.arrival_station:'';
       const lbl=[tnum,route,dep].filter(Boolean).join(' ');
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚂 ${lbl||'Train'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editTrn('${t.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
     }).join('');
@@ -1886,7 +1886,7 @@ async function saveTrain(){
   const dayDate=document.getElementById('day-date').value;
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const te=document.querySelector('.trn-entry');
-  const trn={trip_id:tripId,carrier:entryField(te,'carrier').value,train_number:entryField(te,'train_number').value,origin_station:entryField(te,'origin_station').value,dest_station:entryField(te,'dest_station').value,departure_date:dayDate,departure_time:entryField(te,'dep_time').value||null,arrival_time:entryField(te,'arr_time').value||null,class:entryField(te,'class').value,pnr:entryField(te,'pnr').value,cost:parseFloat(entryField(te,'cost').value)||null,currency:entryField(te,'currency').value||'INR',notes:entryField(te,'notes').value};
+  const trn={trip_id:tripId,carrier:entryField(te,'carrier').value,train_number:entryField(te,'train_number').value,departure_station:entryField(te,'departure_station').value,arrival_station:entryField(te,'arrival_station').value,journey_date:dayDate,departure_time:entryField(te,'dep_time').value||null,arrival_time:entryField(te,'arr_time').value||null,class:entryField(te,'class').value,pnr:entryField(te,'pnr').value,cost:parseFloat(entryField(te,'cost').value)||null,currency:entryField(te,'currency').value||'INR',notes:entryField(te,'notes').value};
   const tid=document.getElementById('trn-edit-id').value;
   console.log('[saveTrain]',tid?'PATCH':'POST', trn);
   try{
@@ -1905,8 +1905,8 @@ async function editTrn(id){
     const lbl=document.getElementById('trn-form-label');if(lbl)lbl.textContent='Edit Train';
     entryField(te,'carrier').value=t.carrier||'';
     entryField(te,'train_number').value=t.train_number||'';
-    entryField(te,'origin_station').value=t.origin_station||'';
-    entryField(te,'dest_station').value=t.dest_station||'';
+    entryField(te,'departure_station').value=t.departure_station||'';
+    entryField(te,'arrival_station').value=t.arrival_station||'';
     entryField(te,'dep_time').value=t.departure_time?t.departure_time.slice(0,5):'';
     entryField(te,'arr_time').value=t.arrival_time?t.arrival_time.slice(0,5):'';
     entryField(te,'class').value=t.class||'';

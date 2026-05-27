@@ -129,22 +129,22 @@ app.get('/api/trains', async (req, res, next) => {
     const conditions = [];
     const params = [];
     if (trip_id) { params.push(trip_id); conditions.push(`trip_id=$${params.length}`); }
-    if (date) { params.push(date); conditions.push(`departure_date=$${params.length}`); }
+    if (date) { params.push(date); conditions.push(`journey_date=$${params.length}`); }
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
-    const result = await pool.query(`SELECT * FROM train_journeys ${where} ORDER BY departure_date,departure_time`, params);
+    const result = await pool.query(`SELECT * FROM train_journeys ${where} ORDER BY journey_date,departure_time`, params);
     res.json(result.rows || []);
   } catch (e) { next(e); }
 });
 
 app.post('/api/trains', async (req, res, next) => {
   try {
-    const { trip_id, carrier, train_number, origin_station, dest_station, departure_date, departure_time, arrival_time, class: cls, pnr, cost, currency, notes } = req.body;
+    const { trip_id, carrier, train_number, departure_station, arrival_station, journey_date, departure_time, arrival_time, class: cls, pnr, cost, currency, notes } = req.body;
     if (!trip_id) return res.status(400).json({ error: 'trip_id required' });
     const result = await pool.query(
-      `INSERT INTO train_journeys (trip_id,carrier,train_number,origin_station,dest_station,departure_date,departure_time,arrival_time,class,pnr,cost,currency,notes)
+      `INSERT INTO train_journeys (trip_id,carrier,train_number,departure_station,arrival_station,journey_date,departure_time,arrival_time,class,pnr,cost,currency,notes)
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-      [trip_id, carrier||null, train_number||null, origin_station||null, dest_station||null,
-       departure_date||null, departure_time||null, arrival_time||null,
+      [trip_id, carrier||null, train_number||null, departure_station||null, arrival_station||null,
+       journey_date||null, departure_time||null, arrival_time||null,
        cls||null, pnr||null, cost?parseFloat(cost):null, currency||'INR', notes||null]
     );
     res.status(201).json(result.rows[0]);
@@ -161,7 +161,7 @@ app.get('/api/trains/:id', async (req, res, next) => {
 
 app.patch('/api/trains/:id', async (req, res, next) => {
   try {
-    const allowed = ['carrier','train_number','origin_station','dest_station','departure_date','departure_time','arrival_time','class','pnr','cost','currency','notes'];
+    const allowed = ['carrier','train_number','departure_station','arrival_station','journey_date','departure_time','arrival_time','class','pnr','cost','currency','notes'];
     const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
     const fields = Object.keys(updates).map((k,i) => `${k}=$${i+2}`).join(',');
