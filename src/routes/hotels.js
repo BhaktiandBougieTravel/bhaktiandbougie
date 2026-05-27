@@ -33,7 +33,7 @@ router.get('/:id', param('id').isUUID(), validate, async (req, res, next) => {
 // POST /api/hotels
 router.post('/',
   body('name').notEmpty(),
-  body('city').notEmpty(),
+  body('city').optional(),
   body('star_rating').optional().isInt({ min: 1, max: 5 }),
   validate,
   async (req, res, next) => {

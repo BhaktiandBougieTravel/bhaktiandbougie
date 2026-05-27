@@ -30,6 +30,7 @@ app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')))
 app.get('/health', (_req, res) => res.json({ status: 'ok', company: 'Bhakti & Bougie Travel Ltd' }));
 
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS day_type VARCHAR(10) DEFAULT 'stay'").catch(e => console.error('[startup] day_type migration:', e.message));
+pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catch(e => console.error('[startup] days date type migration:', e.message));
 
 app.use('/api/trips',          tripsRouter);
 app.use('/api/contacts',       contactsRouter);

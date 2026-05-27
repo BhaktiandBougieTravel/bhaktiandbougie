@@ -2210,17 +2210,27 @@ async function saveDay(){
   }
   if(isSectionActive('checkin')){
     const hotelName=document.getElementById('ci-hotel-name').value.trim();
+    const ciCity=(document.getElementById('ci-hotel-city').value||'').trim()||(document.getElementById('day-location').value||'').trim();
     const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
+    console.log('[checkin] hotelName:', hotelName, 'ciCity:', ciCity, 'tripId:', tripId, 'dayDate:', dayDate, 'nights:', ciNights);
     if(hotelName){
       let hotel=hotelsCache.find(h=>h.name.toLowerCase()===hotelName.toLowerCase());
+      console.log('[checkin] found in cache:', hotel);
       if(!hotel){
-        try{const hr=await fetch(`${API}/hotels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:hotelName})});hotel=await hr.json();if(hotel?.id)hotelsCache.push(hotel);}catch(e){}
+        try{
+          const hr=await fetch(`${API}/hotels`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:hotelName,city:ciCity})});
+          const hotelRes=await hr.json();
+          console.log('[checkin] hotel POST status:', hr.status, 'response:', hotelRes);
+          if(hotelRes?.id){hotel=hotelRes;hotelsCache.push(hotel);}
+        }catch(e){console.error('[checkin] hotel POST error:', e);}
       }
       const hotelId=hotel?.id;
+      console.log('[checkin] hotelId:', hotelId);
       if(hotelId){
         const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
         const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,ciNights),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
         const cid=(editType==='checkin'&&editId)?editId:null;
+        console.log('[checkin] saving booking:', ci, 'cid:', cid);
         saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
       }
     }
