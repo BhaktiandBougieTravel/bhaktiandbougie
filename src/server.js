@@ -53,7 +53,8 @@ app.post('/api/rcb', async (_req, res) => {
     console.log('[RCB] Anthropic raw response:', JSON.stringify(d));
     const raw = d.content?.[0]?.text || '{}';
     console.log('[RCB] extracted text:', raw);
-    res.json(JSON.parse(raw));
+    const clean = raw.replace(/```json|```/g, '').trim();
+    res.json(JSON.parse(clean));
   } catch (e) {
     console.error('[RCB] error:', e.message);
     res.status(500).json({ error: 'RCB data unavailable' });
