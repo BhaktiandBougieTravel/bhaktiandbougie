@@ -2053,8 +2053,9 @@ async function openAddDay(){
     const nextNum=maxNum+1;
     document.getElementById('day-number').value=nextNum;
     if(trip?.start_date){
-      const start=new Date(trip.start_date+'T12:00:00Z');
-      start.setUTCDate(start.getUTCDate()+maxNum);
+      const rawDate=trip.start_date.split('T')[0];
+      const [y,m,d]=rawDate.split('-').map(Number);
+      const start=new Date(Date.UTC(y,m-1,d+maxNum));
       console.log('[openAddDay] setting date to:', start.toISOString().split('T')[0]);
       document.getElementById('day-date').value=start.toISOString().split('T')[0];
     }
