@@ -1697,7 +1697,6 @@ async function loadItinerary(){
     const cards=days.map(d=>{
       const ds=(d.date||'').split('T')[0];
       const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
-      console.log('[flights debug] ds:', ds, 'flight dep dates:', flights.map(f=>f.departure_time?.split('T')[0]));
       const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
       const dayTrains=trainList.filter(t=>(t.journey_date||'').split('T')[0]===ds);
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
@@ -1710,19 +1709,20 @@ async function loadItinerary(){
         const depDs=(f.departure_time).split('T')[0];
         return arrDs===ds&&depDs!==ds;
       });
-      const arrivingHtml=arrivingFlights.map(f=>{
+      const P='<span style="color:var(--gold);font-size:12px;flex-shrink:0;align-self:center;opacity:0.6;margin-left:4px;">✎</span>';
+      const timedItems=[];
+      arrivingFlights.forEach(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
         const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
         const arr=utcHHMM(f.arrival_time);
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
         const ref=f.booking_ref||'';
-        return`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">Arrives ${arr}${ref?' · ref '+ref:''}</div></div></div>`;
-      }).join('');
-      const timedItems=[];
+        timedItems.push({time:f.arrival_time?utcHHMM(f.arrival_time):'00:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">Arrives ${arr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
+      });
       dayTrains.forEach(t=>{
         const dep=t.departure_time?utcHHMM(t.departure_time):'–';
         const arr=t.arrival_time?utcHHMM(t.arrival_time):'–';
-        timedItems.push({time:t.departure_time?utcHHMM(t.departure_time):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
+        timedItems.push({time:t.departure_time?utcHHMM(t.departure_time):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.departure_station||'–'} → ${t.arrival_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div>${P}</div>`});
       });
       dayFlights.forEach(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
@@ -1733,27 +1733,27 @@ async function loadItinerary(){
         const arrStr=arr+(nextDay?'<sup style="color:var(--gold);font-size:10px;">+1</sup>':'');
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
         const ref=f.booking_ref||'';
-        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(204,68,68,0.15);color:#cc4444;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">DEPARTING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div></div>`});
+        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(204,68,68,0.15);color:#cc4444;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">DEPARTING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
       });
       dayTrans.forEach(t=>{
         const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${t.type||'–'}</span>`;
         const route=[t.pickup_location,t.dropoff_location].filter(Boolean).join(' → ')||'–';
         const isDriver=t.type==='D'||t.type==='C';
         const ptime=t.pickup_time?t.pickup_time.slice(0,5):'';
-        timedItems.push({time:ptime||'99:02',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('${isDriver?'driver':'transfer'}','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[ptime||null,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`});
-      });
-      checkOuts.forEach(b=>{
-        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
-        timedItems.push({time:'99:03',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkout','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div></div></div>`});
+        timedItems.push({time:ptime||'99:02',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('${isDriver?'driver':'transfer'}','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[ptime||null,t.vendor].filter(Boolean).join(' · ')}</div></div>${P}</div>`});
       });
       checkIns.forEach(b=>{
         const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
-        timedItems.push({time:'99:04',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkin','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div></div>`});
+        timedItems.push({time:'99:03',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkin','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div>${P}</div>`});
+      });
+      checkOuts.forEach(b=>{
+        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
+        timedItems.push({time:'99:04',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkout','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div></div>${P}</div>`});
       });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
-      let items=arrivingHtml+timedItems.map(x=>x.html).join('');
+      let items=timedItems.map(x=>x.html).join('');
       const note=d.notes||d.description||'';
-      if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div></div>`;
+      if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div>${P}</div>`;
       const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — use + to add</div>`:'';
       return`<div class="card" style="margin-bottom:10px;border-left:3px solid var(--border);padding:14px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${items||empty?'10px':'0'};">
@@ -1869,6 +1869,8 @@ async function saveFlight(){
   const dayDate=document.getElementById('day-date').value;
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const fe=document.querySelector('.flt-entry');
+  const airline=entryField(fe,'airline').value.trim();
+  if(!airline){alert('Airline is required');return;}
   const from=entryField(fe,'origin_airport').value.toUpperCase().trim();
   const to=entryField(fe,'dest_airport').value.toUpperCase().trim();
   if(from.length!==3||to.length!==3){alert('Origin and destination IATA codes required (3 letters)');return;}
