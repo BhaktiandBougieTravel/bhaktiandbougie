@@ -92,6 +92,69 @@ app.post('/api/ground-transport', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+app.get('/api/ground-transport/:id', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM ground_transport WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.patch('/api/ground-transport/:id', async (req, res, next) => {
+  try {
+    const allowed = ['type','vendor','pickup_location','dropoff_location','transport_date','pickup_time','cost','currency','confirmation_number','notes'];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+    const fields = Object.keys(updates).map((k,i) => `${k}=$${i+2}`).join(',');
+    const result = await pool.query(`UPDATE ground_transport SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.get('/api/trains', async (req, res, next) => {
+  try {
+    const { trip_id } = req.query;
+    const q = trip_id
+      ? 'SELECT * FROM train_journeys WHERE trip_id=$1 ORDER BY departure_date,departure_time'
+      : 'SELECT * FROM train_journeys ORDER BY departure_date,departure_time';
+    const result = trip_id ? await pool.query(q, [trip_id]) : await pool.query(q);
+    res.json(result.rows);
+  } catch (e) { next(e); }
+});
+
+app.post('/api/trains', async (req, res, next) => {
+  try {
+    const { trip_id, carrier, train_number, origin_station, dest_station, departure_date, departure_time, arrival_time, class: cls, pnr, cost, currency, notes } = req.body;
+    const result = await pool.query(
+      `INSERT INTO train_journeys (trip_id,carrier,train_number,origin_station,dest_station,departure_date,departure_time,arrival_time,class,pnr,cost,currency,notes)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [trip_id, carrier, train_number, origin_station, dest_station, departure_date||null, departure_time||null, arrival_time||null, cls, pnr, cost||null, currency||'INR', notes]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.get('/api/trains/:id', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM train_journeys WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.patch('/api/trains/:id', async (req, res, next) => {
+  try {
+    const allowed = ['carrier','train_number','origin_station','dest_station','departure_date','departure_time','arrival_time','class','pnr','cost','currency','notes'];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+    const fields = Object.keys(updates).map((k,i) => `${k}=$${i+2}`).join(',');
+    const result = await pool.query(`UPDATE train_journeys SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
 app.get('/api/guides', async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM guides ORDER BY name');

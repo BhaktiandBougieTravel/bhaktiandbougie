@@ -150,6 +150,13 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--navy);}
 ::-webkit-scrollbar-thumb{background:var(--gold-border);border-radius:2px;}
+.day-toggle-row{display:flex;flex-wrap:wrap;gap:8px;}
+.day-toggle{background:var(--navy3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:1px;color:var(--cream-dim);cursor:pointer;transition:all 0.2s;}
+.day-toggle:hover{border-color:var(--gold);color:var(--cream);}
+.day-toggle.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.day-section{display:none;border-left:3px solid var(--gold-border);padding:14px 16px;margin-top:10px;background:rgba(22,35,51,0.6);border-radius:0 2px 2px 0;}
+.day-section.visible{display:block;}
+.day-sec-hdr{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
 </style>
 </head>
 <body>
@@ -765,9 +772,12 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
   </div>
 </div>
 <div class="modal-overlay hidden" id="day-modal">
-  <div class="modal">
+  <div class="modal" style="max-width:740px;">
     <div class="modal-title" id="day-modal-title">Add Day</div>
     <input type="hidden" id="day-id"/>
+    <input type="hidden" id="day-modal-trip-id"/>
+    <input type="hidden" id="day-edit-item-type"/>
+    <input type="hidden" id="day-edit-item-id"/>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Day Number</label>
@@ -780,21 +790,305 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Location</label>
+        <label class="form-label">City / Location</label>
         <input type="text" class="form-input" id="day-location"/>
       </div>
       <div class="form-group">
         <label class="form-label">Day Title</label>
-        <input type="text" class="form-input" id="day-title"/>
+        <input type="text" class="form-input" id="day-title" placeholder="e.g. Arrive Dubai"/>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Description</label>
-      <textarea class="form-textarea" id="day-desc" style="min-height:120px;"></textarea>
+    <div style="padding:12px 0 4px;border-top:1px solid var(--border);margin-top:8px;">
+      <div class="form-label" style="margin-bottom:10px;">What's happening today?</div>
+      <div class="day-toggle-row">
+        <button type="button" class="day-toggle" data-sec="flight" onclick="toggleDaySec('flight')">✈️ Flight</button>
+        <button type="button" class="day-toggle" data-sec="train" onclick="toggleDaySec('train')">🚂 Train</button>
+        <button type="button" class="day-toggle" data-sec="transfer" onclick="toggleDaySec('transfer')">🚗 Transfer</button>
+        <button type="button" class="day-toggle" data-sec="driver" onclick="toggleDaySec('driver')">🚗 Driver</button>
+        <button type="button" class="day-toggle" data-sec="checkin" onclick="toggleDaySec('checkin')">🏨 Check-in</button>
+        <button type="button" class="day-toggle" data-sec="checkout" onclick="toggleDaySec('checkout')">🏨 Check-out</button>
+        <button type="button" class="day-toggle" data-sec="notes" onclick="toggleDaySec('notes')">📝 Notes</button>
+      </div>
+    </div>
+    <!-- FLIGHT -->
+    <div class="day-section" id="day-sec-flight">
+      <div class="day-sec-hdr">✈️ Flight</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+        <span class="form-label" style="margin-bottom:0;flex-shrink:0;">Type:</span>
+        <button type="button" class="day-toggle active" id="flt-type-INT" onclick="setFlightType('INT')" style="padding:4px 12px;font-size:11px;">INT</button>
+        <button type="button" class="day-toggle" id="flt-type-DOM" onclick="setFlightType('DOM')" style="padding:4px 12px;font-size:11px;">DOM</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Airline</label>
+          <input type="text" class="form-input" id="flt-airline" placeholder="Emirates"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Flight Number</label>
+          <input type="text" class="form-input" id="flt-number" placeholder="EK 502"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">From (IATA)</label>
+          <input type="text" class="form-input" id="flt-from" placeholder="DXB" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">To (IATA)</label>
+          <input type="text" class="form-input" id="flt-to" placeholder="DEL" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Departure</label>
+          <input type="time" class="form-input" id="flt-dep-time"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Arrival</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="time" class="form-input" id="flt-arr-time" style="flex:1;"/>
+            <label style="font-size:11px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:4px;cursor:pointer;">
+              <input type="checkbox" id="flt-next-day"/> +1 day
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cabin Class</label>
+          <select class="form-select" id="flt-cabin">
+            <option value="economy">Economy</option>
+            <option value="premium_economy">Premium Economy</option>
+            <option value="business">Business</option>
+            <option value="first">First</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmation #</label>
+          <input type="text" class="form-input" id="flt-ref"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="flt-notes"/>
+      </div>
+    </div>
+    <!-- TRAIN -->
+    <div class="day-section" id="day-sec-train">
+      <div class="day-sec-hdr">🚂 Train</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Carrier</label>
+          <input type="text" class="form-input" id="trn-carrier" placeholder="Indian Railways"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Train Number</label>
+          <input type="text" class="form-input" id="trn-number"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">From Station</label>
+          <input type="text" class="form-input" id="trn-from"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">To Station</label>
+          <input type="text" class="form-input" id="trn-to"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Departure</label>
+          <input type="time" class="form-input" id="trn-dep-time"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Arrival</label>
+          <input type="time" class="form-input" id="trn-arr-time"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Class</label>
+          <input type="text" class="form-input" id="trn-class" placeholder="First AC"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PNR / Confirmation</label>
+          <input type="text" class="form-input" id="trn-pnr"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cost</label>
+          <input type="number" class="form-input" id="trn-cost"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select" id="trn-currency">
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="trn-notes"/>
+      </div>
+    </div>
+    <!-- TRANSFER -->
+    <div class="day-section" id="day-sec-transfer">
+      <div class="day-sec-hdr">🚗 Transfer</div>
+      <div class="form-group">
+        <div class="day-toggle-row">
+          <button type="button" class="day-toggle active" id="xfr-type-E" onclick="setXfrType('E')" style="padding:4px 12px;font-size:11px;">E — Emirates Limo</button>
+          <button type="button" class="day-toggle" id="xfr-type-H" onclick="setXfrType('H')" style="padding:4px 12px;font-size:11px;">H — Hotel Transfer</button>
+          <button type="button" class="day-toggle" id="xfr-type-U" onclick="setXfrType('U')" style="padding:4px 12px;font-size:11px;">U — Uber / Taxi</button>
+          <button type="button" class="day-toggle" id="xfr-type-P" onclick="setXfrType('P')" style="padding:4px 12px;font-size:11px;">P — Private Transfer</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">From</label>
+          <input type="text" class="form-input" id="xfr-from"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">To</label>
+          <input type="text" class="form-input" id="xfr-to"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Pickup Time</label>
+          <input type="time" class="form-input" id="xfr-time"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmation</label>
+          <input type="text" class="form-input" id="xfr-ref"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="xfr-notes"/>
+      </div>
+    </div>
+    <!-- DRIVER -->
+    <div class="day-section" id="day-sec-driver">
+      <div class="day-sec-hdr">🚗 Driver</div>
+      <div class="form-group">
+        <div class="day-toggle-row">
+          <button type="button" class="day-toggle active" id="drv-type-D" onclick="setDrvType('D')" style="padding:4px 12px;font-size:11px;">D — Hired Driver</button>
+          <button type="button" class="day-toggle" id="drv-type-C" onclick="setDrvType('C')" style="padding:4px 12px;font-size:11px;">C — City Driver</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Driver Name / Company</label>
+          <input type="text" class="form-input" id="drv-name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Coverage</label>
+          <input type="text" class="form-input" id="drv-coverage" placeholder="Pondi → Thanjavur + city touring"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-input" id="drv-start"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-input" id="drv-end"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cost</label>
+          <input type="number" class="form-input" id="drv-cost"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select" id="drv-currency">
+            <option value="INR">INR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmation / Contact</label>
+        <input type="text" class="form-input" id="drv-ref"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="drv-notes"/>
+      </div>
+    </div>
+    <!-- HOTEL CHECK-IN -->
+    <div class="day-section" id="day-sec-checkin">
+      <div class="day-sec-hdr">🏨 Hotel Check-in</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Hotel</label>
+          <select class="form-select" id="ci-hotel-id" onchange="syncCoHotel()">
+            <option value="">— Select hotel —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Room Type</label>
+          <input type="text" class="form-input" id="ci-room-type"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Confirmation #</label>
+          <input type="text" class="form-input" id="ci-ref"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Check-in Time</label>
+          <input type="time" class="form-input" id="ci-time" value="14:00"/>
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="ci-breakfast"/>
+        <label class="form-label" style="margin-bottom:0;cursor:pointer;">Breakfast Included</label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fora / Virtuoso Perks</label>
+        <textarea class="form-textarea" id="ci-perks" style="min-height:60px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="ci-notes"/>
+      </div>
+    </div>
+    <!-- HOTEL CHECK-OUT -->
+    <div class="day-section" id="day-sec-checkout">
+      <div class="day-sec-hdr">🏨 Hotel Check-out</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Hotel</label>
+          <select class="form-select" id="co-hotel-id">
+            <option value="">— Select hotel —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Check-out Time</label>
+          <input type="time" class="form-input" id="co-time" value="11:00"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="co-notes"/>
+      </div>
+    </div>
+    <!-- NOTES -->
+    <div class="day-section" id="day-sec-notes">
+      <div class="day-sec-hdr">📝 Notes</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="day-notes-text" style="min-height:100px;" placeholder="Tresind dinner 8pm · Temple wear needed · Pay hotel by Sept 6"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('day-modal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveDay()">Save Day</button>
+      <button class="btn btn-gold" onclick="saveDay()">Save</button>
     </div>
   </div>
 </div>
@@ -927,20 +1221,6 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('guide-modal')">Cancel</button>
       <button class="btn btn-gold" onclick="saveGuide()">Save Guide</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay hidden" id="day-add-modal">
-  <div class="modal" style="max-width:320px;">
-    <div class="modal-title">Add to Day</div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddFlight()">✈️ &nbsp; Flight</button>
-      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddTransport()">🚗 &nbsp; Ground Transport</button>
-      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddHotel()">🏨 &nbsp; Hotel Check-in / Booking</button>
-      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddNote()">📝 &nbsp; Day Note</button>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('day-add-modal')">Cancel</button>
     </div>
   </div>
 </div>
@@ -1366,9 +1646,9 @@ async function exportExpenses(){
   a.download='bb-expenses.csv';a.click();
 }
 let currentItinTripId=null;
-let dayAddCtx={tripId:null,date:null};
-const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)'};
-const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830'};
+let itinDaysCache=[];
+const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)',C:'rgba(106,138,170,0.12)'};
+const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830',C:'var(--muted)'};
 async function loadItinerary(){
   const tripId=document.getElementById('itin-trip-select').value;
   currentItinTripId=tripId;
@@ -1377,61 +1657,73 @@ async function loadItinerary(){
   el.innerHTML='<div class="loading dot-pulse">Loading itinerary</div>';
   try{
     if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(_){}
-    const[trip,transports]=await Promise.all([
+    const[trip,transports,trains]=await Promise.all([
       fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
     ]);
     const days=(trip.days||[]).sort((a,b)=>a.day_number-b.day_number);
+    itinDaysCache=days;
     const flights=trip.flights||[];
     const bookings=trip.hotel_bookings||[];
     if(!days.length){el.innerHTML='<div class="loading">No days yet — use Add Day to build the itinerary</div>';return;}
-    const legend=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:8px 12px;background:var(--navy2);border:1px solid var(--border);border-radius:2px;font-size:11px;align-items:center;">
+    const legend=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:8px 12px;background:var(--navy2);border:1px solid var(--border);border-radius:2px;font-size:11px;align-items:center;">
       <span style="color:var(--muted);letter-spacing:2px;font-size:9px;margin-right:2px;">LEGEND</span>
-      <span>✈️ Flight</span><span>🚗 Transport</span><span>🏨 Hotel</span><span>📝 Notes</span>
-      <span style="color:var(--border-subtle);">│</span>
-      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">E Emirates Limo</span>
-      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">H Hotel Transfer</span>
-      <span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 7px;border-radius:2px;font-size:9px;">U Uber/Taxi</span>
-      <span style="background:rgba(242,230,204,0.08);color:var(--cream-dim);padding:1px 7px;border-radius:2px;font-size:9px;">P Private</span>
-      <span style="background:rgba(224,120,48,0.15);color:#e07830;padding:1px 7px;border-radius:2px;font-size:9px;">D Day Driver</span>
-      <span style="color:var(--border-subtle);">│</span>
-      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">INT</span>
-      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">DOM</span>
+      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">✈️ INT</span>
+      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">✈️ DOM</span>
+      <span style="background:var(--navy3);color:var(--cream-dim);padding:1px 7px;border-radius:2px;font-size:9px;">🚂 Train</span>
+      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">🚗 E Emirates</span>
+      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">🚗 H Hotel</span>
+      <span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 7px;border-radius:2px;font-size:9px;">🚗 U Uber</span>
+      <span style="background:rgba(242,230,204,0.08);color:var(--cream-dim);padding:1px 7px;border-radius:2px;font-size:9px;">🚗 P Private</span>
+      <span style="background:rgba(224,120,48,0.15);color:#e07830;padding:1px 7px;border-radius:2px;font-size:9px;">🚗 D Hired Driver</span>
+      <span style="background:rgba(106,138,170,0.12);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">🚗 C City Driver</span>
+      <span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 7px;border-radius:2px;font-size:9px;">🏨 Check-in</span>
+      <span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 7px;border-radius:2px;font-size:9px;">🏨 Check-out</span>
+      <span style="color:var(--cream-dim);font-size:9px;">📝 Notes</span>
     </div>`;
     const cards=days.map(d=>{
       const ds=(d.date||'').split('T')[0];
       const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
       const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
+      const dayTrains=trains.filter(t=>(t.departure_date||'').split('T')[0]===ds);
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
-      let items='';
+      const timedItems=[];
+      dayTrains.forEach(t=>{
+        const dep=t.departure_time?t.departure_time.slice(0,5):'–';
+        const arr=t.arrival_time?t.arrival_time.slice(0,5):'–';
+        timedItems.push({time:t.departure_time?t.departure_time.slice(0,5):'99:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('train','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚂</span><div class="itin-body"><div class="itin-main">${[t.carrier,t.train_number].filter(Boolean).join(' ')||'Train'} · ${t.origin_station||'–'} → ${t.dest_station||'–'}</div><div class="itin-sub">${dep} → ${arr}${t.class?' · '+t.class:''}${t.pnr?' · PNR '+t.pnr:''}</div></div></div>`});
+      });
       dayFlights.forEach(f=>{
         const isInt=(f.flight_type||'DOM')==='INT';
-        const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">${isInt?'INT':'DOM'}</span>`;
-        const dep=f.departure_time?new Date(f.departure_time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):'–';
-        const arr=f.arrival_time?new Date(f.arrival_time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):'–';
-        const from=f.origin_airport||f.departure_airport||'–';
-        const to=f.dest_airport||f.arrival_airport||'–';
-        const ref=f.booking_ref||f.booking_reference||'';
-        items+=`<div class="itin-item"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arr}${ref?' · ref '+ref:''}</div></div></div>`;
+        const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
+        const dep=f.departure_time?new Date(f.departure_time).toISOString().slice(11,16):'–';
+        const arr=f.arrival_time?new Date(f.arrival_time).toISOString().slice(11,16):'–';
+        const from=f.origin_airport||'–';const to=f.dest_airport||'–';
+        const ref=f.booking_ref||'';
+        timedItems.push({time:f.departure_time?new Date(f.departure_time).toISOString().slice(11,16):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arr}${ref?' · ref '+ref:''}</div></div></div>`});
       });
       dayTrans.forEach(t=>{
-        const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">${t.type||'–'}</span>`;
+        const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${t.type||'–'}</span>`;
         const route=[t.pickup_location,t.dropoff_location].filter(Boolean).join(' → ')||'–';
-        items+=`<div class="itin-item"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[t.pickup_time,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`;
-      });
-      checkIns.forEach(b=>{
-        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
-        items+=`<div class="itin-item"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div></div>`;
+        const isDriver=t.type==='D'||t.type==='C';
+        timedItems.push({time:t.pickup_time?t.pickup_time.slice(0,5):'99:02',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('${isDriver?'driver':'transfer'}','${t.id}','${tripId}','${d.id}')"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[t.pickup_time?t.pickup_time.slice(0,5):null,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`});
       });
       checkOuts.forEach(b=>{
         const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
-        items+=`<div class="itin-item"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub"></div></div></div>`;
+        timedItems.push({time:'99:03',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkout','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div></div></div>`});
       });
-      const note=d.description||d.notes||'';
-      if(note)items+=`<div class="itin-item"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div></div>`;
-      const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — tap + to add</div>`:'';
+      checkIns.forEach(b=>{
+        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
+        timedItems.push({time:'99:04',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkin','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div></div>`});
+      });
+      timedItems.sort((a,b)=>a.time.localeCompare(b.time));
+      let items=timedItems.map(x=>x.html).join('');
+      const note=d.notes||d.description||'';
+      if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div></div>`;
+      const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — use + to add</div>`:'';
       return`<div class="card" style="margin-bottom:10px;border-left:3px solid var(--border);padding:14px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${items||empty?'10px':'0'};">
           <div>
@@ -1444,7 +1736,7 @@ async function loadItinerary(){
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
             <span style="color:var(--gold);cursor:pointer;font-size:12px;padding:4px;" onclick="editDay('${d.id}','${tripId}')">✎</span>
-            <button class="btn btn-outline btn-sm" onclick="openDayAdd('${tripId}','${ds}')">+</button>
+            <button class="btn btn-outline btn-sm" onclick="openDayAdd('${tripId}','${ds}','${d.id}')">+</button>
           </div>
         </div>
         ${items||empty}
@@ -1453,68 +1745,276 @@ async function loadItinerary(){
     el.innerHTML=legend+cards;
   }catch(e){el.innerHTML='<div class="loading">Unable to load itinerary</div>';console.error(e);}
 }
-function openDayAdd(tripId,date){
-  dayAddCtx={tripId,date};
-  openModal('day-add-modal');
+// ── DAY MODAL HELPERS ──────────────────────────────────────────────────────
+function toggleDaySec(name){
+  const sec=document.getElementById('day-sec-'+name);
+  const btn=document.querySelector('.day-toggle[data-sec="'+name+'"]');
+  const showing=sec.classList.contains('visible');
+  sec.classList.toggle('visible',!showing);
+  btn.classList.toggle('active',!showing);
 }
-function dayAddFlight(){
-  closeModal('day-add-modal');
-  const el=document.getElementById('flight-trip');if(el)el.value=dayAddCtx.tripId;
-  const dep=document.getElementById('flight-dep');if(dep&&dayAddCtx.date)dep.value=dayAddCtx.date+'T08:00';
-  openModal('flight-modal');
+function showDaySec(name){
+  document.getElementById('day-sec-'+name).classList.add('visible');
+  document.querySelector('.day-toggle[data-sec="'+name+'"]').classList.add('active');
 }
-function dayAddTransport(){
-  closeModal('day-add-modal');
-  const el=document.getElementById('gt-trip');if(el)el.value=dayAddCtx.tripId;
-  const dt=document.getElementById('gt-date');if(dt)dt.value=dayAddCtx.date;
-  openModal('ground-transport-modal');
+function hideDaySec(name){
+  document.getElementById('day-sec-'+name).classList.remove('visible');
+  document.querySelector('.day-toggle[data-sec="'+name+'"]').classList.remove('active');
 }
-function dayAddHotel(){
-  closeModal('day-add-modal');
-  const el=document.getElementById('booking-trip');if(el)el.value=dayAddCtx.tripId;
-  const ci=document.getElementById('booking-checkin');if(ci)ci.value=dayAddCtx.date;
-  openModal('booking-modal');
+function isSectionActive(name){return document.getElementById('day-sec-'+name).classList.contains('visible');}
+function setFlightType(type){
+  ['INT','DOM'].forEach(t=>document.getElementById('flt-type-'+t).classList.toggle('active',t===type));
 }
-function dayAddNote(){
-  closeModal('day-add-modal');
-  currentItinTripId=dayAddCtx.tripId;
-  document.getElementById('day-modal-title').textContent='Add Day Note';
-  document.getElementById('day-id').value='';
-  document.getElementById('day-number').value='';
-  document.getElementById('day-date').value=dayAddCtx.date;
-  document.getElementById('day-location').value='';
-  document.getElementById('day-title').value='';
-  document.getElementById('day-desc').value='';
-  openModal('day-modal');
+function setXfrType(type){
+  ['E','H','U','P'].forEach(t=>document.getElementById('xfr-type-'+t).classList.remove('active'));
+  document.getElementById('xfr-type-'+type).classList.add('active');
+}
+function setDrvType(type){
+  ['D','C'].forEach(t=>document.getElementById('drv-type-'+t).classList.remove('active'));
+  document.getElementById('drv-type-'+type).classList.add('active');
+}
+function getActiveXfr(){return['E','H','U','P'].find(t=>document.getElementById('xfr-type-'+t)?.classList.contains('active'))||'E';}
+function getActiveDrv(){return['D','C'].find(t=>document.getElementById('drv-type-'+t)?.classList.contains('active'))||'D';}
+function syncCoHotel(){
+  const v=document.getElementById('ci-hotel-id').value;
+  const co=document.getElementById('co-hotel-id');
+  if(co&&v&&!co.value)co.value=v;
+}
+function addDaysStr(dateStr,n){
+  const d=new Date(dateStr+'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate()+n);
+  return d.toISOString().split('T')[0];
+}
+async function populateDayHotelSelects(){
+  if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(e){}
+  const opts='<option value="">— Select hotel —</option>'+hotelsCache.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
+  ['ci-hotel-id','co-hotel-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+function resetDayModal(){
+  ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['flight','train','transfer','driver','checkin','checkout','notes'].forEach(s=>hideDaySec(s));
+  setFlightType('INT');setXfrType('E');setDrvType('D');
+  ['flt-airline','flt-number','flt-from','flt-to','flt-dep-time','flt-arr-time','flt-ref','flt-notes',
+   'trn-carrier','trn-number','trn-from','trn-to','trn-dep-time','trn-arr-time','trn-class','trn-pnr','trn-notes',
+   'xfr-from','xfr-to','xfr-time','xfr-ref','xfr-notes',
+   'drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
+   'ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const nc=document.getElementById('flt-next-day');if(nc)nc.checked=false;
+  const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
+  const fc=document.getElementById('flt-cabin');if(fc)fc.value='economy';
+  const tc=document.getElementById('trn-currency');if(tc)tc.value='INR';
+  const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
+  const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
+  const cot=document.getElementById('co-time');if(cot)cot.value='11:00';
 }
 function openAddDay(){
   if(!currentItinTripId){alert('Select a trip first');return;}
+  resetDayModal();
   document.getElementById('day-modal-title').textContent='Add Day';
-  document.getElementById('day-id').value='';
-  document.getElementById('day-number').value='';
-  document.getElementById('day-date').value='';
-  document.getElementById('day-location').value='';
-  document.getElementById('day-title').value='';
-  document.getElementById('day-desc').value='';
+  document.getElementById('day-modal-trip-id').value=currentItinTripId;
+  populateDayHotelSelects();
+  openModal('day-modal');
+}
+function openDayAdd(tripId,date,dayId){
+  currentItinTripId=tripId;
+  resetDayModal();
+  document.getElementById('day-modal-title').textContent='Add to Day';
+  document.getElementById('day-modal-trip-id').value=tripId;
+  document.getElementById('day-date').value=date;
+  if(dayId){
+    document.getElementById('day-id').value=dayId;
+    const d=itinDaysCache.find(x=>x.id===dayId);
+    if(d){
+      document.getElementById('day-number').value=d.day_number;
+      document.getElementById('day-location').value=d.location||'';
+      document.getElementById('day-title').value=d.title||'';
+    }
+  }
+  populateDayHotelSelects();
   openModal('day-modal');
 }
 async function editDay(dayId,tripId){
-  const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
-  const d=(trip.days||[]).find(x=>x.id===dayId);if(!d)return;
+  currentItinTripId=tripId;
+  resetDayModal();
+  document.getElementById('day-modal-trip-id').value=tripId;
+  try{
+    const d=itinDaysCache.find(x=>x.id===dayId)||(await(await fetch(`${API}/trips/${tripId}`)).json()).days?.find(x=>x.id===dayId);
+    if(!d)return;
+    document.getElementById('day-modal-title').textContent='Edit Day';
+    document.getElementById('day-id').value=d.id;
+    document.getElementById('day-number').value=d.day_number;
+    document.getElementById('day-date').value=d.date?.split('T')[0]||'';
+    document.getElementById('day-location').value=d.location||'';
+    document.getElementById('day-title').value=d.title||'';
+    const note=d.notes||d.description||'';
+    if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
+    await populateDayHotelSelects();
+    openModal('day-modal');
+  }catch(e){console.error(e);}
+}
+async function editDayItem(type,itemId,tripId,dayId){
+  currentItinTripId=tripId;
+  resetDayModal();
+  document.getElementById('day-modal-trip-id').value=tripId;
+  document.getElementById('day-edit-item-type').value=type;
+  document.getElementById('day-edit-item-id').value=itemId;
+  await populateDayHotelSelects();
+  const d=itinDaysCache.find(x=>x.id===dayId);
+  if(d){
+    document.getElementById('day-id').value=d.id;
+    document.getElementById('day-number').value=d.day_number;
+    document.getElementById('day-date').value=d.date?.split('T')[0]||'';
+    document.getElementById('day-location').value=d.location||'';
+    document.getElementById('day-title').value=d.title||'';
+    const note=d.notes||d.description||'';
+    if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
+  }
+  if(type==='flight'&&itemId){
+    try{
+      const f=await(await fetch(`${API}/flights/${itemId}`)).json();
+      setFlightType(f.flight_type||'DOM');
+      document.getElementById('flt-airline').value=f.airline||'';
+      document.getElementById('flt-number').value=f.flight_number||'';
+      document.getElementById('flt-from').value=f.origin_airport||'';
+      document.getElementById('flt-to').value=f.dest_airport||'';
+      if(f.departure_time)document.getElementById('flt-dep-time').value=new Date(f.departure_time).toISOString().slice(11,16);
+      if(f.arrival_time)document.getElementById('flt-arr-time').value=new Date(f.arrival_time).toISOString().slice(11,16);
+      document.getElementById('flt-cabin').value=f.cabin_class||'economy';
+      document.getElementById('flt-ref').value=f.booking_ref||'';
+      document.getElementById('flt-notes').value=f.notes||'';
+      showDaySec('flight');
+    }catch(e){}
+  } else if(type==='train'&&itemId){
+    try{
+      const t=await(await fetch(`${API}/trains/${itemId}`)).json();
+      document.getElementById('trn-carrier').value=t.carrier||'';
+      document.getElementById('trn-number').value=t.train_number||'';
+      document.getElementById('trn-from').value=t.origin_station||'';
+      document.getElementById('trn-to').value=t.dest_station||'';
+      document.getElementById('trn-dep-time').value=t.departure_time?t.departure_time.slice(0,5):'';
+      document.getElementById('trn-arr-time').value=t.arrival_time?t.arrival_time.slice(0,5):'';
+      document.getElementById('trn-class').value=t.class||'';
+      document.getElementById('trn-pnr').value=t.pnr||'';
+      document.getElementById('trn-cost').value=t.cost||'';
+      document.getElementById('trn-currency').value=t.currency||'INR';
+      document.getElementById('trn-notes').value=t.notes||'';
+      showDaySec('train');
+    }catch(e){}
+  } else if((type==='transfer'||type==='driver')&&itemId){
+    try{
+      const gt=await(await fetch(`${API}/ground-transport/${itemId}`)).json();
+      if(type==='transfer'){
+        setXfrType(gt.type||'E');
+        document.getElementById('xfr-from').value=gt.pickup_location||'';
+        document.getElementById('xfr-to').value=gt.dropoff_location||'';
+        document.getElementById('xfr-time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
+        document.getElementById('xfr-ref').value=gt.confirmation_number||'';
+        document.getElementById('xfr-notes').value=gt.notes||'';
+        showDaySec('transfer');
+      } else {
+        setDrvType(gt.type||'D');
+        document.getElementById('drv-name').value=gt.vendor||'';
+        document.getElementById('drv-start').value=gt.transport_date?gt.transport_date.split('T')[0]:'';
+        document.getElementById('drv-coverage').value=gt.pickup_location||'';
+        document.getElementById('drv-ref').value=gt.confirmation_number||'';
+        document.getElementById('drv-cost').value=gt.cost||'';
+        document.getElementById('drv-currency').value=gt.currency||'INR';
+        document.getElementById('drv-notes').value=gt.notes||'';
+        showDaySec('driver');
+      }
+    }catch(e){}
+  } else if((type==='checkin'||type==='checkout')&&itemId){
+    try{
+      const b=await(await fetch(`${API}/hotel-bookings/${itemId}`)).json();
+      if(type==='checkin'){
+        document.getElementById('ci-hotel-id').value=b.hotel_id||'';
+        document.getElementById('ci-room-type').value=b.room_type||'';
+        document.getElementById('ci-ref').value=b.confirmation_number||'';
+        document.getElementById('ci-notes').value=b.notes||'';
+        showDaySec('checkin');
+      } else {
+        document.getElementById('co-hotel-id').value=b.hotel_id||'';
+        document.getElementById('co-notes').value=b.notes||'';
+        showDaySec('checkout');
+      }
+    }catch(e){}
+  } else if(type==='notes'){
+    showDaySec('notes');
+  }
   document.getElementById('day-modal-title').textContent='Edit Day';
-  document.getElementById('day-id').value=d.id;
-  document.getElementById('day-number').value=d.day_number;
-  document.getElementById('day-date').value=d.date?.split('T')[0]||'';
-  document.getElementById('day-location').value=d.location||'';
-  document.getElementById('day-title').value=d.title||'';
-  document.getElementById('day-desc').value=d.description||d.notes||'';
   openModal('day-modal');
 }
 async function saveDay(){
-  const id=document.getElementById('day-id').value;
-  const body={trip_id:currentItinTripId,day_number:document.getElementById('day-number').value,date:document.getElementById('day-date').value,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value,notes:document.getElementById('day-desc').value};
-  await fetch(id?`${API}/days/${id}`:`${API}/days`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  closeModal('day-modal');loadItinerary();
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayId=document.getElementById('day-id').value;
+  const dayDate=document.getElementById('day-date').value;
+  const editType=document.getElementById('day-edit-item-type').value;
+  const editId=document.getElementById('day-edit-item-id').value;
+  if(!tripId||!dayDate){alert('Trip and date are required');return;}
+  const dayNum=parseInt(document.getElementById('day-number').value)||null;
+  if(!dayId&&!dayNum){alert('Day number is required');return;}
+  const dayBody={trip_id:tripId,date:dayDate,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value};
+  if(!dayId)dayBody.day_number=dayNum;
+  else if(dayNum)dayBody.day_number=dayNum;
+  if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
+  await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
+  const saves=[];
+  if(isSectionActive('flight')){
+    const from=document.getElementById('flt-from').value.toUpperCase().trim();
+    const to=document.getElementById('flt-to').value.toUpperCase().trim();
+    if(from.length===3&&to.length===3){
+      const fltType=document.getElementById('flt-type-INT').classList.contains('active')?'INT':'DOM';
+      const depT=document.getElementById('flt-dep-time').value;
+      const arrT=document.getElementById('flt-arr-time').value;
+      const arrDate=document.getElementById('flt-next-day').checked?addDaysStr(dayDate,1):dayDate;
+      const flt={trip_id:tripId,flight_type:fltType,airline:document.getElementById('flt-airline').value,flight_number:document.getElementById('flt-number').value,origin_airport:from,dest_airport:to,departure_time:depT?`${dayDate}T${depT}:00.000Z`:`${dayDate}T00:00:00.000Z`,arrival_time:arrT?`${arrDate}T${arrT}:00.000Z`:`${arrDate}T23:59:00.000Z`,cabin_class:document.getElementById('flt-cabin').value,booking_ref:document.getElementById('flt-ref').value,notes:document.getElementById('flt-notes').value};
+      const fid=(editType==='flight'&&editId)?editId:null;
+      saves.push(fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)}));
+    }
+  }
+  if(isSectionActive('train')){
+    const trn={trip_id:tripId,carrier:document.getElementById('trn-carrier').value,train_number:document.getElementById('trn-number').value,origin_station:document.getElementById('trn-from').value,dest_station:document.getElementById('trn-to').value,departure_date:dayDate,departure_time:document.getElementById('trn-dep-time').value||null,arrival_time:document.getElementById('trn-arr-time').value||null,class:document.getElementById('trn-class').value,pnr:document.getElementById('trn-pnr').value,cost:parseFloat(document.getElementById('trn-cost').value)||null,currency:document.getElementById('trn-currency').value,notes:document.getElementById('trn-notes').value};
+    const tid=(editType==='train'&&editId)?editId:null;
+    saves.push(fetch(tid?`${API}/trains/${tid}`:`${API}/trains`,{method:tid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(trn)}));
+  }
+  if(isSectionActive('transfer')){
+    const xfr={trip_id:tripId,type:getActiveXfr(),vendor:'',pickup_location:document.getElementById('xfr-from').value,dropoff_location:document.getElementById('xfr-to').value,transport_date:dayDate,pickup_time:document.getElementById('xfr-time').value||null,confirmation_number:document.getElementById('xfr-ref').value,notes:document.getElementById('xfr-notes').value};
+    const xid=(editType==='transfer'&&editId)?editId:null;
+    saves.push(fetch(xid?`${API}/ground-transport/${xid}`:`${API}/ground-transport`,{method:xid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(xfr)}));
+  }
+  if(isSectionActive('driver')){
+    const endDate=document.getElementById('drv-end').value;
+    const coverage=document.getElementById('drv-coverage').value;
+    const drvNotes=[coverage?'Coverage: '+coverage:'',endDate?'End: '+endDate:'',document.getElementById('drv-notes').value].filter(Boolean).join(' · ');
+    const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation_number:document.getElementById('drv-ref').value,notes:drvNotes};
+    const did=(editType==='driver'&&editId)?editId:null;
+    saves.push(fetch(did?`${API}/ground-transport/${did}`:`${API}/ground-transport`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(drv)}));
+  }
+  if(isSectionActive('checkin')){
+    const hotelId=document.getElementById('ci-hotel-id').value;
+    if(hotelId){
+      const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
+      const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,1),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
+      const cid=(editType==='checkin'&&editId)?editId:null;
+      saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
+    }
+  }
+  if(isSectionActive('checkout')){
+    const coHotelId=document.getElementById('co-hotel-id').value;
+    const coid=(editType==='checkout'&&editId)?editId:null;
+    if(coid){
+      saves.push(fetch(`${API}/hotel-bookings/${coid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({check_out:dayDate,notes:document.getElementById('co-notes').value||undefined})}));
+    } else if(coHotelId){
+      try{
+        const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
+        const existing=(trip.hotel_bookings||[]).find(b=>b.hotel_id===coHotelId);
+        if(existing)saves.push(fetch(`${API}/hotel-bookings/${existing.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({check_out:dayDate})}));
+      }catch(e){}
+    }
+  }
+  await Promise.allSettled(saves);
+  closeModal('day-modal');
+  loadItinerary();
 }
 async function populateTripSelects(){
   if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
