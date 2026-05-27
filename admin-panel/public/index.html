@@ -1242,7 +1242,10 @@ const CLOCKS=[
 function renderClocks(){
   document.getElementById('clocks-grid').innerHTML=CLOCKS.map(c=>{
     const now=new Date();
-    const time=now.toLocaleTimeString('en-GB',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const d=new Date();
+    const opts={timeZone:c.tz};
+    const parts=new Intl.DateTimeFormat('en-GB',{...opts,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(d);
+    const time=parts.map(p=>p.value).join('');
     const date=now.toLocaleDateString('en-US',{timeZone:c.tz,weekday:'short',month:'short',day:'numeric'});
     return `<div class="clock-card"><div class="clock-city">${c.city}</div><div class="clock-time">${time}</div><div class="clock-date">${date}</div></div>`;
   }).join('');
