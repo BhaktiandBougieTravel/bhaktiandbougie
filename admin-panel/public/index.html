@@ -92,8 +92,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
 .cc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 .clock-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:14px;text-align:center;}
-.clock-city{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.clock-time{font-family:var(--font-serif);font-size:28px;color:var(--cream);line-height:1;}
+.clock-city{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--cream2);margin-bottom:4px;}
+.clock-time{font-family:var(--font-serif);font-size:36px;color:var(--cream);line-height:1;}
 .clock-date{font-size:10px;color:var(--ash);margin-top:3px;}
 .weather-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
 .weather-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:12px;}
@@ -107,13 +107,13 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .aqi-hazardous{background:rgba(139,26,26,0.3);color:#ff6666;}
 .fx-card{background:var(--navy2);border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:2px;padding:16px;}
 .fx-rate{font-family:var(--font-serif);font-size:42px;color:var(--cream);line-height:1;}
-.fx-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.fx-label{font-size:16px;color:var(--cream);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
 .fx-sub{font-size:11px;color:var(--ash);margin-top:6px;}
 .cricket-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:16px;}
 .cricket-match{border-bottom:1px solid var(--border-subtle);padding-bottom:12px;margin-bottom:12px;}
 .cricket-match:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0;}
-.cricket-teams{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
-.cricket-score{font-size:13px;color:var(--gold);margin-top:4px;}
+.cricket-teams{font-family:var(--font-serif);font-size:20px;color:var(--cream);}
+.cricket-score{font-size:15px;color:var(--gold);margin-top:4px;}
 .cricket-status{font-size:11px;color:var(--ash);margin-top:3px;}
 .festival-card{background:var(--navy2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;padding:14px;margin-bottom:10px;}
 .festival-name{font-family:var(--font-serif);font-size:17px;color:var(--cream);margin-bottom:4px;}
@@ -193,7 +193,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:stretch;margin-bottom:20px;">
 
         <!-- Col 1: Clocks 2×2 -->
-        <div class="fx-card" style="padding:12px;display:flex;flex-direction:column;justify-content:center;">
+        <div class="fx-card" style="padding:12px;display:flex;flex-direction:column;">
+          <div class="fx-label" style="margin-bottom:10px;">Time</div>
           <div id="clocks-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
         </div>
 
@@ -218,7 +219,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="fx-rate" id="fx-rate">–</div>
           <div class="fx-sub" id="fx-sub">Loading...</div>
           <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-            <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:13px;" placeholder="1" min="0" oninput="calcFX()">
+            <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:17px;" placeholder="1" min="0" oninput="calcFX()">
             <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
           </div>
           <canvas id="fx-sparkline" width="260" height="48" style="margin-top:auto;padding-top:12px;display:block;width:100%;box-sizing:border-box;"></canvas>
@@ -260,8 +261,26 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
 
       </div>
-      <div class="sh">Upcoming Festivals — Next 90 Days</div>
-      <div id="upcoming-festivals"><div class="loading dot-pulse">Loading</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="sh">Next Up</div>
+          <div id="cmd-fest-list"><div class="loading dot-pulse">Loading</div></div>
+        </div>
+        <div>
+          <div class="sh">Filter by Tradition</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;" id="cmd-fest-pills">
+            <button class="fest-pill active" data-trad="">All</button>
+            <button class="fest-pill" data-trad="Shaiva">🔱 Shaiva</button>
+            <button class="fest-pill" data-trad="Vaishnava">🪈 Vaishnava</button>
+            <button class="fest-pill" data-trad="Shakta">🌺 Shakta</button>
+            <button class="fest-pill" data-trad="Regional">🌾 Regional</button>
+            <button class="fest-pill" data-trad="Buddhist">☸️ Buddhist / Sikh</button>
+            <button class="fest-pill" data-trad="Sufi">🕌 Sufi / Bhakti</button>
+            <button class="fest-pill" data-trad="Classical">🎭 Classical Arts</button>
+            <button class="fest-pill" data-trad="STAR">⭐ Unmissable Only</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="tab-panel" id="tab-trips">
       <div class="sh-row">
@@ -728,7 +747,7 @@ function onTabChange(tab){
 function initApp(){
   updateBST();setInterval(updateBST,60000);
   renderClocks();setInterval(renderClocks,1000);
-  loadWeather();loadFX();loadCricket();loadUpcomingFestivals();loadTrips();populateTripSelects();
+  loadWeather();loadFX();loadCmdFestivals();loadTrips();populateTripSelects();
 }
 function updateBST(){
   const diff=Math.ceil((new Date('2026-09-03')-new Date())/86400000);
@@ -793,19 +812,19 @@ async function loadWeather(){
     const desc=c=>{if(c===0)return'Clear';if(c<=3)return'Partly Cloudy';if(c<=49)return'Haze';if(c<=69)return'Rain';if(c<=79)return'Snow';return'Storms';};
     const aqiColor=a=>{if(a<=50)return'#4a9e5c';if(a<=100)return'#c8a800';if(a<=150)return'#e07830';return'#cc4444';};
     grid.innerHTML=`
-      <div class="w-city" style="font-size:11px;margin-bottom:10px;">${city.name}</div>
+      <div class="w-city" style="font-size:16px;color:var(--cream);margin-bottom:10px;">${city.name}</div>
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
         <div style="font-size:44px;line-height:1;">${emoji(code)}</div>
         <div>
           <div class="w-temp" style="font-size:26px;line-height:1;">${tempC}°C / ${tempF}°F</div>
-          <div style="font-size:12px;color:var(--ash);margin-top:4px;">${desc(code)}</div>
-          <div style="font-size:12px;color:var(--ash);margin-top:2px;">↑ ${hi}°C &nbsp; ↓ ${lo}°C</div>
+          <div style="font-size:16px;color:var(--ash);margin-top:4px;">${desc(code)}</div>
+          <div style="font-size:15px;color:var(--ash);margin-top:2px;">↑ ${hi}°C &nbsp; ↓ ${lo}°C</div>
         </div>
       </div>
       <div style="height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:5px;">
         <div style="height:100%;width:${Math.min(aqi/300*100,100).toFixed(1)}%;background:${aqiColor(aqi)};border-radius:2px;"></div>
       </div>
-      <div style="font-size:11px;font-weight:600;color:${aqiColor(aqi)};">AQI ${aqi}</div>`;
+      <div style="font-size:15px;font-weight:700;color:${aqiColor(aqi)};">AQI ${aqi}</div>`;
   }catch(e){grid.innerHTML='<div class="loading">Weather unavailable</div>';}
 }
 let fxRate=0;
@@ -863,26 +882,61 @@ async function loadCricket(){
     if(!d||d.error)throw new Error('No data');
     const won=d.status==='WON';
     const live=d.status==='LIVE';
-    card.innerHTML=`<div class="cricket-match"><div style="font-size:10px;letter-spacing:2px;color:${won?'#6abf40':live?'#e05050':'var(--red)'};">${d.status||'FINAL'}</div><div class="cricket-teams">RCB vs ${d.opponent||'—'}</div><div class="cricket-score" style="color:${won?'#6abf40':'var(--red)'};">${d.result||'—'}</div><div style="display:flex;gap:12px;margin-top:8px;"><div style="background:rgba(139,26,26,0.3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">RCB</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">${d.rcb_score||'—'}</div></div><div style="background:var(--navy3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">OPP</div><div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">${d.opp_score||'—'}</div></div></div><div style="font-size:11px;color:var(--ash);margin-top:8px;">${d.venue||''} · ${d.date||''}</div>${d.next_match?`<div style="font-size:11px;color:var(--gold);margin-top:6px;">${d.next_match}</div>`:''}<div style="font-size:11px;color:var(--gold);margin-top:8px;font-style:italic;">Ee Sala Cup Namde! 🏆</div></div>`;
+    card.innerHTML=`<div class="cricket-match"><div style="font-size:13px;letter-spacing:2px;color:${won?'#6abf40':live?'#e05050':'var(--red)'};">${d.status||'FINAL'}</div><div class="cricket-teams">RCB vs ${d.opponent||'—'}</div><div class="cricket-score" style="color:${won?'#6abf40':'var(--red)'};">${d.result||'—'}</div><div style="display:flex;gap:12px;margin-top:8px;"><div style="background:rgba(139,26,26,0.3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">RCB</div><div style="font-family:var(--font-serif);font-size:24px;color:var(--cream);">${d.rcb_score||'—'}</div></div><div style="background:var(--navy3);padding:8px 16px;border-radius:2px;text-align:center;"><div style="font-size:9px;color:var(--muted);">OPP</div><div style="font-family:var(--font-serif);font-size:24px;color:var(--cream);">${d.opp_score||'—'}</div></div></div><div style="font-size:14px;color:var(--ash);margin-top:8px;">${d.venue||''} · ${d.date||''}</div>${d.next_match?`<div style="font-size:14px;color:var(--gold);margin-top:6px;">${d.next_match}</div>`:''}<div style="font-size:14px;color:var(--gold);margin-top:8px;font-style:italic;">Ee Sala Cup Namde! 🏆</div></div>`;
   }catch(e){
     card.innerHTML='<div style="color:var(--ash);font-size:13px;">Could not load RCB data — <span style="color:var(--gold);cursor:pointer;" onclick="loadCricket()">retry</span></div>';
   }
 }
 loadCricket();
 setInterval(loadCricket,600000);
-async function loadUpcomingFestivals(){
-  const el=document.getElementById('upcoming-festivals');
+let cmdFestData=[];
+let cmdFestTrad='';
+async function loadCmdFestivals(){
+  const el=document.getElementById('cmd-fest-list');
+  if(!el)return;
+  el.innerHTML='<div class="loading dot-pulse">Loading</div>';
   try{
     const today=new Date().toISOString().split('T')[0];
-    const future=new Date(Date.now()+90*86400000).toISOString().split('T')[0];
-    const res=await fetch(`${API}/festivals?from=${today}&to=${future}`);
-    const data=await res.json();
-    if(!data.length){el.innerHTML='<div class="loading">No festivals in next 90 days</div>';return;}
-    el.innerHTML=data.slice(0,8).map(f=>{
-      const[,cc]=crowdClass(f.crowd_level);
-      return`<div class="festival-card"><div style="display:flex;align-items:baseline;gap:8px;"><div class="festival-name">${f.name}</div><span class="crowd-badge ${cc}">${f.crowd_level||''}</span></div><div class="festival-meta">${fmtDate(f.start_date)} · ${f.city||f.region}, ${f.state}</div><div class="festival-sig">${(f.significance||'').substring(0,150)}...</div>${f.notes?`<div class="festival-notes">${f.notes.substring(0,100)}</div>`:''}</div>`;
-    }).join('');
-  }catch(e){el.innerHTML='<div class="loading">Unable to load festivals</div>';}
+    const future=new Date(Date.now()+365*86400000).toISOString().split('T')[0];
+    cmdFestData=await(await fetch(`${API}/festivals?from=${today}&to=${future}`)).json();
+    renderCmdFestivals();
+  }catch(e){el.innerHTML='<div class="loading">Unable to load</div>';}
+}
+function renderCmdFestivals(){
+  const el=document.getElementById('cmd-fest-list');
+  if(!el)return;
+  let filtered=cmdFestData;
+  if(cmdFestTrad==='STAR'){
+    filtered=cmdFestData.filter(f=>f.notes&&f.notes.includes('⭐'));
+  } else if(cmdFestTrad){
+    const t=cmdFestTrad.toLowerCase();
+    filtered=cmdFestData.filter(f=>{
+      const ft=(f.festival_type||'').toLowerCase();
+      if(t==='shaiva')return ft.includes('shaiv')||ft.includes('shiv');
+      if(t==='vaishnava')return ft.includes('vaishna')||ft.includes('krishna')||ft.includes('ram');
+      if(t==='shakta')return ft.includes('shakta')||ft.includes('durga')||ft.includes('devi');
+      if(t==='regional')return ft.includes('harvest')||ft.includes('regional')||ft.includes('tribal')||ft.includes('bihu')||ft.includes('onam')||ft.includes('pongal');
+      if(t==='buddhist')return ft.includes('buddhist')||ft.includes('sikh')||ft.includes('tibetan');
+      if(t==='sufi')return ft.includes('sufi')||ft.includes('muslim')||ft.includes('catholic')||ft.includes('bhakti');
+      if(t==='classical')return ft.includes('classical')||ft.includes('dance')||ft.includes('music')||ft.includes('literary')||ft.includes('cinema')||ft.includes('cultural');
+      return false;
+    });
+  }
+  if(!filtered.length){el.innerHTML='<div class="loading">None found</div>';return;}
+  el.innerHTML=filtered.slice(0,8).map(f=>{
+    const da=daysAway(f.start_date);
+    const loc=[f.city,f.state].filter(Boolean).join(', ');
+    const dot=tradDotColor(f);
+    return`<div class="fest-nextup-item">
+      <span style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:5px;"></span>
+      <div style="flex:1;min-width:0;">
+        <div class="fest-nextup-name">${f.name}</div>
+        <div class="fest-nextup-meta">${f.festival_type||''} · ${loc}</div>
+        <div class="fest-nextup-meta">${fmtDate(f.start_date)}</div>
+      </div>
+      <div class="fest-days-away">${da===0?'TODAY':da!==null?da:'–'}</div>
+    </div>`;
+  }).join('');
 }
 function crowdClass(l){
   if(!l)return['',''];
@@ -1185,10 +1239,17 @@ function renderFestNextUp(){
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('fest-pills').addEventListener('click',e=>{
     const pill=e.target.closest('.fest-pill');if(!pill)return;
-    document.querySelectorAll('.fest-pill').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('#fest-pills .fest-pill').forEach(p=>p.classList.remove('active'));
     pill.classList.add('active');
     activeTrad=pill.dataset.trad;
     renderFestNextUp();
+  });
+  document.getElementById('cmd-fest-pills').addEventListener('click',e=>{
+    const pill=e.target.closest('.fest-pill');if(!pill)return;
+    document.querySelectorAll('#cmd-fest-pills .fest-pill').forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    cmdFestTrad=pill.dataset.trad;
+    renderCmdFestivals();
   });
 });
 
