@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -830,163 +830,105 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
     <!-- FLIGHT -->
     <div class="day-section" id="day-sec-flight">
-      <div class="day-sec-hdr">✈️ Flight</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-        <span class="form-label" style="margin-bottom:0;flex-shrink:0;">Type:</span>
-        <button type="button" class="day-toggle active" id="flt-type-INT" onclick="setFlightType('INT')" style="padding:4px 12px;font-size:11px;">INT</button>
-        <button type="button" class="day-toggle" id="flt-type-DOM" onclick="setFlightType('DOM')" style="padding:4px 12px;font-size:11px;">DOM</button>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Airline</label>
-          <input type="text" class="form-input" id="flt-airline" placeholder="Emirates"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Flight Number</label>
-          <input type="text" class="form-input" id="flt-number" placeholder="EK 502"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">From (IATA)</label>
-          <input type="text" class="form-input" id="flt-from" placeholder="DXB" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">To (IATA)</label>
-          <input type="text" class="form-input" id="flt-to" placeholder="DEL" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Departure</label>
-          <input type="time" class="form-input" id="flt-dep-time"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Arrival</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="time" class="form-input" id="flt-arr-time" style="flex:1;"/>
-            <label style="font-size:11px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:4px;cursor:pointer;">
-              <input type="checkbox" id="flt-next-day"/> +1 day
-            </label>
+      <div class="day-sec-hdr">✈️ Flights</div>
+      <div id="flt-entries">
+        <div class="flt-entry">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+            <span class="form-label" style="margin-bottom:0;flex-shrink:0;">Type:</span>
+            <button type="button" class="day-toggle active flt-type-INT" onclick="setFltEntryType(this,'INT')" style="padding:4px 12px;font-size:11px;">INT</button>
+            <button type="button" class="day-toggle flt-type-DOM" onclick="setFltEntryType(this,'DOM')" style="padding:4px 12px;font-size:11px;">DOM</button>
           </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Airline</label><input type="text" class="form-input" data-field="airline" placeholder="Emirates"/></div>
+            <div class="form-group"><label class="form-label">Flight Number</label><input type="text" class="form-input" data-field="flight_number" placeholder="EK 502"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">From (IATA)</label><input type="text" class="form-input" data-field="origin_airport" placeholder="DXB" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/></div>
+            <div class="form-group"><label class="form-label">To (IATA)</label><input type="text" class="form-input" data-field="dest_airport" placeholder="DEL" maxlength="3" style="text-transform:uppercase;letter-spacing:3px;"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Departure</label><input type="time" class="form-input" data-field="dep_time"/></div>
+            <div class="form-group"><label class="form-label">Arrival</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="time" class="form-input" data-field="arr_time" style="flex:1;"/>
+                <label style="font-size:11px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" data-field="next_day"/> +1 day</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Cabin</label>
+              <select class="form-select" data-field="cabin_class">
+                <option value="economy">Economy</option><option value="premium_economy">Premium Economy</option>
+                <option value="business">Business</option><option value="first">First</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Confirmation #</label><input type="text" class="form-input" data-field="booking_ref"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" data-field="notes"/></div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="removeFltEntry(this)" style="margin-top:4px;display:none;color:var(--red);border-color:rgba(204,68,68,0.25);">− Remove</button>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Cabin Class</label>
-          <select class="form-select" id="flt-cabin">
-            <option value="economy">Economy</option>
-            <option value="premium_economy">Premium Economy</option>
-            <option value="business">Business</option>
-            <option value="first">First</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Confirmation #</label>
-          <input type="text" class="form-input" id="flt-ref"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <input type="text" class="form-input" id="flt-notes"/>
-      </div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="addFltEntry()" style="margin-top:8px;">+ Add Another Flight</button>
     </div>
     <!-- TRAIN -->
     <div class="day-section" id="day-sec-train">
-      <div class="day-sec-hdr">🚂 Train</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Carrier</label>
-          <input type="text" class="form-input" id="trn-carrier" placeholder="Indian Railways"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Train Number</label>
-          <input type="text" class="form-input" id="trn-number"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">From Station</label>
-          <input type="text" class="form-input" id="trn-from"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">To Station</label>
-          <input type="text" class="form-input" id="trn-to"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Departure</label>
-          <input type="time" class="form-input" id="trn-dep-time"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Arrival</label>
-          <input type="time" class="form-input" id="trn-arr-time"/>
+      <div class="day-sec-hdr">🚂 Trains</div>
+      <div id="trn-entries">
+        <div class="trn-entry">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Carrier</label><input type="text" class="form-input" data-field="carrier" placeholder="Indian Railways"/></div>
+            <div class="form-group"><label class="form-label">Train Number</label><input type="text" class="form-input" data-field="train_number"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">From Station</label><input type="text" class="form-input" data-field="origin_station"/></div>
+            <div class="form-group"><label class="form-label">To Station</label><input type="text" class="form-input" data-field="dest_station"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Departure</label><input type="time" class="form-input" data-field="dep_time"/></div>
+            <div class="form-group"><label class="form-label">Arrival</label><input type="time" class="form-input" data-field="arr_time"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Class</label><input type="text" class="form-input" data-field="class" placeholder="First AC"/></div>
+            <div class="form-group"><label class="form-label">PNR / Confirmation</label><input type="text" class="form-input" data-field="pnr"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Cost</label><input type="number" class="form-input" data-field="cost"/></div>
+            <div class="form-group"><label class="form-label">Currency</label>
+              <select class="form-select" data-field="currency"><option value="INR">INR</option><option value="USD">USD</option></select>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" data-field="notes"/></div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="removeTrnEntry(this)" style="margin-top:4px;display:none;color:var(--red);border-color:rgba(204,68,68,0.25);">− Remove</button>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Class</label>
-          <input type="text" class="form-input" id="trn-class" placeholder="First AC"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">PNR / Confirmation</label>
-          <input type="text" class="form-input" id="trn-pnr"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Cost</label>
-          <input type="number" class="form-input" id="trn-cost"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Currency</label>
-          <select class="form-select" id="trn-currency">
-            <option value="INR">INR</option>
-            <option value="USD">USD</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <input type="text" class="form-input" id="trn-notes"/>
-      </div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="addTrnEntry()" style="margin-top:8px;">+ Add Another Train</button>
     </div>
     <!-- TRANSFER -->
     <div class="day-section" id="day-sec-transfer">
-      <div class="day-sec-hdr">🚗 Transfer</div>
-      <div class="form-group">
-        <div class="day-toggle-row">
-          <button type="button" class="day-toggle active" id="xfr-type-E" onclick="setXfrType('E')" style="padding:4px 12px;font-size:11px;">E — Emirates Limo</button>
-          <button type="button" class="day-toggle" id="xfr-type-H" onclick="setXfrType('H')" style="padding:4px 12px;font-size:11px;">H — Hotel Transfer</button>
-          <button type="button" class="day-toggle" id="xfr-type-U" onclick="setXfrType('U')" style="padding:4px 12px;font-size:11px;">U — Uber / Taxi</button>
-          <button type="button" class="day-toggle" id="xfr-type-P" onclick="setXfrType('P')" style="padding:4px 12px;font-size:11px;">P — Private Transfer</button>
+      <div class="day-sec-hdr">🚗 Transfers</div>
+      <div id="xfr-entries">
+        <div class="xfr-entry">
+          <div class="form-group">
+            <div class="day-toggle-row">
+              <button type="button" class="day-toggle active xfr-type" data-type="E" onclick="setXfrEntryType(this)" style="padding:4px 12px;font-size:11px;">E — Emirates Limo</button>
+              <button type="button" class="day-toggle xfr-type" data-type="H" onclick="setXfrEntryType(this)" style="padding:4px 12px;font-size:11px;">H — Hotel Transfer</button>
+              <button type="button" class="day-toggle xfr-type" data-type="U" onclick="setXfrEntryType(this)" style="padding:4px 12px;font-size:11px;">U — Uber / Taxi</button>
+              <button type="button" class="day-toggle xfr-type" data-type="P" onclick="setXfrEntryType(this)" style="padding:4px 12px;font-size:11px;">P — Private Transfer</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">From</label><input type="text" class="form-input" data-field="from"/></div>
+            <div class="form-group"><label class="form-label">To</label><input type="text" class="form-input" data-field="to"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Pickup Time</label><input type="time" class="form-input" data-field="time"/></div>
+            <div class="form-group"><label class="form-label">Confirmation</label><input type="text" class="form-input" data-field="ref"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" data-field="notes"/></div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="removeXfrEntry(this)" style="margin-top:4px;display:none;color:var(--red);border-color:rgba(204,68,68,0.25);">− Remove</button>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">From</label>
-          <input type="text" class="form-input" id="xfr-from"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">To</label>
-          <input type="text" class="form-input" id="xfr-to"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Pickup Time</label>
-          <input type="time" class="form-input" id="xfr-time"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Confirmation</label>
-          <input type="text" class="form-input" id="xfr-ref"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <input type="text" class="form-input" id="xfr-notes"/>
-      </div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="addXfrEntry()" style="margin-top:8px;">+ Add Another Transfer</button>
     </div>
     <!-- DRIVER -->
     <div class="day-section" id="day-sec-driver">
@@ -1761,7 +1703,7 @@ async function loadItinerary(){
               <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">${dow.toUpperCase()}</span>
               <span style="font-size:13px;color:var(--cream);">${fmtDate(d.date)}</span>
             </div>
-            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${d.day_type==='travel'?(dayFlights.length?'✈️':dayTrains.length?'🚂':'🚗'):'🏨'} ${[d.location,d.title].filter(Boolean).join(' — ')}</div>`:''}
+            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${d.day_type==='travel'?(dayFlights.length?'✈️':dayTrains.length?'🚂':'🚗'):'🏨'} ${d.location||''}${d.day_type!=='travel'&&d.title&&d.title!==d.location?' — '+d.title:''}</div>`:''}
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
             <span style="color:var(--gold);cursor:pointer;font-size:12px;padding:4px;" onclick="editDay('${d.id}','${tripId}')">✎</span>
@@ -1792,11 +1734,13 @@ function hideDaySec(name){
 }
 function isSectionActive(name){return document.getElementById('day-sec-'+name).classList.contains('visible');}
 function setFlightType(type){
-  ['INT','DOM'].forEach(t=>document.getElementById('flt-type-'+t).classList.toggle('active',t===type));
+  const e=document.querySelector('.flt-entry');if(!e)return;
+  e.querySelector('.flt-type-INT').classList.toggle('active',type==='INT');
+  e.querySelector('.flt-type-DOM').classList.toggle('active',type==='DOM');
 }
 function setXfrType(type){
-  ['E','H','U','P'].forEach(t=>document.getElementById('xfr-type-'+t).classList.remove('active'));
-  document.getElementById('xfr-type-'+type).classList.add('active');
+  const e=document.querySelector('.xfr-entry');if(!e)return;
+  e.querySelectorAll('.xfr-type').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
 }
 function setDrvType(type){
   ['D','C'].forEach(t=>document.getElementById('drv-type-'+t).classList.remove('active'));
@@ -1822,6 +1766,61 @@ function syncCoHotel(){
   const co=document.getElementById('co-hotel-id');
   if(co&&v&&!co.value)co.value=v;
 }
+function entryField(e,f){return e.querySelector('[data-field="'+f+'"]');}
+function resetEntries(cls){
+  const all=document.querySelectorAll(cls);
+  all.forEach((e,i)=>{if(i>0)e.remove();});
+  const first=document.querySelector(cls);
+  if(first){
+    first.querySelectorAll('input:not([type="checkbox"])').forEach(el=>el.value='');
+    first.querySelectorAll('input[type="checkbox"]').forEach(el=>el.checked=false);
+    first.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  }
+}
+function addFltEntry(){
+  const tmpl=document.querySelector('.flt-entry');
+  const clone=tmpl.cloneNode(true);
+  clone.style.cssText='border-top:1px solid var(--border-subtle);padding-top:12px;margin-top:8px;';
+  clone.querySelectorAll('input:not([type="checkbox"])').forEach(el=>el.value='');
+  clone.querySelectorAll('input[type="checkbox"]').forEach(el=>el.checked=false);
+  clone.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  clone.querySelector('.flt-type-INT').classList.add('active');
+  clone.querySelector('.flt-type-DOM').classList.remove('active');
+  clone.querySelector('[onclick*="removeFltEntry"]').style.display='';
+  document.getElementById('flt-entries').appendChild(clone);
+}
+function removeFltEntry(btn){const e=btn.closest('.flt-entry');if(document.querySelectorAll('.flt-entry').length>1)e.remove();}
+function addTrnEntry(){
+  const tmpl=document.querySelector('.trn-entry');
+  const clone=tmpl.cloneNode(true);
+  clone.style.cssText='border-top:1px solid var(--border-subtle);padding-top:12px;margin-top:8px;';
+  clone.querySelectorAll('input:not([type="checkbox"])').forEach(el=>el.value='');
+  clone.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  clone.querySelector('[onclick*="removeTrnEntry"]').style.display='';
+  document.getElementById('trn-entries').appendChild(clone);
+}
+function removeTrnEntry(btn){const e=btn.closest('.trn-entry');if(document.querySelectorAll('.trn-entry').length>1)e.remove();}
+function addXfrEntry(){
+  const tmpl=document.querySelector('.xfr-entry');
+  const clone=tmpl.cloneNode(true);
+  clone.style.cssText='border-top:1px solid var(--border-subtle);padding-top:12px;margin-top:8px;';
+  clone.querySelectorAll('input').forEach(el=>el.value='');
+  clone.querySelectorAll('.xfr-type').forEach(b=>b.classList.remove('active'));
+  clone.querySelector('.xfr-type[data-type="E"]').classList.add('active');
+  clone.querySelector('[onclick*="removeXfrEntry"]').style.display='';
+  document.getElementById('xfr-entries').appendChild(clone);
+}
+function removeXfrEntry(btn){const e=btn.closest('.xfr-entry');if(document.querySelectorAll('.xfr-entry').length>1)e.remove();}
+function setFltEntryType(btn,type){
+  const e=btn.closest('.flt-entry');
+  e.querySelector('.flt-type-INT').classList.toggle('active',type==='INT');
+  e.querySelector('.flt-type-DOM').classList.toggle('active',type==='DOM');
+}
+function setXfrEntryType(btn){
+  const e=btn.closest('.xfr-entry');
+  e.querySelectorAll('.xfr-type').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
 function addDaysStr(dateStr,n){
   const d=new Date(dateStr+'T12:00:00Z');
   d.setUTCDate(d.getUTCDate()+n);
@@ -1836,16 +1835,11 @@ function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setDayType('stay');
   ['flight','train','transfer','driver','checkin','checkout','notes'].forEach(s=>hideDaySec(s));
+  resetEntries('.flt-entry');resetEntries('.trn-entry');resetEntries('.xfr-entry');
   setFlightType('INT');setXfrType('E');setDrvType('D');
-  ['flt-airline','flt-number','flt-from','flt-to','flt-dep-time','flt-arr-time','flt-ref','flt-notes',
-   'trn-carrier','trn-number','trn-from','trn-to','trn-dep-time','trn-arr-time','trn-class','trn-pnr','trn-notes',
-   'xfr-from','xfr-to','xfr-time','xfr-ref','xfr-notes',
-   'drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
+  ['drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
    'ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  const nc=document.getElementById('flt-next-day');if(nc)nc.checked=false;
   const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
-  const fc=document.getElementById('flt-cabin');if(fc)fc.value='economy';
-  const tc=document.getElementById('trn-currency');if(tc)tc.value='INR';
   const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
   const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
   const cot=document.getElementById('co-time');if(cot)cot.value='11:00';
@@ -1936,44 +1930,47 @@ async function editDayItem(type,itemId,tripId,dayId){
   if(type==='flight'&&itemId){
     try{
       const f=await(await fetch(`${API}/flights/${itemId}`)).json();
+      const fe=document.querySelector('.flt-entry');
       setFlightType(f.flight_type||'DOM');
-      document.getElementById('flt-airline').value=f.airline||'';
-      document.getElementById('flt-number').value=f.flight_number||'';
-      document.getElementById('flt-from').value=f.origin_airport||'';
-      document.getElementById('flt-to').value=f.dest_airport||'';
-      if(f.departure_time)document.getElementById('flt-dep-time').value=new Date(f.departure_time).toISOString().slice(11,16);
-      if(f.arrival_time)document.getElementById('flt-arr-time').value=new Date(f.arrival_time).toISOString().slice(11,16);
-      document.getElementById('flt-cabin').value=f.cabin_class||'economy';
-      document.getElementById('flt-ref').value=f.booking_ref||'';
-      document.getElementById('flt-notes').value=f.notes||'';
+      entryField(fe,'airline').value=f.airline||'';
+      entryField(fe,'flight_number').value=f.flight_number||'';
+      entryField(fe,'origin_airport').value=f.origin_airport||'';
+      entryField(fe,'dest_airport').value=f.dest_airport||'';
+      if(f.departure_time)entryField(fe,'dep_time').value=new Date(f.departure_time).toISOString().slice(11,16);
+      if(f.arrival_time)entryField(fe,'arr_time').value=new Date(f.arrival_time).toISOString().slice(11,16);
+      entryField(fe,'cabin_class').value=f.cabin_class||'economy';
+      entryField(fe,'booking_ref').value=f.booking_ref||'';
+      entryField(fe,'notes').value=f.notes||'';
       showDaySec('flight');
     }catch(e){}
   } else if(type==='train'&&itemId){
     try{
       const t=await(await fetch(`${API}/trains/${itemId}`)).json();
-      document.getElementById('trn-carrier').value=t.carrier||'';
-      document.getElementById('trn-number').value=t.train_number||'';
-      document.getElementById('trn-from').value=t.origin_station||'';
-      document.getElementById('trn-to').value=t.dest_station||'';
-      document.getElementById('trn-dep-time').value=t.departure_time?t.departure_time.slice(0,5):'';
-      document.getElementById('trn-arr-time').value=t.arrival_time?t.arrival_time.slice(0,5):'';
-      document.getElementById('trn-class').value=t.class||'';
-      document.getElementById('trn-pnr').value=t.pnr||'';
-      document.getElementById('trn-cost').value=t.cost||'';
-      document.getElementById('trn-currency').value=t.currency||'INR';
-      document.getElementById('trn-notes').value=t.notes||'';
+      const te=document.querySelector('.trn-entry');
+      entryField(te,'carrier').value=t.carrier||'';
+      entryField(te,'train_number').value=t.train_number||'';
+      entryField(te,'origin_station').value=t.origin_station||'';
+      entryField(te,'dest_station').value=t.dest_station||'';
+      entryField(te,'dep_time').value=t.departure_time?t.departure_time.slice(0,5):'';
+      entryField(te,'arr_time').value=t.arrival_time?t.arrival_time.slice(0,5):'';
+      entryField(te,'class').value=t.class||'';
+      entryField(te,'pnr').value=t.pnr||'';
+      entryField(te,'cost').value=t.cost||'';
+      entryField(te,'currency').value=t.currency||'INR';
+      entryField(te,'notes').value=t.notes||'';
       showDaySec('train');
     }catch(e){}
   } else if((type==='transfer'||type==='driver')&&itemId){
     try{
       const gt=await(await fetch(`${API}/ground-transport/${itemId}`)).json();
       if(type==='transfer'){
+        const xe=document.querySelector('.xfr-entry');
         setXfrType(gt.type||'E');
-        document.getElementById('xfr-from').value=gt.pickup_location||'';
-        document.getElementById('xfr-to').value=gt.dropoff_location||'';
-        document.getElementById('xfr-time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
-        document.getElementById('xfr-ref').value=gt.confirmation_number||'';
-        document.getElementById('xfr-notes').value=gt.notes||'';
+        entryField(xe,'from').value=gt.pickup_location||'';
+        entryField(xe,'to').value=gt.dropoff_location||'';
+        entryField(xe,'time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
+        entryField(xe,'ref').value=gt.confirmation_number||'';
+        entryField(xe,'notes').value=gt.notes||'';
         showDaySec('transfer');
       } else {
         setDrvType(gt.type||'D');
@@ -2026,27 +2023,36 @@ async function saveDay(){
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
   const saves=[];
   if(isSectionActive('flight')){
-    const from=document.getElementById('flt-from').value.toUpperCase().trim();
-    const to=document.getElementById('flt-to').value.toUpperCase().trim();
-    if(from.length===3&&to.length===3){
-      const fltType=document.getElementById('flt-type-INT').classList.contains('active')?'INT':'DOM';
-      const depT=document.getElementById('flt-dep-time').value;
-      const arrT=document.getElementById('flt-arr-time').value;
-      const arrDate=document.getElementById('flt-next-day').checked?addDaysStr(dayDate,1):dayDate;
-      const flt={trip_id:tripId,flight_type:fltType,airline:document.getElementById('flt-airline').value,flight_number:document.getElementById('flt-number').value,origin_airport:from,dest_airport:to,departure_time:depT?`${dayDate}T${depT}:00.000Z`:`${dayDate}T00:00:00.000Z`,arrival_time:arrT?`${arrDate}T${arrT}:00.000Z`:`${arrDate}T23:59:00.000Z`,cabin_class:document.getElementById('flt-cabin').value,booking_ref:document.getElementById('flt-ref').value,notes:document.getElementById('flt-notes').value};
-      const fid=(editType==='flight'&&editId)?editId:null;
-      saves.push(fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)}));
-    }
+    document.querySelectorAll('.flt-entry').forEach((entry,idx)=>{
+      const from=entryField(entry,'origin_airport').value.toUpperCase().trim();
+      const to=entryField(entry,'dest_airport').value.toUpperCase().trim();
+      if(from.length===3&&to.length===3){
+        const isInt=entry.querySelector('.flt-type-INT').classList.contains('active');
+        const depT=entryField(entry,'dep_time').value;
+        const arrT=entryField(entry,'arr_time').value;
+        const arrDate=entryField(entry,'next_day').checked?addDaysStr(dayDate,1):dayDate;
+        const flt={trip_id:tripId,flight_type:isInt?'INT':'DOM',airline:entryField(entry,'airline').value,flight_number:entryField(entry,'flight_number').value,origin_airport:from,dest_airport:to,departure_time:depT?`${dayDate}T${depT}:00.000Z`:`${dayDate}T00:00:00.000Z`,arrival_time:arrT?`${arrDate}T${arrT}:00.000Z`:`${arrDate}T23:59:00.000Z`,cabin_class:entryField(entry,'cabin_class').value,booking_ref:entryField(entry,'booking_ref').value,notes:entryField(entry,'notes').value};
+        const fid=(idx===0&&editType==='flight'&&editId)?editId:null;
+        console.log('[saveDay] flight:',flt);
+        saves.push(fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)}));
+      }
+    });
   }
   if(isSectionActive('train')){
-    const trn={trip_id:tripId,carrier:document.getElementById('trn-carrier').value,train_number:document.getElementById('trn-number').value,origin_station:document.getElementById('trn-from').value,dest_station:document.getElementById('trn-to').value,departure_date:dayDate,departure_time:document.getElementById('trn-dep-time').value||null,arrival_time:document.getElementById('trn-arr-time').value||null,class:document.getElementById('trn-class').value,pnr:document.getElementById('trn-pnr').value,cost:parseFloat(document.getElementById('trn-cost').value)||null,currency:document.getElementById('trn-currency').value,notes:document.getElementById('trn-notes').value};
-    const tid=(editType==='train'&&editId)?editId:null;
-    saves.push(fetch(tid?`${API}/trains/${tid}`:`${API}/trains`,{method:tid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(trn)}));
+    document.querySelectorAll('.trn-entry').forEach((entry,idx)=>{
+      const trn={trip_id:tripId,carrier:entryField(entry,'carrier').value,train_number:entryField(entry,'train_number').value,origin_station:entryField(entry,'origin_station').value,dest_station:entryField(entry,'dest_station').value,departure_date:dayDate,departure_time:entryField(entry,'dep_time').value||null,arrival_time:entryField(entry,'arr_time').value||null,class:entryField(entry,'class').value,pnr:entryField(entry,'pnr').value,cost:parseFloat(entryField(entry,'cost').value)||null,currency:entryField(entry,'currency').value||'INR',notes:entryField(entry,'notes').value};
+      const tid=(idx===0&&editType==='train'&&editId)?editId:null;
+      console.log('[saveDay] train:',trn);
+      saves.push(fetch(tid?`${API}/trains/${tid}`:`${API}/trains`,{method:tid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(trn)}));
+    });
   }
   if(isSectionActive('transfer')){
-    const xfr={trip_id:tripId,type:getActiveXfr(),vendor:'',pickup_location:document.getElementById('xfr-from').value,dropoff_location:document.getElementById('xfr-to').value,transport_date:dayDate,pickup_time:document.getElementById('xfr-time').value||null,confirmation_number:document.getElementById('xfr-ref').value,notes:document.getElementById('xfr-notes').value};
-    const xid=(editType==='transfer'&&editId)?editId:null;
-    saves.push(fetch(xid?`${API}/ground-transport/${xid}`:`${API}/ground-transport`,{method:xid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(xfr)}));
+    document.querySelectorAll('.xfr-entry').forEach((entry,idx)=>{
+      const activeType=entry.querySelector('.xfr-type.active');
+      const xfr={trip_id:tripId,type:activeType?activeType.dataset.type:'E',vendor:'',pickup_location:entryField(entry,'from').value,dropoff_location:entryField(entry,'to').value,transport_date:dayDate,pickup_time:entryField(entry,'time').value||null,confirmation_number:entryField(entry,'ref').value,notes:entryField(entry,'notes').value};
+      const xid=(idx===0&&editType==='transfer'&&editId)?editId:null;
+      saves.push(fetch(xid?`${API}/ground-transport/${xid}`:`${API}/ground-transport`,{method:xid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(xfr)}));
+    });
   }
   if(isSectionActive('driver')){
     const endDate=document.getElementById('drv-end').value;
