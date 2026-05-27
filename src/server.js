@@ -127,7 +127,7 @@ app.get('/api/trains', async (req, res, next) => {
       ? 'SELECT * FROM train_journeys WHERE trip_id=$1 ORDER BY departure_date,departure_time'
       : 'SELECT * FROM train_journeys ORDER BY departure_date,departure_time';
     const result = trip_id ? await pool.query(q, [trip_id]) : await pool.query(q);
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (e) { next(e); }
 });
 

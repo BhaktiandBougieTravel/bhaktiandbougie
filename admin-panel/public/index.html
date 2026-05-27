@@ -1682,6 +1682,7 @@ async function loadItinerary(){
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
     ]);
     console.log('[loadItinerary] trip response:', trip);
+    const trainList=Array.isArray(trains)?trains:[];
     const days=(trip.days||[]).sort((a,b)=>a.day_number-b.day_number);
     itinDaysCache=days;
     const flights=trip.flights||[];
@@ -1706,7 +1707,7 @@ async function loadItinerary(){
       const ds=(d.date||'').split('T')[0];
       const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
       const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
-      const dayTrains=trains.filter(t=>(t.departure_date||'').split('T')[0]===ds);
+      const dayTrains=trainList.filter(t=>(t.departure_date||'').split('T')[0]===ds);
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
