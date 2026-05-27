@@ -2295,6 +2295,13 @@ function renderFestNextUp(){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  document.addEventListener('input',e=>{
+    const el=e.target;
+    if(el.placeholder!=='HH:MM')return;
+    let digits=el.value.replace(/\D/g,'');
+    if(digits.length>4)digits=digits.slice(0,4);
+    el.value=digits.length>=3?digits.slice(0,2)+':'+digits.slice(2):digits;
+  });
   document.getElementById('fest-pills').addEventListener('click',e=>{
     const pill=e.target.closest('.fest-pill');if(!pill)return;
     document.querySelectorAll('#fest-pills .fest-pill').forEach(p=>p.classList.remove('active'));
