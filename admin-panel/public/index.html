@@ -998,6 +998,12 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <label class="form-label">Hotel</label>
           <input type="text" class="form-input" id="ci-hotel-name" placeholder="e.g. Taj Lake Palace"/>
         </div>
+        <div class="form-group" style="max-width:110px;">
+          <label class="form-label">Nights</label>
+          <input type="number" class="form-input" id="ci-nights" min="1" value="1"/>
+        </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Room Type</label>
           <input type="text" class="form-input" id="ci-room-type"/>
@@ -2030,6 +2036,7 @@ function resetDayModal(){
   setDrvType('D');
   ['drv-name','drv-coverage','drv-start','drv-end','drv-ref','drv-notes',
    'ci-hotel-name','ci-room-type','ci-ref','ci-notes','ci-perks','co-notes','day-notes-text'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const cin=document.getElementById('ci-nights');if(cin)cin.value='1';;
   const cb=document.getElementById('ci-breakfast');if(cb)cb.checked=false;
   const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
   const ct=document.getElementById('ci-time');if(ct)ct.value='14:00';
@@ -2198,6 +2205,7 @@ async function saveDay(){
   }
   if(isSectionActive('checkin')){
     const hotelName=document.getElementById('ci-hotel-name').value.trim();
+    const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
     if(hotelName){
       let hotel=hotelsCache.find(h=>h.name.toLowerCase()===hotelName.toLowerCase());
       if(!hotel){
@@ -2206,7 +2214,7 @@ async function saveDay(){
       const hotelId=hotel?.id;
       if(hotelId){
         const noteParts=[document.getElementById('ci-time').value?'Check-in: '+document.getElementById('ci-time').value:'',document.getElementById('ci-breakfast').checked?'Breakfast included':'',document.getElementById('ci-perks').value?'Perks: '+document.getElementById('ci-perks').value:'',document.getElementById('ci-notes').value].filter(Boolean).join(' · ');
-        const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,1),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
+        const ci={trip_id:tripId,hotel_id:hotelId,check_in:dayDate,check_out:addDaysStr(dayDate,ciNights),room_type:document.getElementById('ci-room-type').value,confirmation_number:document.getElementById('ci-ref').value,notes:noteParts};
         const cid=(editType==='checkin'&&editId)?editId:null;
         saves.push(fetch(cid?`${API}/hotel-bookings/${cid}`:`${API}/hotel-bookings`,{method:cid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ci)}));
       }
@@ -2226,6 +2234,25 @@ async function saveDay(){
     }
   }
   await Promise.allSettled(saves);
+  if(isSectionActive('checkin')){
+    const ciNights=Math.max(1,parseInt(document.getElementById('ci-nights').value)||1);
+    const ciLoc=document.getElementById('day-location').value||'';
+    try{
+      const existingDays=await(await fetch(`${API}/days?trip_id=${tripId}`)).json();
+      const existingDates=new Set(existingDays.map(d=>(d.date||'').split('T')[0]));
+      let maxNum=existingDays.reduce((m,d)=>Math.max(m,d.day_number||0),0);
+      let stayCount=0;
+      for(let n=1;n<=ciNights;n++){
+        const date=addDaysStr(dayDate,n);
+        if(!existingDates.has(date)){
+          stayCount++;
+          const isLast=n===ciNights;
+          const title=ciLoc?ciLoc+' Day '+stayCount:'Day '+stayCount;
+          await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date,day_number:++maxNum,day_type:isLast?'travel':'stay',title,location:ciLoc})});
+        }
+      }
+    }catch(e){}
+  }
   closeModal('day-modal');
   loadItinerary();
 }
