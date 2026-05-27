@@ -44,16 +44,16 @@ router.post('/',
   async (req, res, next) => {
     const { trip_id, flight_number, airline, origin_airport, dest_airport,
             departure_time, arrival_time, booking_ref, num_passengers,
-            cabin_class, total_cost, currency, status, notes } = req.body;
+            cabin_class, flight_type, total_cost, currency, status, notes } = req.body;
     try {
       const { rows } = await pool.query(
         `INSERT INTO flights (trip_id, flight_number, airline, origin_airport, dest_airport,
            departure_time, arrival_time, booking_ref, num_passengers, cabin_class,
-           total_cost, currency, status, notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+           flight_type, total_cost, currency, status, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
         [trip_id, flight_number, airline, origin_airport, dest_airport,
          departure_time, arrival_time, booking_ref, num_passengers || 1,
-         cabin_class || 'economy', total_cost, currency || 'INR', status || 'pending', notes]
+         cabin_class || 'economy', flight_type || 'DOM', total_cost, currency || 'INR', status || 'pending', notes]
       );
       res.status(201).json(rows[0]);
     } catch (err) { next(err); }
@@ -64,7 +64,7 @@ router.post('/',
 router.patch('/:id', param('id').isUUID(), validate, async (req, res, next) => {
   const allowed = ['flight_number', 'airline', 'origin_airport', 'dest_airport',
     'departure_time', 'arrival_time', 'booking_ref', 'num_passengers',
-    'cabin_class', 'total_cost', 'currency', 'status', 'notes'];
+    'cabin_class', 'flight_type', 'total_cost', 'currency', 'status', 'notes'];
   const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
   if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update' });
   const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(', ');

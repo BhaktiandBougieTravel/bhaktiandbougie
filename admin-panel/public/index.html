@@ -140,6 +140,13 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;letter-spacing:2px;}
 .dot-pulse::after{content:'...';animation:dots 1.5s infinite;}
 @keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...';}100%{content:'';}}
+.itin-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-subtle);}
+.itin-item:last-child{border-bottom:none;}
+.itin-emoji{font-size:15px;flex-shrink:0;line-height:1.5;}
+.itin-body{flex:1;min-width:0;}
+.itin-main{font-size:13px;color:var(--cream);line-height:1.4;}
+.itin-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.itin-note{font-size:12px;color:var(--cream-dim);line-height:1.5;}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--navy);}
 ::-webkit-scrollbar-thumb{background:var(--gold-border);border-radius:2px;}
@@ -695,9 +702,18 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <input type="text" class="form-input" id="flight-ff"/>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Meal Preference</label>
-      <input type="text" class="form-input" id="flight-meal" placeholder="e.g. Vegetarian"/>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Meal Preference</label>
+        <input type="text" class="form-input" id="flight-meal" placeholder="e.g. Vegetarian"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Flight Type</label>
+        <select class="form-select" id="flight-type">
+          <option value="DOM" selected>Domestic</option>
+          <option value="INT">International</option>
+        </select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('flight-modal')">Cancel</button>
@@ -793,13 +809,11 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="form-group">
         <label class="form-label">Type</label>
         <select class="form-select" id="gt-type">
-          <option>Transfer</option>
-          <option>Car Hire</option>
-          <option>Train</option>
-          <option>Bus</option>
-          <option>Rickshaw</option>
-          <option>Taxi</option>
-          <option>Other</option>
+          <option value="E">E — Emirates Limo</option>
+          <option value="H">H — Hotel Transfer</option>
+          <option value="U">U — Uber / Taxi</option>
+          <option value="P">P — Private Transfer</option>
+          <option value="D">D — Day / Outstation Driver</option>
         </select>
       </div>
     </div>
@@ -913,6 +927,20 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('guide-modal')">Cancel</button>
       <button class="btn btn-gold" onclick="saveGuide()">Save Guide</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="day-add-modal">
+  <div class="modal" style="max-width:320px;">
+    <div class="modal-title">Add to Day</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddFlight()">✈️ &nbsp; Flight</button>
+      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddTransport()">🚗 &nbsp; Ground Transport</button>
+      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddHotel()">🏨 &nbsp; Hotel Check-in / Booking</button>
+      <button class="btn btn-outline" style="text-align:left;padding:12px 16px;font-size:13px;" onclick="dayAddNote()">📝 &nbsp; Day Note</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('day-add-modal')">Cancel</button>
     </div>
   </div>
 </div>
@@ -1278,7 +1306,7 @@ async function loadFlights(){
   }catch(e){el.innerHTML='<div class="loading">Unable to load flights</div>';}
 }
 async function saveFlight(){
-  const body={trip_id:document.getElementById('flight-trip').value,flight_number:document.getElementById('flight-number').value,departure_airport:document.getElementById('flight-from').value,arrival_airport:document.getElementById('flight-to').value,departure_time:document.getElementById('flight-dep').value,arrival_time:document.getElementById('flight-arr').value,booking_reference:document.getElementById('flight-ref').value,cost:document.getElementById('flight-cost').value,cabin_class:document.getElementById('flight-cabin').value,seat_numbers:document.getElementById('flight-seats').value,terminal:document.getElementById('flight-terminal').value,frequent_flyer:document.getElementById('flight-ff').value,meal_preference:document.getElementById('flight-meal').value};
+  const body={trip_id:document.getElementById('flight-trip').value,flight_number:document.getElementById('flight-number').value,origin_airport:document.getElementById('flight-from').value,dest_airport:document.getElementById('flight-to').value,departure_time:document.getElementById('flight-dep').value,arrival_time:document.getElementById('flight-arr').value,booking_ref:document.getElementById('flight-ref').value,total_cost:document.getElementById('flight-cost').value,cabin_class:document.getElementById('flight-cabin').value,flight_type:document.getElementById('flight-type').value,seat_numbers:document.getElementById('flight-seats').value,terminal:document.getElementById('flight-terminal').value,frequent_flyer:document.getElementById('flight-ff').value,meal_preference:document.getElementById('flight-meal').value};
   await fetch(`${API}/flights`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('flight-modal');loadFlights();
 }
@@ -1338,19 +1366,126 @@ async function exportExpenses(){
   a.download='bb-expenses.csv';a.click();
 }
 let currentItinTripId=null;
+let dayAddCtx={tripId:null,date:null};
+const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)'};
+const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830'};
 async function loadItinerary(){
   const tripId=document.getElementById('itin-trip-select').value;
   currentItinTripId=tripId;
   const el=document.getElementById('itinerary-content');
-  if(!tripId){el.innerHTML='<div class="loading">Select a trip</div>';return;}
+  if(!tripId){el.innerHTML='<div class="loading">Select a trip to view itinerary</div>';return;}
+  el.innerHTML='<div class="loading dot-pulse">Loading itinerary</div>';
   try{
-    const trip=await(await fetch(`${API}/trips/${tripId}`)).json();
-    const days=trip.days||[];
-    const fests=await(await fetch(`${API}/festivals?from=${trip.start_date?.split('T')[0]}&to=${trip.end_date?.split('T')[0]}`)).json();
-    const festHtml=fests.length?`<div class="card" style="border-left:3px solid var(--gold);margin-bottom:16px;"><div style="font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">FESTIVAL OVERLAPS</div>${fests.map(f=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border-subtle);"><strong style="color:var(--cream);">${f.name}</strong> · ${fmtDate(f.start_date)} · ${f.city||f.region}</div>`).join('')}</div>`:'';
-    const daysHtml=days.length===0?'<div class="loading">No days yet.</div>':days.sort((a,b)=>a.day_number-b.day_number).map(d=>`<div class="card" style="margin-bottom:12px;border-left:3px solid var(--border);"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><div style="display:flex;gap:12px;align-items:baseline;"><span style="font-family:var(--font-serif);font-size:22px;color:var(--gold);">Day ${d.day_number}</span><span style="font-family:var(--font-serif);font-size:18px;color:var(--cream);">${d.title||''}</span></div><div style="display:flex;gap:12px;align-items:center;"><span style="font-size:11px;color:var(--muted);">${fmtDate(d.date)} · ${d.location||''}</span><span style="color:var(--gold);cursor:pointer;" onclick="editDay('${d.id}','${tripId}')">✎</span></div></div><div style="font-size:13px;color:var(--cream-dim);line-height:1.6;">${d.description||''}</div></div>`).join('');
-    el.innerHTML=festHtml+daysHtml;
-  }catch(e){el.innerHTML='<div class="loading">Unable to load itinerary</div>';}
+    if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(_){}
+    const[trip,transports]=await Promise.all([
+      fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
+      fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+    ]);
+    const days=(trip.days||[]).sort((a,b)=>a.day_number-b.day_number);
+    const flights=trip.flights||[];
+    const bookings=trip.hotel_bookings||[];
+    if(!days.length){el.innerHTML='<div class="loading">No days yet — use Add Day to build the itinerary</div>';return;}
+    const legend=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:8px 12px;background:var(--navy2);border:1px solid var(--border);border-radius:2px;font-size:11px;align-items:center;">
+      <span style="color:var(--muted);letter-spacing:2px;font-size:9px;margin-right:2px;">LEGEND</span>
+      <span>✈️ Flight</span><span>🚗 Transport</span><span>🏨 Hotel</span><span>📝 Notes</span>
+      <span style="color:var(--border-subtle);">│</span>
+      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">E Emirates Limo</span>
+      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">H Hotel Transfer</span>
+      <span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 7px;border-radius:2px;font-size:9px;">U Uber/Taxi</span>
+      <span style="background:rgba(242,230,204,0.08);color:var(--cream-dim);padding:1px 7px;border-radius:2px;font-size:9px;">P Private</span>
+      <span style="background:rgba(224,120,48,0.15);color:#e07830;padding:1px 7px;border-radius:2px;font-size:9px;">D Day Driver</span>
+      <span style="color:var(--border-subtle);">│</span>
+      <span style="background:rgba(200,134,10,0.2);color:var(--gold);padding:1px 7px;border-radius:2px;font-size:9px;">INT</span>
+      <span style="background:rgba(106,138,170,0.15);color:var(--muted);padding:1px 7px;border-radius:2px;font-size:9px;">DOM</span>
+    </div>`;
+    const cards=days.map(d=>{
+      const ds=(d.date||'').split('T')[0];
+      const dow=ds?new Date(ds+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'long',timeZone:'UTC'}):'';
+      const dayFlights=flights.filter(f=>(f.departure_time||'').split('T')[0]===ds);
+      const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
+      const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
+      const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
+      let items='';
+      dayFlights.forEach(f=>{
+        const isInt=(f.flight_type||'DOM')==='INT';
+        const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">${isInt?'INT':'DOM'}</span>`;
+        const dep=f.departure_time?new Date(f.departure_time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):'–';
+        const arr=f.arrival_time?new Date(f.arrival_time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):'–';
+        const from=f.origin_airport||f.departure_airport||'–';
+        const to=f.dest_airport||f.arrival_airport||'–';
+        const ref=f.booking_ref||f.booking_reference||'';
+        items+=`<div class="itin-item"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arr}${ref?' · ref '+ref:''}</div></div></div>`;
+      });
+      dayTrans.forEach(t=>{
+        const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">${t.type||'–'}</span>`;
+        const route=[t.pickup_location,t.dropoff_location].filter(Boolean).join(' → ')||'–';
+        items+=`<div class="itin-item"><span class="itin-emoji">🚗</span>${badge}<div class="itin-body"><div class="itin-main">${route}</div><div class="itin-sub">${[t.pickup_time,t.vendor].filter(Boolean).join(' · ')}</div></div></div>`;
+      });
+      checkIns.forEach(b=>{
+        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
+        items+=`<div class="itin-item"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div></div>`;
+      });
+      checkOuts.forEach(b=>{
+        const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
+        items+=`<div class="itin-item"><span class="itin-emoji">🏨</span><span style="background:rgba(204,68,68,0.12);color:var(--red);padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:6px;">CHECK-OUT</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub"></div></div></div>`;
+      });
+      const note=d.description||d.notes||'';
+      if(note)items+=`<div class="itin-item"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div></div>`;
+      const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — tap + to add</div>`:'';
+      return`<div class="card" style="margin-bottom:10px;border-left:3px solid var(--border);padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${items||empty?'10px':'0'};">
+          <div>
+            <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;">
+              <span style="font-family:var(--font-serif);font-size:22px;color:var(--gold);">Day ${d.day_number}</span>
+              <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">${dow.toUpperCase()}</span>
+              <span style="font-size:13px;color:var(--cream);">${fmtDate(d.date)}</span>
+            </div>
+            ${(d.location||d.title)?`<div style="font-size:12px;color:var(--ash);margin-top:2px;">${[d.location,d.title].filter(Boolean).join(' — ')}</div>`:''}
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
+            <span style="color:var(--gold);cursor:pointer;font-size:12px;padding:4px;" onclick="editDay('${d.id}','${tripId}')">✎</span>
+            <button class="btn btn-outline btn-sm" onclick="openDayAdd('${tripId}','${ds}')">+</button>
+          </div>
+        </div>
+        ${items||empty}
+      </div>`;
+    }).join('');
+    el.innerHTML=legend+cards;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load itinerary</div>';console.error(e);}
+}
+function openDayAdd(tripId,date){
+  dayAddCtx={tripId,date};
+  openModal('day-add-modal');
+}
+function dayAddFlight(){
+  closeModal('day-add-modal');
+  const el=document.getElementById('flight-trip');if(el)el.value=dayAddCtx.tripId;
+  const dep=document.getElementById('flight-dep');if(dep&&dayAddCtx.date)dep.value=dayAddCtx.date+'T08:00';
+  openModal('flight-modal');
+}
+function dayAddTransport(){
+  closeModal('day-add-modal');
+  const el=document.getElementById('gt-trip');if(el)el.value=dayAddCtx.tripId;
+  const dt=document.getElementById('gt-date');if(dt)dt.value=dayAddCtx.date;
+  openModal('ground-transport-modal');
+}
+function dayAddHotel(){
+  closeModal('day-add-modal');
+  const el=document.getElementById('booking-trip');if(el)el.value=dayAddCtx.tripId;
+  const ci=document.getElementById('booking-checkin');if(ci)ci.value=dayAddCtx.date;
+  openModal('booking-modal');
+}
+function dayAddNote(){
+  closeModal('day-add-modal');
+  currentItinTripId=dayAddCtx.tripId;
+  document.getElementById('day-modal-title').textContent='Add Day Note';
+  document.getElementById('day-id').value='';
+  document.getElementById('day-number').value='';
+  document.getElementById('day-date').value=dayAddCtx.date;
+  document.getElementById('day-location').value='';
+  document.getElementById('day-title').value='';
+  document.getElementById('day-desc').value='';
+  openModal('day-modal');
 }
 function openAddDay(){
   if(!currentItinTripId){alert('Select a trip first');return;}
@@ -1372,12 +1507,12 @@ async function editDay(dayId,tripId){
   document.getElementById('day-date').value=d.date?.split('T')[0]||'';
   document.getElementById('day-location').value=d.location||'';
   document.getElementById('day-title').value=d.title||'';
-  document.getElementById('day-desc').value=d.description||'';
+  document.getElementById('day-desc').value=d.description||d.notes||'';
   openModal('day-modal');
 }
 async function saveDay(){
   const id=document.getElementById('day-id').value;
-  const body={trip_id:currentItinTripId,day_number:document.getElementById('day-number').value,date:document.getElementById('day-date').value,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value,description:document.getElementById('day-desc').value};
+  const body={trip_id:currentItinTripId,day_number:document.getElementById('day-number').value,date:document.getElementById('day-date').value,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value,notes:document.getElementById('day-desc').value};
   await fetch(id?`${API}/days/${id}`:`${API}/days`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('day-modal');loadItinerary();
 }
