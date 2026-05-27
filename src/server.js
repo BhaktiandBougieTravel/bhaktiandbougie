@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const pool = require('./db/pool');
 
 const tripsRouter        = require('./routes/trips');
 const contactsRouter     = require('./routes/contacts');
@@ -67,6 +68,46 @@ app.post('/api/rcb', async (_req, res) => {
     console.error('[RCB] error:', e.message);
     res.status(500).json({ error: 'RCB data unavailable' });
   }
+});
+
+app.get('/api/ground-transport', async (req, res, next) => {
+  try {
+    const { trip_id } = req.query;
+    const q = trip_id
+      ? 'SELECT gt.*, t.title as trip_title FROM ground_transport gt LEFT JOIN trips t ON gt.trip_id=t.id WHERE gt.trip_id=$1 ORDER BY gt.transport_date,gt.pickup_time'
+      : 'SELECT gt.*, t.title as trip_title FROM ground_transport gt LEFT JOIN trips t ON gt.trip_id=t.id ORDER BY gt.transport_date,gt.pickup_time';
+    const result = trip_id ? await pool.query(q, [trip_id]) : await pool.query(q);
+    res.json(result.rows);
+  } catch (e) { next(e); }
+});
+
+app.post('/api/ground-transport', async (req, res, next) => {
+  try {
+    const { trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time, cost, currency, confirmation_number, notes } = req.body;
+    const result = await pool.query(
+      'INSERT INTO ground_transport (trip_id,type,vendor,pickup_location,dropoff_location,transport_date,pickup_time,cost,currency,confirmation_number,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',
+      [trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time||null, cost||null, currency||'INR', confirmation_number, notes]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.get('/api/guides', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM guides ORDER BY name');
+    res.json(result.rows);
+  } catch (e) { next(e); }
+});
+
+app.post('/api/guides', async (req, res, next) => {
+  try {
+    const { name, phone, email, city, specialty, rate, rate_currency, confirmed, notes } = req.body;
+    const result = await pool.query(
+      'INSERT INTO guides (name,phone,email,city,specialty,rate,rate_currency,confirmed,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+      [name, phone, email, city, specialty, rate||null, rate_currency||'INR', confirmed||false, notes]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
 });
 
 // Central error handler

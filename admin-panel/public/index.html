@@ -181,6 +181,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="tab" data-tab="flights">Flights</div>
       <div class="tab" data-tab="expenses">Expenses</div>
       <div class="tab" data-tab="festivals">Festivals</div>
+      <div class="tab" data-tab="ground-transport">Ground Transport</div>
+      <div class="tab" data-tab="guides">Guides</div>
     </nav>
     <div class="bst-widget">
       <div class="bst-label">BST Departure</div>
@@ -389,6 +391,20 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 
       </div>
     </div>
+    <div class="tab-panel" id="tab-ground-transport">
+      <div class="sh-row">
+        <div class="sh">Ground Transport</div>
+        <button class="btn btn-gold" onclick="openModal('ground-transport-modal')">+ Add Transport</button>
+      </div>
+      <div id="ground-transport-table"><div class="loading dot-pulse">Loading</div></div>
+    </div>
+    <div class="tab-panel" id="tab-guides">
+      <div class="sh-row">
+        <div class="sh">Guides</div>
+        <button class="btn btn-gold" onclick="openModal('guide-modal')">+ New Guide</button>
+      </div>
+      <div id="guides-table"><div class="loading dot-pulse">Loading</div></div>
+    </div>
   </main>
 </div>
 
@@ -534,6 +550,28 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <label class="form-label">Notes</label>
       <textarea class="form-textarea" id="hotel-notes"></textarea>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Room Type</label>
+        <input type="text" class="form-input" id="hotel-room-type"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmation Number</label>
+        <input type="text" class="form-input" id="hotel-confirmation"/>
+      </div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="hotel-breakfast"/>
+      <label class="form-label" style="margin-bottom:0;">Breakfast Included</label>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Perks</label>
+      <textarea class="form-textarea" id="hotel-perks" style="min-height:60px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fora Benefits</label>
+      <textarea class="form-textarea" id="hotel-fora-benefits" style="min-height:60px;"></textarea>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('hotel-modal')">Cancel</button>
       <button class="btn btn-gold" onclick="saveHotel()">Save Hotel</button>
@@ -626,6 +664,35 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <input type="number" class="form-input" id="flight-cost"/>
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cabin Class</label>
+        <select class="form-select" id="flight-cabin">
+          <option>Economy</option>
+          <option>Premium Economy</option>
+          <option>Business</option>
+          <option>First</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Seat Numbers</label>
+        <input type="text" class="form-input" id="flight-seats" placeholder="e.g. 14A, 14B"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Terminal</label>
+        <input type="text" class="form-input" id="flight-terminal" placeholder="e.g. T3"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Frequent Flyer</label>
+        <input type="text" class="form-input" id="flight-ff"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Meal Preference</label>
+      <input type="text" class="form-input" id="flight-meal" placeholder="e.g. Vegetarian"/>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('flight-modal')">Cancel</button>
       <button class="btn btn-gold" onclick="saveFlight()">Save Flight</button>
@@ -709,6 +776,140 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
   </div>
 </div>
+<div class="modal-overlay hidden" id="ground-transport-modal">
+  <div class="modal">
+    <div class="modal-title">New Ground Transport</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Trip</label>
+        <select class="form-select" id="gt-trip"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="gt-type">
+          <option>Transfer</option>
+          <option>Car Hire</option>
+          <option>Train</option>
+          <option>Bus</option>
+          <option>Rickshaw</option>
+          <option>Taxi</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Vendor</label>
+        <input type="text" class="form-input" id="gt-vendor"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Transport Date</label>
+        <input type="date" class="form-input" id="gt-date"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Pickup Location</label>
+        <input type="text" class="form-input" id="gt-pickup"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dropoff Location</label>
+        <input type="text" class="form-input" id="gt-dropoff"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Pickup Time</label>
+        <input type="time" class="form-input" id="gt-time"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cost</label>
+        <input type="number" class="form-input" id="gt-cost"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Currency</label>
+        <select class="form-select" id="gt-currency">
+          <option value="INR">INR</option>
+          <option value="USD">USD</option>
+          <option value="GBP">GBP</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmation</label>
+        <input type="text" class="form-input" id="gt-confirmation"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="gt-notes"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('ground-transport-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveGroundTransport()">Save Transport</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="guide-modal">
+  <div class="modal">
+    <div class="modal-title">New Guide</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" id="guide-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input type="text" class="form-input" id="guide-city"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-input" id="guide-phone"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="guide-email"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Specialty</label>
+        <input type="text" class="form-input" id="guide-specialty" placeholder="e.g. Spiritual, Heritage"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rate</label>
+        <input type="number" class="form-input" id="guide-rate"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Rate Currency</label>
+        <select class="form-select" id="guide-rate-currency">
+          <option value="INR">INR</option>
+          <option value="USD">USD</option>
+          <option value="GBP">GBP</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+        <input type="checkbox" id="guide-confirmed"/>
+        <label class="form-label" style="margin-bottom:0;">Confirmed</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="guide-notes"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('guide-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveGuide()">Save Guide</button>
+    </div>
+  </div>
+</div>
 <script>
 const API='https://bhaktiandbougie-production.up.railway.app/api';
 const PASSWORD='yatra2026!';
@@ -743,6 +944,8 @@ function onTabChange(tab){
   if(tab==='expenses')loadExpenses();
   if(tab==='itinerary')populateTripSelects();
   if(tab==='festivals'){loadFestNextUp();}
+  if(tab==='ground-transport')loadGroundTransport();
+  if(tab==='guides')loadGuides();
 }
 function initApp(){
   updateBST();setInterval(updateBST,60000);
@@ -1031,11 +1234,16 @@ function editHotel(id){
   document.getElementById('hotel-contact-name').value=h.contact_name||'';
   document.getElementById('hotel-contact-email').value=h.contact_email||'';
   document.getElementById('hotel-notes').value=h.notes||'';
+  document.getElementById('hotel-room-type').value=h.room_type||'';
+  document.getElementById('hotel-confirmation').value=h.confirmation_number||'';
+  document.getElementById('hotel-breakfast').checked=!!h.breakfast_included;
+  document.getElementById('hotel-perks').value=h.perks||'';
+  document.getElementById('hotel-fora-benefits').value=h.fora_benefits||'';
   openModal('hotel-modal');
 }
 async function saveHotel(){
   const id=document.getElementById('hotel-id').value;
-  const body={name:document.getElementById('hotel-name').value,city:document.getElementById('hotel-city').value,star_rating:document.getElementById('hotel-stars').value,category:document.getElementById('hotel-category').value,contact_name:document.getElementById('hotel-contact-name').value,contact_email:document.getElementById('hotel-contact-email').value,notes:document.getElementById('hotel-notes').value};
+  const body={name:document.getElementById('hotel-name').value,city:document.getElementById('hotel-city').value,star_rating:document.getElementById('hotel-stars').value,category:document.getElementById('hotel-category').value,contact_name:document.getElementById('hotel-contact-name').value,contact_email:document.getElementById('hotel-contact-email').value,notes:document.getElementById('hotel-notes').value,room_type:document.getElementById('hotel-room-type').value,confirmation_number:document.getElementById('hotel-confirmation').value,breakfast_included:document.getElementById('hotel-breakfast').checked,perks:document.getElementById('hotel-perks').value,fora_benefits:document.getElementById('hotel-fora-benefits').value};
   await fetch(id?`${API}/hotels/${id}`:`${API}/hotels`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('hotel-modal');
   document.getElementById('hotel-id').value='';
@@ -1065,7 +1273,7 @@ async function loadFlights(){
   }catch(e){el.innerHTML='<div class="loading">Unable to load flights</div>';}
 }
 async function saveFlight(){
-  const body={trip_id:document.getElementById('flight-trip').value,flight_number:document.getElementById('flight-number').value,departure_airport:document.getElementById('flight-from').value,arrival_airport:document.getElementById('flight-to').value,departure_time:document.getElementById('flight-dep').value,arrival_time:document.getElementById('flight-arr').value,booking_reference:document.getElementById('flight-ref').value,cost:document.getElementById('flight-cost').value};
+  const body={trip_id:document.getElementById('flight-trip').value,flight_number:document.getElementById('flight-number').value,departure_airport:document.getElementById('flight-from').value,arrival_airport:document.getElementById('flight-to').value,departure_time:document.getElementById('flight-dep').value,arrival_time:document.getElementById('flight-arr').value,booking_reference:document.getElementById('flight-ref').value,cost:document.getElementById('flight-cost').value,cabin_class:document.getElementById('flight-cabin').value,seat_numbers:document.getElementById('flight-seats').value,terminal:document.getElementById('flight-terminal').value,frequent_flyer:document.getElementById('flight-ff').value,meal_preference:document.getElementById('flight-meal').value};
   await fetch(`${API}/flights`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('flight-modal');loadFlights();
 }
@@ -1088,6 +1296,32 @@ async function saveExpense(){
   const body={trip_id:document.getElementById('expense-trip').value,category:document.getElementById('expense-category').value,description:document.getElementById('expense-desc').value,amount:document.getElementById('expense-amount').value,expense_date:document.getElementById('expense-date').value};
   await fetch(`${API}/expenses`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('expense-modal');loadExpenses();
+}
+async function loadGroundTransport(){
+  const el=document.getElementById('ground-transport-table');
+  try{
+    const data=await(await fetch(`${API}/ground-transport`)).json();
+    if(!data.length){el.innerHTML='<div class="loading">No transport entries yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Trip</th><th>Type</th><th>Vendor</th><th>Route</th><th>Time</th><th>Cost</th></tr></thead><tbody>${data.map(t=>`<tr><td>${fmtDate(t.transport_date)}</td><td>${t.trip_title||'–'}</td><td><span class="badge badge-confirmed">${t.type||'–'}</span></td><td>${t.vendor||'–'}</td><td>${[t.pickup_location,t.dropoff_location].filter(Boolean).join(' → ')||'–'}</td><td>${t.pickup_time||'–'}</td><td>${t.cost?t.currency+' '+Number(t.cost).toLocaleString('en-IN'):'–'}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load transport</div>';}
+}
+async function saveGroundTransport(){
+  const body={trip_id:document.getElementById('gt-trip').value,type:document.getElementById('gt-type').value,vendor:document.getElementById('gt-vendor').value,pickup_location:document.getElementById('gt-pickup').value,dropoff_location:document.getElementById('gt-dropoff').value,transport_date:document.getElementById('gt-date').value,pickup_time:document.getElementById('gt-time').value,cost:document.getElementById('gt-cost').value,currency:document.getElementById('gt-currency').value,confirmation_number:document.getElementById('gt-confirmation').value,notes:document.getElementById('gt-notes').value};
+  await fetch(`${API}/ground-transport`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('ground-transport-modal');loadGroundTransport();
+}
+async function loadGuides(){
+  const el=document.getElementById('guides-table');
+  try{
+    const data=await(await fetch(`${API}/guides`)).json();
+    if(!data.length){el.innerHTML='<div class="loading">No guides yet.</div>';return;}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>City</th><th>Specialty</th><th>Phone</th><th>Rate</th><th>Status</th></tr></thead><tbody>${data.map(g=>`<tr><td class="td-primary">${g.name}</td><td>${g.city||'–'}</td><td>${g.specialty||'–'}</td><td>${g.phone||'–'}</td><td>${g.rate?(g.rate_currency||'INR')+' '+Number(g.rate).toLocaleString('en-IN'):'–'}</td><td><span class="badge ${g.confirmed?'badge-active':'badge-enquiry'}">${g.confirmed?'Confirmed':'Pending'}</span></td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML='<div class="loading">Unable to load guides</div>';}
+}
+async function saveGuide(){
+  const body={name:document.getElementById('guide-name').value,city:document.getElementById('guide-city').value,phone:document.getElementById('guide-phone').value,email:document.getElementById('guide-email').value,specialty:document.getElementById('guide-specialty').value,rate:document.getElementById('guide-rate').value,rate_currency:document.getElementById('guide-rate-currency').value,confirmed:document.getElementById('guide-confirmed').checked,notes:document.getElementById('guide-notes').value};
+  await fetch(`${API}/guides`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  closeModal('guide-modal');loadGuides();
 }
 async function exportExpenses(){
   const tripId=document.getElementById('exp-trip-select').value;
@@ -1145,7 +1379,7 @@ async function saveDay(){
 async function populateTripSelects(){
   if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
   const opts=tripsCache.map(t=>`<option value="${t.id}">${t.title}</option>`).join('');
-  ['itin-trip-select','booking-trip','flight-trip','expense-trip'].forEach(id=>{
+  ['itin-trip-select','booking-trip','flight-trip','expense-trip','gt-trip'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.innerHTML=opts;
   });
