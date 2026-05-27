@@ -1715,9 +1715,11 @@ async function loadItinerary(){
         const isInt=(f.flight_type||'DOM')==='INT';
         const ftBadge=`<span style="background:${isInt?'rgba(200,134,10,0.2)':'rgba(106,138,170,0.15)'};color:${isInt?'var(--gold)':'var(--muted)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${isInt?'INT':'DOM'}</span>`;
         const arr=utcHHMM(f.arrival_time);
-        const from=f.origin_airport||'–';const to=f.dest_airport||'–';
+        const fidentA=[f.airline,f.flight_number].filter(Boolean).join(' ');
+        const frouteA=f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'';
+        const fmainA=[fidentA,frouteA].filter(Boolean).join(' · ');
         const ref=f.booking_ref||'';
-        timedItems.push({time:f.arrival_time?utcHHMM(f.arrival_time):'00:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">Arrives ${arr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
+        timedItems.push({time:f.arrival_time?utcHHMM(f.arrival_time):'00:00',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">ARRIVING</span><div class="itin-body"><div class="itin-main">${fmainA||'Flight'}</div><div class="itin-sub">Arrives ${arr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
       });
       dayTrains.forEach(t=>{
         const dep=t.departure_time?utcHHMM(t.departure_time):'–';
@@ -1731,9 +1733,11 @@ async function loadItinerary(){
         const arr=f.arrival_time?utcHHMM(f.arrival_time):'–';
         const nextDay=f.departure_time&&f.arrival_time&&(f.arrival_time).split('T')[0]>(f.departure_time).split('T')[0];
         const arrStr=arr+(nextDay?'<sup style="color:var(--gold);font-size:10px;">+1</sup>':'');
-        const from=f.origin_airport||'–';const to=f.dest_airport||'–';
+        const fidentD=[f.airline,f.flight_number].filter(Boolean).join(' ');
+        const frouteD=f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'';
+        const fmainD=[fidentD,frouteD].filter(Boolean).join(' · ');
         const ref=f.booking_ref||'';
-        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(204,68,68,0.15);color:#cc4444;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">DEPARTING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
+        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(204,68,68,0.15);color:#cc4444;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">DEPARTING</span><div class="itin-body"><div class="itin-main">${fmainD||'Flight'}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div>${P}</div>`});
       });
       dayTrans.forEach(t=>{
         const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${t.type||'–'}</span>`;
@@ -1859,9 +1863,9 @@ async function loadFltList(){
     const flights=await(await fetch(`${API}/flights?trip_id=${encodeURIComponent(tripId)}&date=${date}`)).json();
     if(!Array.isArray(flights)||!flights.length){el.innerHTML='';return;}
     el.innerHTML=flights.map(f=>{
-      const dep=f.departure_time?(f.departure_time||'').split('T')[1]?.slice(0,5)||'':'';
-      const fnum=[f.airline,f.flight_number].filter(Boolean).join(' ');
-      const lbl=[fnum,f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'',dep].filter(Boolean).join(' ');
+      const fident=[f.airline,f.flight_number].filter(Boolean).join(' ');
+      const froute=f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'';
+      const lbl=[fident,froute].filter(Boolean).join(' · ');
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✈️ ${lbl||'Flight'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editFlt('${f.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
     }).join('');
   }catch(e){el.innerHTML='';}
@@ -1871,8 +1875,6 @@ async function saveFlight(){
   const dayDate=document.getElementById('day-date').value;
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const fe=document.querySelector('.flt-entry');
-  const airline=entryField(fe,'airline').value.trim();
-  if(!airline){alert('Airline is required');return;}
   const from=entryField(fe,'origin_airport').value.toUpperCase().trim();
   const to=entryField(fe,'dest_airport').value.toUpperCase().trim();
   if(from.length!==3||to.length!==3){alert('Origin and destination IATA codes required (3 letters)');return;}
