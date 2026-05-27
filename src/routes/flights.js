@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
     const conditions = [];
     const params = [];
     if (trip_id) { params.push(trip_id); conditions.push(`trip_id = $${params.length}`); }
-    if (date) { params.push(date); conditions.push(`departure_time::date = $${params.length}`); }
+    if (date) { params.push(date); conditions.push(`(departure_time AT TIME ZONE 'UTC')::date = $${params.length}`); }
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     const { rows } = await pool.query(`SELECT * FROM flights ${where} ORDER BY departure_time`, params);
     res.json(rows);
@@ -50,7 +50,7 @@ router.post('/',
         `INSERT INTO flights (trip_id, flight_number, airline, origin_airport, dest_airport,
            departure_time, arrival_time, booking_ref, num_passengers, cabin_class,
            flight_type, total_cost, currency, status, notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
+         VALUES ($1,$2,$3,$4,$5,$6::timestamp,$7::timestamp,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
         [trip_id, flight_number, airline, origin_airport, dest_airport,
          departure_time, arrival_time, booking_ref, num_passengers || 1,
          cabin_class || 'economy', flight_type || 'DOM', total_cost, currency || 'INR', status || 'pending', notes]
