@@ -1673,6 +1673,7 @@ async function loadItinerary(){
   const el=document.getElementById('itinerary-content');
   if(!tripId){el.innerHTML='<div class="loading">Select a trip to view itinerary</div>';return;}
   el.innerHTML='<div class="loading dot-pulse">Loading itinerary</div>';
+  console.log('[loadItinerary] fetching trip id:', tripId);
   try{
     if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(_){}
     const[trip,transports,trains]=await Promise.all([
@@ -1680,6 +1681,7 @@ async function loadItinerary(){
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
     ]);
+    console.log('[loadItinerary] trip response:', trip);
     const days=(trip.days||[]).sort((a,b)=>a.day_number-b.day_number);
     itinDaysCache=days;
     const flights=trip.flights||[];
@@ -2073,6 +2075,7 @@ async function saveDay(){
 }
 async function populateTripSelects(){
   if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
+  console.log('[populateTripSelects] trips:', tripsCache.map(t=>({id:t.id,title:t.title})));
   const opts=tripsCache.map(t=>`<option value="${t.id}">${t.title}</option>`).join('');
   ['itin-trip-select','booking-trip','flight-trip','expense-trip','gt-trip'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
