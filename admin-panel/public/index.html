@@ -1177,7 +1177,7 @@ function editTrip(id){
 async function saveTrip(){
   const id=document.getElementById('trip-id').value;
   const body={title:document.getElementById('trip-title').value,status:document.getElementById('trip-status').value,start_date:document.getElementById('trip-start').value,end_date:document.getElementById('trip-end').value,num_pax:document.getElementById('trip-pax').value,base_price:document.getElementById('trip-price').value,description:document.getElementById('trip-desc').value};
-  await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('trip-modal');
   document.getElementById('trip-id').value='';
   document.getElementById('trip-modal-title').textContent='New Trip';
@@ -1209,7 +1209,7 @@ function editContact(id){
 async function saveContact(){
   const id=document.getElementById('contact-id').value;
   const body={first_name:document.getElementById('contact-first').value,last_name:document.getElementById('contact-last').value,email:document.getElementById('contact-email').value,phone:document.getElementById('contact-phone').value,nationality:document.getElementById('contact-nationality').value,passport_number:document.getElementById('contact-passport').value,notes:document.getElementById('contact-notes').value};
-  await fetch(id?`${API}/contacts/${id}`:`${API}/contacts`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  await fetch(id?`${API}/contacts/${id}`:`${API}/contacts`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('contact-modal');
   document.getElementById('contact-id').value='';
   loadContacts();
@@ -1244,7 +1244,7 @@ function editHotel(id){
 async function saveHotel(){
   const id=document.getElementById('hotel-id').value;
   const body={name:document.getElementById('hotel-name').value,city:document.getElementById('hotel-city').value,star_rating:document.getElementById('hotel-stars').value,category:document.getElementById('hotel-category').value,contact_name:document.getElementById('hotel-contact-name').value,contact_email:document.getElementById('hotel-contact-email').value,notes:document.getElementById('hotel-notes').value,room_type:document.getElementById('hotel-room-type').value,confirmation_number:document.getElementById('hotel-confirmation').value,breakfast_included:document.getElementById('hotel-breakfast').checked,perks:document.getElementById('hotel-perks').value,fora_benefits:document.getElementById('hotel-fora-benefits').value};
-  await fetch(id?`${API}/hotels/${id}`:`${API}/hotels`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  await fetch(id?`${API}/hotels/${id}`:`${API}/hotels`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('hotel-modal');
   document.getElementById('hotel-id').value='';
   loadHotels();
@@ -1373,7 +1373,7 @@ async function editDay(dayId,tripId){
 async function saveDay(){
   const id=document.getElementById('day-id').value;
   const body={trip_id:currentItinTripId,day_number:document.getElementById('day-number').value,date:document.getElementById('day-date').value,location:document.getElementById('day-location').value,title:document.getElementById('day-title').value,description:document.getElementById('day-desc').value};
-  await fetch(id?`${API}/days/${id}`:`${API}/days`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  await fetch(id?`${API}/days/${id}`:`${API}/days`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('day-modal');loadItinerary();
 }
 async function populateTripSelects(){
