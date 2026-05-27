@@ -1703,7 +1703,7 @@ async function loadItinerary(){
         const arrStr=arr+(nextDay?'<sup style="color:var(--gold);font-size:10px;">+1</sup>':'');
         const from=f.origin_airport||'–';const to=f.dest_airport||'–';
         const ref=f.booking_ref||'';
-        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div></div>`});
+        timedItems.push({time:f.departure_time?utcHHMM(f.departure_time):'99:01',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('flight','${f.id}','${tripId}','${d.id}')"><span class="itin-emoji">✈️</span>${ftBadge}<span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">DEPARTING</span><div class="itin-body"><div class="itin-main">${f.flight_number||'–'} · ${from} → ${to}</div><div class="itin-sub">${dep} → ${arrStr}${ref?' · ref '+ref:''}</div></div></div>`});
       });
       dayTrans.forEach(t=>{
         const badge=`<span style="background:${GT_COLOR[t.type]||'var(--ash-dim)'};color:${GT_TEXT[t.type]||'var(--ash)'};padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">${t.type||'–'}</span>`;
