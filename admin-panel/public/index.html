@@ -2040,19 +2040,25 @@ async function openAddDay(){
   document.getElementById('day-modal-title').textContent='Add Day';
   document.getElementById('day-modal-trip-id').value=currentItinTripId;
   populateDayHotelSelects();
+  console.log('[openAddDay] currentItinTripId:', currentItinTripId);
+  console.log('[openAddDay] tripsCache:', tripsCache);
   try{
     let trip=tripsCache.find(t=>t.id===currentItinTripId);
     if(!trip){const res=await fetch(`${API}/trips/${currentItinTripId}`);trip=await res.json();}
+    console.log('[openAddDay] trip found:', trip);
+    console.log('[openAddDay] trip.start_date:', trip?.start_date);
     const days=await(await fetch(`${API}/days?trip_id=${currentItinTripId}`)).json();
     const maxNum=days.reduce((m,d)=>Math.max(m,d.day_number||0),0);
+    console.log('[openAddDay] maxNum:', maxNum);
     const nextNum=maxNum+1;
     document.getElementById('day-number').value=nextNum;
     if(trip?.start_date){
       const start=new Date(trip.start_date+'T12:00:00Z');
       start.setUTCDate(start.getUTCDate()+maxNum);
+      console.log('[openAddDay] setting date to:', start.toISOString().split('T')[0]);
       document.getElementById('day-date').value=start.toISOString().split('T')[0];
     }
-  }catch(e){}
+  }catch(e){console.error('[openAddDay] error:', e);}
   openModal('day-modal');
 }
 function openDayAdd(tripId,date,dayId){
