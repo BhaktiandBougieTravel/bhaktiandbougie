@@ -41,20 +41,28 @@ app.post('/api/rcb', async (_req, res) => {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05',
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 500,
-        messages: [{ role: 'user', content: 'Give me the latest RCB Royal Challengers Bengaluru IPL 2026 match result and their next scheduled match. Respond ONLY in JSON no markdown with keys: result, rcb_score, opp_score, opponent, venue, date, status (WON/LOST/LIVE/UPCOMING), next_match' }],
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: 'Search the web for the latest RCB Royal Challengers Bengaluru IPL 2026 match result today. Then respond ONLY in JSON no markdown with keys: result, rcb_score, opp_score, opponent, venue, date, status (WON/LOST/LIVE/UPCOMING), next_match' }],
       }),
     });
     console.log('[RCB] Anthropic HTTP status:', response.status);
     const d = await response.json();
     console.log('[RCB] Anthropic raw response:', JSON.stringify(d));
-    let raw = d.content?.[0]?.text || '{}';
+    const textBlock = d.content?.find(b => b.type === 'text');
+    let raw = textBlock?.text || '{}';
     console.log('[RCB] extracted text:', raw);
     raw = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    res.json(JSON.parse(raw));
+    const parsed = JSON.parse(raw);
+    const stale = ['knowledge', 'cutoff', 'no access'];
+    if (parsed.next_match && stale.some(p => parsed.next_match.toLowerCase().includes(p))) {
+      parsed.next_match = null;
+    }
+    res.json(parsed);
   } catch (e) {
     console.error('[RCB] error:', e.message);
     res.status(500).json({ error: 'RCB data unavailable' });
