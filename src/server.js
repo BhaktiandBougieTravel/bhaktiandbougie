@@ -32,6 +32,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', company: 'Bhakti & Bo
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS day_type VARCHAR(10) DEFAULT 'stay'").catch(e => console.error('[startup] day_type migration:', e.message));
 pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catch(e => console.error('[startup] days date type migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e => console.error('[startup] activities migration:', e.message));
+pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
 
 app.use('/api/trips',          tripsRouter);
 app.use('/api/contacts',       contactsRouter);

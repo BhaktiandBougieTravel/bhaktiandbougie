@@ -826,6 +826,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <button type="button" class="day-toggle travel-only" data-sec="checkin" onclick="toggleDaySec('checkin')" style="display:none;">🏨 Check-in</button>
         <button type="button" class="day-toggle travel-only" data-sec="checkout" onclick="toggleDaySec('checkout')" style="display:none;">🏨 Check-out</button>
         <button type="button" class="day-toggle" data-sec="activities" onclick="toggleDaySec('activities')">✨ Activities</button>
+        <button type="button" class="day-toggle" data-sec="sacred_sites" onclick="toggleDaySec('sacred_sites')">🛕 Sacred Sites</button>
         <button type="button" class="day-toggle" data-sec="notes" onclick="toggleDaySec('notes')">📝 Notes</button>
       </div>
     </div>
@@ -1083,6 +1084,13 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="day-sec-hdr" style="color:var(--gold);">ACTIVITIES</div>
       <div class="form-group">
         <textarea class="form-textarea" id="day-activities-text" style="min-height:100px;" placeholder="e.g. Morning aarti at Dashashwamedh Ghat · Afternoon boat ride on the Ganges · Evening Tresind dinner"></textarea>
+      </div>
+    </div>
+    <!-- SACRED SITES -->
+    <div class="day-section" id="day-sec-sacred_sites" style="border-left:3px solid #8B1A1A;padding-left:10px;">
+      <div class="day-sec-hdr" style="color:#8B1A1A;">🛕 SACRED SITES</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="day-sacred-sites-text" style="min-height:100px;border-color:#8B1A1A40;" placeholder="e.g. Nataraja Temple, Chidambaram — one of the Pancha Bhuta Stalas, cosmic dance of Shiva · Ramanathaswamy Temple — Jyotirlinga, 22 theerthams"></textarea>
       </div>
     </div>
     <!-- NOTES -->
@@ -1767,6 +1775,8 @@ async function loadItinerary(){
       });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
       let items=timedItems.map(x=>x.html).join('');
+      const sacred=d.sacred_sites||'';
+      if(sacred)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('sacred_sites','','${tripId}','${d.id}')"><span class="itin-emoji">🛕</span><div class="itin-body"><div class="itin-note" style="color:#c0392b;font-size:13px;">${sacred}</div></div>${P}</div>`;
       const act=d.activities||'';
       if(act)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('activities','','${tripId}','${d.id}')"><span class="itin-emoji">✨</span><div class="itin-body"><div class="itin-note">${act}</div></div>${P}</div>`;
       const note=d.notes||d.description||'';
@@ -2287,7 +2297,7 @@ async function populateDayHotelSelects(){
 function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setDayType('stay');
-  ['flight','train','transfer','driver','checkin','checkout','activities','notes'].forEach(s=>hideDaySec(s));
+  ['flight','train','transfer','driver','checkin','checkout','activities','sacred_sites','notes'].forEach(s=>hideDaySec(s));
   ['flt-list','trn-list','xfr-list','drv-list','ci-list','co-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   ['flt-edit-id','trn-edit-id','xfr-edit-id','drv-edit-id','ci-edit-id','co-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const fl=document.getElementById('flt-form-label');if(fl)fl.textContent='New Flight';
@@ -2297,6 +2307,7 @@ function resetDayModal(){
   const cil=document.getElementById('ci-form-label');if(cil)cil.textContent='New Check-in';
   const col=document.getElementById('co-form-label');if(col)col.textContent='New Check-out';
   const at=document.getElementById('day-activities-text');if(at)at.value='';
+  const st=document.getElementById('day-sacred-sites-text');if(st)st.value='';
   const nt=document.getElementById('day-notes-text');if(nt)nt.value='';
   newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();
 }
@@ -2366,6 +2377,7 @@ async function editDay(dayId,tripId){
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
     if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
+    if(d.sacred_sites){document.getElementById('day-sacred-sites-text').value=d.sacred_sites;showDaySec('sacred_sites');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
     await populateDayHotelSelects();
@@ -2390,6 +2402,7 @@ async function editDayItem(type,itemId,tripId,dayId){
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
     if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
+    if(d.sacred_sites){document.getElementById('day-sacred-sites-text').value=d.sacred_sites;showDaySec('sacred_sites');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
   }
@@ -2417,6 +2430,8 @@ async function editDayItem(type,itemId,tripId,dayId){
     }
   } else if(type==='activities'){
     showDaySec('activities');
+  } else if(type==='sacred_sites'){
+    showDaySec('sacred_sites');
   } else if(type==='notes'){
     showDaySec('notes');
   }
@@ -2436,6 +2451,7 @@ async function saveDay(){
   if(!dayId)dayBody.day_number=dayNum;
   else if(dayNum)dayBody.day_number=dayNum;
   if(isSectionActive('activities'))dayBody.activities=document.getElementById('day-activities-text').value;
+  if(isSectionActive('sacred_sites'))dayBody.sacred_sites=document.getElementById('day-sacred-sites-text').value;
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
   closeModal('day-modal');
