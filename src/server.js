@@ -51,10 +51,10 @@ app.post('/api/rcb', async (_req, res) => {
     console.log('[RCB] Anthropic HTTP status:', response.status);
     const d = await response.json();
     console.log('[RCB] Anthropic raw response:', JSON.stringify(d));
-    const raw = d.content?.[0]?.text || '{}';
+    let raw = d.content?.[0]?.text || '{}';
     console.log('[RCB] extracted text:', raw);
-    const clean = raw.replace(/```json|```/g, '').trim();
-    res.json(JSON.parse(clean));
+    raw = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    res.json(JSON.parse(raw));
   } catch (e) {
     console.error('[RCB] error:', e.message);
     res.status(500).json({ error: 'RCB data unavailable' });
