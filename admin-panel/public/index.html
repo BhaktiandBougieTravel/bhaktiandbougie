@@ -1886,7 +1886,9 @@ async function saveTrain(){
   const dayDate=document.getElementById('day-date').value;
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const te=document.querySelector('.trn-entry');
-  const trn={trip_id:tripId,carrier:entryField(te,'carrier').value,train_number:entryField(te,'train_number').value,departure_station:entryField(te,'departure_station').value,arrival_station:entryField(te,'arrival_station').value,journey_date:dayDate,departure_time:entryField(te,'dep_time').value||null,arrival_time:entryField(te,'arr_time').value||null,class:entryField(te,'class').value,pnr:entryField(te,'pnr').value,cost:parseFloat(entryField(te,'cost').value)||null,currency:entryField(te,'currency').value||'INR',notes:entryField(te,'notes').value};
+  const depTime=entryField(te,'dep_time').value;
+  const arrTime=entryField(te,'arr_time').value;
+  const trn={trip_id:tripId,carrier:entryField(te,'carrier').value,train_number:entryField(te,'train_number').value,departure_station:entryField(te,'departure_station').value,arrival_station:entryField(te,'arrival_station').value,journey_date:dayDate,departure_time:depTime?dayDate+'T'+depTime+':00':null,arrival_time:arrTime?dayDate+'T'+arrTime+':00':null,class:entryField(te,'class').value,pnr:entryField(te,'pnr').value,cost:parseFloat(entryField(te,'cost').value)||null,currency:entryField(te,'currency').value||'INR',notes:entryField(te,'notes').value};
   const tid=document.getElementById('trn-edit-id').value;
   console.log('[saveTrain]',tid?'PATCH':'POST', trn);
   try{
