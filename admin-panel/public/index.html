@@ -1599,7 +1599,7 @@ async function loadGroundTransport(){
   }catch(e){el.innerHTML='<div class="loading">Unable to load transport</div>';}
 }
 async function saveGroundTransport(){
-  const body={trip_id:document.getElementById('gt-trip').value,type:document.getElementById('gt-type').value,vendor:document.getElementById('gt-vendor').value,pickup_location:document.getElementById('gt-pickup').value,dropoff_location:document.getElementById('gt-dropoff').value,transport_date:document.getElementById('gt-date').value,pickup_time:document.getElementById('gt-time').value,cost:document.getElementById('gt-cost').value,currency:document.getElementById('gt-currency').value,confirmation_number:document.getElementById('gt-confirmation').value,notes:document.getElementById('gt-notes').value};
+  const body={trip_id:document.getElementById('gt-trip').value,type:document.getElementById('gt-type').value,vendor:document.getElementById('gt-vendor').value,pickup_location:document.getElementById('gt-pickup').value,dropoff_location:document.getElementById('gt-dropoff').value,transport_date:document.getElementById('gt-date').value,pickup_time:document.getElementById('gt-time').value,cost:document.getElementById('gt-cost').value,currency:document.getElementById('gt-currency').value,confirmation:document.getElementById('gt-confirmation').value,notes:document.getElementById('gt-notes').value};
   await fetch(`${API}/ground-transport`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('ground-transport-modal');loadGroundTransport();
 }
@@ -1951,7 +1951,7 @@ async function saveTransfer(){
   if(!tripId||!dayDate){alert('Trip and date are required');return;}
   const xe=document.querySelector('.xfr-entry');
   const activeType=xe.querySelector('.xfr-type.active');
-  const xfr={trip_id:tripId,type:activeType?activeType.dataset.type:'E',vendor:'',pickup_location:entryField(xe,'from').value,dropoff_location:entryField(xe,'to').value,transport_date:dayDate,pickup_time:entryField(xe,'time').value||null,confirmation_number:entryField(xe,'ref').value,notes:entryField(xe,'notes').value};
+  const xfr={trip_id:tripId,type:activeType?activeType.dataset.type:'E',vendor:'',pickup_location:entryField(xe,'from').value,dropoff_location:entryField(xe,'to').value,transport_date:dayDate,pickup_time:entryField(xe,'time').value||null,confirmation:entryField(xe,'ref').value,notes:entryField(xe,'notes').value};
   const xid=document.getElementById('xfr-edit-id').value;
   console.log('[saveTransfer]',xid?'PATCH':'POST', xfr);
   try{
@@ -1972,7 +1972,7 @@ async function editXfr(id){
     entryField(xe,'from').value=gt.pickup_location||'';
     entryField(xe,'to').value=gt.dropoff_location||'';
     entryField(xe,'time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
-    entryField(xe,'ref').value=gt.confirmation_number||'';
+    entryField(xe,'ref').value=gt.confirmation||'';
     entryField(xe,'notes').value=gt.notes||'';
   }catch(e){console.error('[editXfr]',e);}
 }
@@ -2123,7 +2123,7 @@ async function editDayItem(type,itemId,tripId,dayId){
         document.getElementById('drv-name').value=gt.vendor||'';
         document.getElementById('drv-start').value=gt.transport_date?gt.transport_date.split('T')[0]:'';
         document.getElementById('drv-coverage').value=gt.pickup_location||'';
-        document.getElementById('drv-ref').value=gt.confirmation_number||'';
+        document.getElementById('drv-ref').value=gt.confirmation||'';
         document.getElementById('drv-cost').value=gt.cost||'';
         document.getElementById('drv-currency').value=gt.currency||'INR';
         document.getElementById('drv-notes').value=gt.notes||'';
@@ -2172,7 +2172,7 @@ async function saveDay(){
     const endDate=document.getElementById('drv-end').value;
     const coverage=document.getElementById('drv-coverage').value;
     const drvNotes=[coverage?'Coverage: '+coverage:'',endDate?'End: '+endDate:'',document.getElementById('drv-notes').value].filter(Boolean).join(' · ');
-    const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation_number:document.getElementById('drv-ref').value,notes:drvNotes};
+    const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation:document.getElementById('drv-ref').value,notes:drvNotes};
     const did=(editType==='driver'&&editId)?editId:null;
     saves.push(fetch(did?`${API}/ground-transport/${did}`:`${API}/ground-transport`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(drv)}));
   }

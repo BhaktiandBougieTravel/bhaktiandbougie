@@ -94,10 +94,10 @@ app.get('/api/ground-transport', async (req, res, next) => {
 
 app.post('/api/ground-transport', async (req, res, next) => {
   try {
-    const { trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time, cost, currency, confirmation_number, notes } = req.body;
+    const { trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time, cost, currency, confirmation, notes } = req.body;
     const result = await pool.query(
-      'INSERT INTO ground_transport (trip_id,type,vendor,pickup_location,dropoff_location,transport_date,pickup_time,cost,currency,confirmation_number,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',
-      [trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time||null, cost||null, currency||'INR', confirmation_number, notes]
+      'INSERT INTO ground_transport (trip_id,type,vendor,pickup_location,dropoff_location,transport_date,pickup_time,cost,currency,confirmation,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',
+      [trip_id, type, vendor, pickup_location, dropoff_location, transport_date, pickup_time||null, cost||null, currency||'INR', confirmation, notes]
     );
     res.status(201).json(result.rows[0]);
   } catch (e) { next(e); }
@@ -113,7 +113,7 @@ app.get('/api/ground-transport/:id', async (req, res, next) => {
 
 app.patch('/api/ground-transport/:id', async (req, res, next) => {
   try {
-    const allowed = ['type','vendor','pickup_location','dropoff_location','transport_date','pickup_time','cost','currency','confirmation_number','notes'];
+    const allowed = ['type','vendor','pickup_location','dropoff_location','transport_date','pickup_time','cost','currency','confirmation','notes'];
     const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
     const fields = Object.keys(updates).map((k,i) => `${k}=$${i+2}`).join(',');
