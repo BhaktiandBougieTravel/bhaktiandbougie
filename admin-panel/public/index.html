@@ -972,6 +972,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <label class="form-label">End Date</label>
           <input type="date" class="form-input" id="drv-end"/>
         </div>
+        <div class="form-group" style="max-width:120px;">
+          <label class="form-label">Pickup Time</label>
+          <input type="time" class="form-input" id="drv-time"/>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -2129,7 +2133,7 @@ async function saveDriver(){
   const endDate=document.getElementById('drv-end').value;
   const coverage=document.getElementById('drv-coverage').value;
   const drvNotes=[coverage?'Coverage: '+coverage:'',endDate?'End: '+endDate:'',document.getElementById('drv-notes').value].filter(Boolean).join(' · ');
-  const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation:document.getElementById('drv-ref').value,notes:drvNotes};
+  const drv={trip_id:tripId,type:getActiveDrv(),vendor:document.getElementById('drv-name').value,pickup_location:coverage,dropoff_location:'',transport_date:document.getElementById('drv-start').value||dayDate,pickup_time:document.getElementById('drv-time').value||null,cost:parseFloat(document.getElementById('drv-cost').value)||null,currency:document.getElementById('drv-currency').value,confirmation:document.getElementById('drv-ref').value,notes:drvNotes};
   const did=document.getElementById('drv-edit-id').value;
   console.log('[saveDriver]',did?'PATCH':'POST',drv);
   try{
@@ -2149,6 +2153,7 @@ async function editDrv(id){
     document.getElementById('drv-name').value=gt.vendor||'';
     document.getElementById('drv-start').value=gt.transport_date?(gt.transport_date||'').split('T')[0]:'';
     document.getElementById('drv-end').value='';
+    document.getElementById('drv-time').value=gt.pickup_time?gt.pickup_time.slice(0,5):'';
     document.getElementById('drv-coverage').value=gt.pickup_location||'';
     document.getElementById('drv-ref').value=gt.confirmation||'';
     document.getElementById('drv-cost').value=gt.cost||'';
@@ -2159,7 +2164,7 @@ async function editDrv(id){
 function newDrvItem(){
   document.getElementById('drv-edit-id').value='';
   const lbl=document.getElementById('drv-form-label');if(lbl)lbl.textContent='New Driver';
-  ['drv-name','drv-coverage','drv-end','drv-ref','drv-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['drv-name','drv-coverage','drv-end','drv-time','drv-ref','drv-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const dc=document.getElementById('drv-currency');if(dc)dc.value='INR';
   const ec=document.getElementById('drv-cost');if(ec)ec.value='';
   const ds=document.getElementById('drv-start');if(ds)ds.value='';
