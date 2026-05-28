@@ -2343,13 +2343,15 @@ async function loadActList(){
 async function saveActivity(){
   const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
   const dayId=document.getElementById('day-id').value;
+  console.log('[saveActivity] tripId:', tripId, 'dayId:', dayId);
   if(!dayId){alert('Save the day first');return;}
+  if(!tripId){alert('No trip selected');return;}
   const description=document.getElementById('act-desc').value.trim();
   if(!description){alert('Description is required');return;}
   const aid=document.getElementById('act-edit-id').value;
   const body={description,activity_time:document.getElementById('act-time').value||null};
   if(!aid){body.trip_id=tripId;body.day_id=dayId;}
-  console.log('[saveActivity]',aid?'PATCH':'POST',body);
+  console.log('[saveActivity] posting:', body);
   try{
     const r=await fetch(aid?`${API}/activities/${aid}`:`${API}/activities`,{method:aid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
@@ -2389,13 +2391,15 @@ async function loadSacredList(){
 async function saveSacredSite(){
   const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
   const dayId=document.getElementById('day-id').value;
+  console.log('[saveSacredSite] tripId:', tripId, 'dayId:', dayId);
   if(!dayId){alert('Save the day first');return;}
+  if(!tripId){alert('No trip selected');return;}
   const name=document.getElementById('sacred-name').value.trim();
   if(!name){alert('Site name is required');return;}
   const sid=document.getElementById('sacred-edit-id').value;
   const body={name,site_time:document.getElementById('sacred-time').value||null,notes:document.getElementById('sacred-notes').value||null};
   if(!sid){body.trip_id=tripId;body.day_id=dayId;}
-  console.log('[saveSacredSite]',sid?'PATCH':'POST',body);
+  console.log('[saveSacredSite] posting:', body);
   try{
     const r=await fetch(sid?`${API}/sacred-sites/${sid}`:`${API}/sacred-sites`,{method:sid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
