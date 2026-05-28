@@ -127,6 +127,13 @@ app.patch('/api/ground-transport/:id', async (req, res, next) => {
     res.json(result.rows[0]);
   } catch (e) { next(e); }
 });
+app.delete('/api/ground-transport/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM ground_transport WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
+  } catch (e) { next(e); }
+});
 
 app.get('/api/trains', async (req, res, next) => {
   try {
@@ -173,6 +180,13 @@ app.patch('/api/trains/:id', async (req, res, next) => {
     const result = await pool.query(`UPDATE train_journeys SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
     res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.delete('/api/trains/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM train_journeys WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
   } catch (e) { next(e); }
 });
 

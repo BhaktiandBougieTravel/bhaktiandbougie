@@ -1922,6 +1922,15 @@ function resetEntries(cls){
     first.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
   }
 }
+async function confirmDelete(url,refreshFn){
+  if(!confirm('Delete this item?'))return;
+  try{
+    const r=await fetch(url,{method:'DELETE'});
+    if(!r.ok&&r.status!==204){const e=await r.json().catch(()=>({}));alert('Delete failed: '+(e.error||r.status));return;}
+    if(refreshFn)refreshFn();
+    loadItinerary();
+  }catch(e){console.error('[confirmDelete]',e);alert('Delete failed');}
+}
 async function loadFltList(){
   const el=document.getElementById('flt-list');
   if(!el)return;
@@ -1935,7 +1944,7 @@ async function loadFltList(){
       const fident=[f.airline,f.flight_number].filter(Boolean).join(' ');
       const froute=f.origin_airport&&f.dest_airport?f.origin_airport+'→'+f.dest_airport:'';
       const lbl=[fident,froute].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✈️ ${lbl||'Flight'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editFlt('${f.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✈️ ${lbl||'Flight'}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editFlt('${f.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/flights/${f.id}',loadFltList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';}
 }
@@ -2002,7 +2011,7 @@ async function loadTrnList(){
       const tnum=[t.carrier,t.train_number].filter(Boolean).join(' ');
       const route=t.departure_station&&t.arrival_station?t.departure_station+'→'+t.arrival_station:'';
       const lbl=[tnum,route,dep].filter(Boolean).join(' ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚂 ${lbl||'Train'}</span><button type="button" class="btn btn-outline btn-sm" onclick="editTrn('${t.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚂 ${lbl||'Train'}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editTrn('${t.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/trains/${t.id}',loadTrnList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadTrnList]',e);}
 }
@@ -2066,7 +2075,7 @@ async function loadXfrList(){
       const badge=XFR_LABEL[x.type]||x.type||'Transfer';
       const route=x.pickup_location&&x.dropoff_location?x.pickup_location+'→'+x.dropoff_location:'';
       const lbl=[badge,route,time].filter(Boolean).join(' ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editXfr('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editXfr('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/ground-transport/${x.id}',loadXfrList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadXfrList]',e);}
 }
@@ -2122,7 +2131,7 @@ async function loadDrvList(){
     el.innerHTML=items.map(x=>{
       const badge=x.type==='D'?'Hired Driver':'City Driver';
       const lbl=[badge,x.vendor,x.pickup_location].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editDrv('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🚗 ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editDrv('${x.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/ground-transport/${x.id}',loadDrvList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadDrvList]',e);}
 }
@@ -2184,7 +2193,7 @@ async function loadCiList(){
     el.innerHTML=items.map(b=>{
       const nights=b.check_in&&b.check_out?Math.round((new Date(b.check_out)-new Date(b.check_in))/86400000):0;
       const lbl=[b.hotel_name||'Hotel',nights?nights+' night'+(nights>1?'s':''):'',b.confirmation_number?'#'+b.confirmation_number:''].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCi('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editCi('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/hotel-bookings/${b.id}',loadCiList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadCiList]',e);}
 }
@@ -2271,7 +2280,7 @@ async function loadCoList(){
     el.innerHTML=checkouts.length?checkouts.map(b=>{
       const tm=(b.notes||'').match(/Check-out:\s*(\d{2}:\d{2})/);
       const lbl=[b.hotel_name||'Hotel',tm?tm[1]:''].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editCo('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🏨 ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editCo('${b.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/hotel-bookings/${b.id}',loadCoList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join(''):'';
     const open=bookings.filter(b=>(b.check_in||'').split('T')[0]<=date);
     const sel=document.getElementById('co-booking-id');
@@ -2336,7 +2345,7 @@ async function loadActList(){
     el.innerHTML=items.map(a=>{
       const tm=a.activity_time?a.activity_time.slice(0,5):'';
       const lbl=[a.description,tm].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(200,134,10,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✨ ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editAct('${a.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(200,134,10,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✨ ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editAct('${a.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/activities/${a.id}',loadActList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadActList]',e);}
 }
@@ -2384,7 +2393,7 @@ async function loadSacredList(){
     el.innerHTML=items.map(s=>{
       const tm=s.site_time?s.site_time.slice(0,5):'';
       const lbl=[s.name,tm].filter(Boolean).join(' · ');
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(139,26,26,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🛕 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editSacred('${s.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(139,26,26,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🛕 ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editSacred('${s.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/sacred-sites/${s.id}',loadSacredList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='';console.error('[loadSacredList]',e);}
 }
