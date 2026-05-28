@@ -974,7 +974,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group" style="max-width:120px;">
           <label class="form-label">Pickup Time</label>
-          <input type="time" class="form-input" id="drv-time"/>
+          <input type="text" class="form-input" id="drv-time" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]"/>
         </div>
       </div>
       <div class="form-row">
@@ -1096,7 +1096,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group" style="max-width:130px;">
           <label class="form-label">Time</label>
-          <input type="time" class="form-input" id="act-time"/>
+          <input type="text" class="form-input" id="act-time" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]"/>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
@@ -1117,7 +1117,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group" style="max-width:130px;">
           <label class="form-label">Time</label>
-          <input type="time" class="form-input" id="sacred-time"/>
+          <input type="text" class="form-input" id="sacred-time" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]"/>
         </div>
       </div>
       <div class="form-group">
@@ -1959,13 +1959,23 @@ async function saveFlight(){
   const isInt=fe.querySelector('.flt-type-INT').classList.contains('active');
   const depT=entryField(fe,'dep_time').value;
   const arrT=entryField(fe,'arr_time').value;
-  const arrDate=entryField(fe,'next_day').checked?addDaysStr(dayDate,1):dayDate;
+  const nextDay=entryField(fe,'next_day').checked;
+  const arrDate=nextDay?addDaysStr(dayDate,1):dayDate;
   const flt={trip_id:tripId,flight_type:isInt?'INT':'DOM',airline:entryField(fe,'airline').value,flight_number:entryField(fe,'flight_number').value,origin_airport:from,dest_airport:to,departure_date:dayDate,departure_time:depT||'00:00',arrival_date:arrDate,arrival_time:arrT||'23:59',cabin_class:entryField(fe,'cabin_class').value,booking_ref:entryField(fe,'booking_ref').value,notes:entryField(fe,'notes').value};
   const fid=document.getElementById('flt-edit-id').value;
   try{
-    await fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)});
-    newFltItem();loadFltList();
-  }catch(e){alert('Failed to save flight');}
+    const r=await fetch(fid?`${API}/flights/${fid}`:`${API}/flights`,{method:fid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(flt)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed to save flight: '+(err.error||r.status));return;}
+    if(!fid&&nextDay){
+      const existingDays=await fetch(`${API}/days?trip_id=${encodeURIComponent(tripId)}`).then(r=>r.json()).catch(()=>[]);
+      const hasArrDay=existingDays.some(d=>(d.date||'').split('T')[0]===arrDate);
+      if(!hasArrDay){
+        const maxNum=existingDays.reduce((m,d)=>Math.max(m,d.day_number||0),0);
+        await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date:arrDate,day_type:'travel',day_number:maxNum+1,title:to+' Arrival'})}).catch(()=>{});
+      }
+    }
+    newFltItem();loadFltList();loadItinerary();
+  }catch(e){console.error('[saveFlight]',e);alert('Failed to save flight');}
 }
 async function editFlt(id){
   console.log('[editFlt] called with id:', id);
