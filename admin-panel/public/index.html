@@ -1081,16 +1081,48 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
     <!-- ACTIVITIES -->
     <div class="day-section" id="day-sec-activities">
-      <div class="day-sec-hdr" style="color:var(--gold);">ACTIVITIES</div>
-      <div class="form-group">
-        <textarea class="form-textarea" id="day-activities-text" style="min-height:100px;" placeholder="e.g. Morning aarti at Dashashwamedh Ghat · Afternoon boat ride on the Ganges · Evening Tresind dinner"></textarea>
+      <div class="day-sec-hdr" style="color:var(--gold);">✨ ACTIVITIES</div>
+      <input type="hidden" id="act-edit-id"/>
+      <div id="act-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="act-form-label">New Activity</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input type="text" class="form-input" id="act-desc" placeholder="e.g. Morning aarti at Dashashwamedh Ghat"/>
+        </div>
+        <div class="form-group" style="max-width:130px;">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-input" id="act-time"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newActItem()">Cancel</button>
       </div>
     </div>
     <!-- SACRED SITES -->
     <div class="day-section" id="day-sec-sacred_sites" style="border-left:3px solid #8B1A1A;padding-left:10px;">
       <div class="day-sec-hdr" style="color:#8B1A1A;">🛕 SACRED SITES</div>
+      <input type="hidden" id="sacred-edit-id"/>
+      <div id="sacred-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:#8B1A1A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="sacred-form-label">New Sacred Site</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Site Name</label>
+          <input type="text" class="form-input" id="sacred-name" placeholder="e.g. Nataraja Temple, Chidambaram"/>
+        </div>
+        <div class="form-group" style="max-width:130px;">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-input" id="sacred-time"/>
+        </div>
+      </div>
       <div class="form-group">
-        <textarea class="form-textarea" id="day-sacred-sites-text" style="min-height:100px;border-color:#8B1A1A40;" placeholder="e.g. Nataraja Temple, Chidambaram — one of the Pancha Bhuta Stalas, cosmic dance of Shiva · Ramanathaswamy Temple — Jyotirlinga, 22 theerthams"></textarea>
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="sacred-notes" placeholder="Pancha Bhuta Stala — cosmic dance of Shiva"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveSacredSite()" style="background:#8B1A1A;border-color:#8B1A1A;">Save Sacred Site</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newSacredItem()">Cancel</button>
       </div>
     </div>
     <!-- NOTES -->
@@ -1683,10 +1715,12 @@ async function loadItinerary(){
   console.log('[loadItinerary] fetching trip id:', tripId);
   try{
     if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(_){}
-    const[trip,transports,trains]=await Promise.all([
+    const[trip,transports,trains,sacredSites,actItems]=await Promise.all([
       fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/sacred-sites?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/activities?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
     ]);
     console.log('[loadItinerary] trip response:', trip);
     const trainList=Array.isArray(trains)?trains:[];
@@ -1718,6 +1752,8 @@ async function loadItinerary(){
       const dayTrans=transports.filter(t=>(t.transport_date||'').split('T')[0]===ds);
       const checkIns=bookings.filter(b=>(b.check_in||'').split('T')[0]===ds);
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
+      const daySacred=Array.isArray(sacredSites)?sacredSites.filter(s=>s.day_id===d.id):[];
+      const dayActs=Array.isArray(actItems)?actItems.filter(a=>a.day_id===d.id):[];
       const dayHotelName=checkIns.length?(hotelsCache.find(h=>h.id===checkIns[0]?.hotel_id)?.name||''):(bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?hotelsCache.find(h=>h.id===bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?.hotel_id)?.name||'':'');
       const arrivingFlights=flights.filter(f=>{
         if(!f.arrival_time||!f.departure_time)return false;
@@ -1773,12 +1809,16 @@ async function loadItinerary(){
         const hName=hotelsCache.find(h=>h.id===b.hotel_id)?.name||'Hotel';
         timedItems.push({time:'99:99',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('checkin','${b.id}','${tripId}','${d.id}')"><span class="itin-emoji">🏨</span><span style="background:rgba(74,158,92,0.15);color:#4a9e5c;padding:1px 6px;border-radius:2px;font-size:9px;letter-spacing:1px;margin-right:4px;">CHECK-IN</span><div class="itin-body"><div class="itin-main">${hName}</div><div class="itin-sub">${b.confirmation_number?'Conf: '+b.confirmation_number:''}</div></div>${P}</div>`});
       });
+      daySacred.forEach(s=>{
+        const tm=s.site_time?s.site_time.slice(0,5):'';
+        timedItems.push({time:tm||'98:10',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('sacred_sites','${s.id}','${tripId}','${d.id}')"><span class="itin-emoji">🛕</span><div class="itin-body"><div class="itin-main" style="color:#c0392b;">${s.name}</div>${(s.notes||tm)?`<div class="itin-sub">${[tm||null,s.notes].filter(Boolean).join(' · ')}</div>`:''}</div>${P}</div>`});
+      });
+      dayActs.forEach(a=>{
+        const tm=a.activity_time?a.activity_time.slice(0,5):'';
+        timedItems.push({time:tm||'98:11',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('activities','${a.id}','${tripId}','${d.id}')"><span class="itin-emoji">✨</span><div class="itin-body"><div class="itin-main" style="color:var(--gold);">${a.description}</div>${tm?`<div class="itin-sub">${tm}</div>`:''}</div>${P}</div>`});
+      });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
       let items=timedItems.map(x=>x.html).join('');
-      const sacred=d.sacred_sites||'';
-      if(sacred)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('sacred_sites','','${tripId}','${d.id}')"><span class="itin-emoji">🛕</span><div class="itin-body"><div class="itin-note" style="color:#c0392b;font-size:13px;">${sacred}</div></div>${P}</div>`;
-      const act=d.activities||'';
-      if(act)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('activities','','${tripId}','${d.id}')"><span class="itin-emoji">✨</span><div class="itin-body"><div class="itin-note">${act}</div></div>${P}</div>`;
       const note=d.notes||d.description||'';
       if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div>${P}</div>`;
       const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — use + to add</div>`:'';
@@ -1817,6 +1857,8 @@ function toggleDaySec(name){
     else if(name==='driver')loadDrvList();
     else if(name==='checkin')loadCiList();
     else if(name==='checkout')loadCoList();
+    else if(name==='activities')loadActList();
+    else if(name==='sacred_sites')loadSacredList();
   }
 }
 function showDaySec(name){
@@ -1828,6 +1870,8 @@ function showDaySec(name){
   else if(name==='driver')loadDrvList();
   else if(name==='checkin')loadCiList();
   else if(name==='checkout')loadCoList();
+  else if(name==='activities')loadActList();
+  else if(name==='sacred_sites')loadSacredList();
 }
 function hideDaySec(name){
   document.getElementById('day-sec-'+name).classList.remove('visible');
@@ -2275,6 +2319,99 @@ function newCoItem(){
   document.getElementById('co-notes').value='';
   const cot=document.getElementById('co-time');if(cot)cot.value='11:00';
 }
+// ── ACTIVITIES instant-save ────────────────────────────────────────────────
+async function loadActList(){
+  const el=document.getElementById('act-list');
+  if(!el)return;
+  const dayId=document.getElementById('day-id').value;
+  if(!dayId){el.innerHTML='';return;}
+  try{
+    const items=await(await fetch(`${API}/activities?day_id=${encodeURIComponent(dayId)}`)).json();
+    if(!Array.isArray(items)||!items.length){el.innerHTML='';return;}
+    el.innerHTML=items.map(a=>{
+      const tm=a.activity_time?a.activity_time.slice(0,5):'';
+      const lbl=[a.description,tm].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(200,134,10,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>✨ ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editAct('${a.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';console.error('[loadActList]',e);}
+}
+async function saveActivity(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayId=document.getElementById('day-id').value;
+  if(!dayId){alert('Save the day first');return;}
+  const description=document.getElementById('act-desc').value.trim();
+  if(!description){alert('Description is required');return;}
+  const aid=document.getElementById('act-edit-id').value;
+  const body={description,activity_time:document.getElementById('act-time').value||null};
+  if(!aid){body.trip_id=tripId;body.day_id=dayId;}
+  console.log('[saveActivity]',aid?'PATCH':'POST',body);
+  try{
+    const r=await fetch(aid?`${API}/activities/${aid}`:`${API}/activities`,{method:aid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
+    newActItem();loadActList();loadItinerary();
+  }catch(e){console.error('[saveActivity]',e);alert('Failed to save activity');}
+}
+async function editAct(id){
+  try{
+    const a=await(await fetch(`${API}/activities/${id}`)).json();
+    document.getElementById('act-edit-id').value=id;
+    const lbl=document.getElementById('act-form-label');if(lbl)lbl.textContent='Edit Activity';
+    document.getElementById('act-desc').value=a.description||'';
+    document.getElementById('act-time').value=a.activity_time||'';
+  }catch(e){console.error('[editAct]',e);}
+}
+function newActItem(){
+  document.getElementById('act-edit-id').value='';
+  const lbl=document.getElementById('act-form-label');if(lbl)lbl.textContent='New Activity';
+  ['act-desc','act-time'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+// ── SACRED SITES instant-save ──────────────────────────────────────────────
+async function loadSacredList(){
+  const el=document.getElementById('sacred-list');
+  if(!el)return;
+  const dayId=document.getElementById('day-id').value;
+  if(!dayId){el.innerHTML='';return;}
+  try{
+    const items=await(await fetch(`${API}/sacred-sites?day_id=${encodeURIComponent(dayId)}`)).json();
+    if(!Array.isArray(items)||!items.length){el.innerHTML='';return;}
+    el.innerHTML=items.map(s=>{
+      const tm=s.site_time?s.site_time.slice(0,5):'';
+      const lbl=[s.name,tm].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(139,26,26,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🛕 ${lbl}</span><button type="button" class="btn btn-outline btn-sm" onclick="editSacred('${s.id}')" style="padding:2px 10px;font-size:11px;">Edit</button></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';console.error('[loadSacredList]',e);}
+}
+async function saveSacredSite(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayId=document.getElementById('day-id').value;
+  if(!dayId){alert('Save the day first');return;}
+  const name=document.getElementById('sacred-name').value.trim();
+  if(!name){alert('Site name is required');return;}
+  const sid=document.getElementById('sacred-edit-id').value;
+  const body={name,site_time:document.getElementById('sacred-time').value||null,notes:document.getElementById('sacred-notes').value||null};
+  if(!sid){body.trip_id=tripId;body.day_id=dayId;}
+  console.log('[saveSacredSite]',sid?'PATCH':'POST',body);
+  try{
+    const r=await fetch(sid?`${API}/sacred-sites/${sid}`:`${API}/sacred-sites`,{method:sid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
+    newSacredItem();loadSacredList();loadItinerary();
+  }catch(e){console.error('[saveSacredSite]',e);alert('Failed to save sacred site');}
+}
+async function editSacred(id){
+  try{
+    const s=await(await fetch(`${API}/sacred-sites/${id}`)).json();
+    document.getElementById('sacred-edit-id').value=id;
+    const lbl=document.getElementById('sacred-form-label');if(lbl)lbl.textContent='Edit Sacred Site';
+    document.getElementById('sacred-name').value=s.name||'';
+    document.getElementById('sacred-time').value=s.site_time||'';
+    document.getElementById('sacred-notes').value=s.notes||'';
+  }catch(e){console.error('[editSacred]',e);}
+}
+function newSacredItem(){
+  document.getElementById('sacred-edit-id').value='';
+  const lbl=document.getElementById('sacred-form-label');if(lbl)lbl.textContent='New Sacred Site';
+  ['sacred-name','sacred-time','sacred-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
 function setFltEntryType(btn,type){
   const e=btn.closest('.flt-entry');
   e.querySelector('.flt-type-INT').classList.toggle('active',type==='INT');
@@ -2298,18 +2435,16 @@ function resetDayModal(){
   ['day-id','day-modal-trip-id','day-edit-item-type','day-edit-item-id','day-number','day-date','day-location','day-leaving','day-arriving','day-title'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   setDayType('stay');
   ['flight','train','transfer','driver','checkin','checkout','activities','sacred_sites','notes'].forEach(s=>hideDaySec(s));
-  ['flt-list','trn-list','xfr-list','drv-list','ci-list','co-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
-  ['flt-edit-id','trn-edit-id','xfr-edit-id','drv-edit-id','ci-edit-id','co-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['flt-list','trn-list','xfr-list','drv-list','ci-list','co-list','act-list','sacred-list'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  ['flt-edit-id','trn-edit-id','xfr-edit-id','drv-edit-id','ci-edit-id','co-edit-id','act-edit-id','sacred-edit-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const fl=document.getElementById('flt-form-label');if(fl)fl.textContent='New Flight';
   const tl=document.getElementById('trn-form-label');if(tl)tl.textContent='New Train';
   const xl=document.getElementById('xfr-form-label');if(xl)xl.textContent='New Transfer';
   const dl=document.getElementById('drv-form-label');if(dl)dl.textContent='New Driver';
   const cil=document.getElementById('ci-form-label');if(cil)cil.textContent='New Check-in';
   const col=document.getElementById('co-form-label');if(col)col.textContent='New Check-out';
-  const at=document.getElementById('day-activities-text');if(at)at.value='';
-  const st=document.getElementById('day-sacred-sites-text');if(st)st.value='';
   const nt=document.getElementById('day-notes-text');if(nt)nt.value='';
-  newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();
+  newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();newActItem();newSacredItem();
 }
 async function openAddDay(){
   if(!currentItinTripId){alert('Select a trip first');return;}
@@ -2376,8 +2511,6 @@ async function editDay(dayId,tripId){
     if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
-    if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
-    if(d.sacred_sites){document.getElementById('day-sacred-sites-text').value=d.sacred_sites;showDaySec('sacred_sites');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
     await populateDayHotelSelects();
@@ -2401,8 +2534,6 @@ async function editDayItem(type,itemId,tripId,dayId){
     if(dt==='travel'&&d.location){const p=d.location.split(' → ');document.getElementById('day-leaving').value=p[0]||'';document.getElementById('day-arriving').value=p[1]||'';}
     else document.getElementById('day-location').value=d.location||'';
     document.getElementById('day-title').value=d.title||'';
-    if(d.activities){document.getElementById('day-activities-text').value=d.activities;showDaySec('activities');}
-    if(d.sacred_sites){document.getElementById('day-sacred-sites-text').value=d.sacred_sites;showDaySec('sacred_sites');}
     const note=d.notes||d.description||'';
     if(note){document.getElementById('day-notes-text').value=note;showDaySec('notes');}
   }
@@ -2430,8 +2561,10 @@ async function editDayItem(type,itemId,tripId,dayId){
     }
   } else if(type==='activities'){
     showDaySec('activities');
+    if(itemId)await editAct(itemId);
   } else if(type==='sacred_sites'){
     showDaySec('sacred_sites');
+    if(itemId)await editSacred(itemId);
   } else if(type==='notes'){
     showDaySec('notes');
   }
@@ -2450,8 +2583,6 @@ async function saveDay(){
   const dayBody={trip_id:tripId,date:dayDate,location:loc,title:document.getElementById('day-title').value,day_type:dayType};
   if(!dayId)dayBody.day_number=dayNum;
   else if(dayNum)dayBody.day_number=dayNum;
-  if(isSectionActive('activities'))dayBody.activities=document.getElementById('day-activities-text').value;
-  if(isSectionActive('sacred_sites'))dayBody.sacred_sites=document.getElementById('day-sacred-sites-text').value;
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
   closeModal('day-modal');

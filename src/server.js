@@ -33,6 +33,8 @@ pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS day_type VARCHAR(10) DEFAU
 pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catch(e => console.error('[startup] days date type migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e => console.error('[startup] activities migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
+pool.query(`CREATE TABLE IF NOT EXISTS day_sacred_sites (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), name TEXT NOT NULL, site_time TEXT, notes TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_sacred_sites:', e.message));
+pool.query(`CREATE TABLE IF NOT EXISTS day_activities (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), description TEXT NOT NULL, activity_time TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_activities:', e.message));
 
 app.use('/api/trips',          tripsRouter);
 app.use('/api/contacts',       contactsRouter);
@@ -189,6 +191,104 @@ app.post('/api/guides', async (req, res, next) => {
       [name, phone, email, city, specialty, rate||null, rate_currency||'INR', confirmed||false, notes]
     );
     res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+
+// ── Sacred Sites ─────────────────────────────────────────────────────────────
+app.get('/api/sacred-sites', async (req, res, next) => {
+  try {
+    const { trip_id, day_id } = req.query;
+    const conditions = []; const params = [];
+    if (trip_id) { params.push(trip_id); conditions.push(`trip_id=$${params.length}`); }
+    if (day_id)  { params.push(day_id);  conditions.push(`day_id=$${params.length}`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const result = await pool.query(`SELECT * FROM day_sacred_sites ${where} ORDER BY site_time NULLS LAST, created_at`, params);
+    res.json(result.rows);
+  } catch (e) { next(e); }
+});
+app.post('/api/sacred-sites', async (req, res, next) => {
+  try {
+    const { trip_id, day_id, name, site_time, notes } = req.body;
+    if (!name) return res.status(400).json({ error: 'name required' });
+    const result = await pool.query(
+      'INSERT INTO day_sacred_sites (trip_id,day_id,name,site_time,notes) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+      [trip_id, day_id, name, site_time || null, notes || null]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.get('/api/sacred-sites/:id', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM day_sacred_sites WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.patch('/api/sacred-sites/:id', async (req, res, next) => {
+  try {
+    const allowed = ['name', 'site_time', 'notes'];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+    const fields = Object.keys(updates).map((k, i) => `${k}=$${i+2}`).join(',');
+    const result = await pool.query(`UPDATE day_sacred_sites SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.delete('/api/sacred-sites/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM day_sacred_sites WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
+  } catch (e) { next(e); }
+});
+
+// ── Activities ────────────────────────────────────────────────────────────────
+app.get('/api/activities', async (req, res, next) => {
+  try {
+    const { trip_id, day_id } = req.query;
+    const conditions = []; const params = [];
+    if (trip_id) { params.push(trip_id); conditions.push(`trip_id=$${params.length}`); }
+    if (day_id)  { params.push(day_id);  conditions.push(`day_id=$${params.length}`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const result = await pool.query(`SELECT * FROM day_activities ${where} ORDER BY activity_time NULLS LAST, created_at`, params);
+    res.json(result.rows);
+  } catch (e) { next(e); }
+});
+app.post('/api/activities', async (req, res, next) => {
+  try {
+    const { trip_id, day_id, description, activity_time } = req.body;
+    if (!description) return res.status(400).json({ error: 'description required' });
+    const result = await pool.query(
+      'INSERT INTO day_activities (trip_id,day_id,description,activity_time) VALUES ($1,$2,$3,$4) RETURNING *',
+      [trip_id, day_id, description, activity_time || null]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.get('/api/activities/:id', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM day_activities WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.patch('/api/activities/:id', async (req, res, next) => {
+  try {
+    const allowed = ['description', 'activity_time'];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+    const fields = Object.keys(updates).map((k, i) => `${k}=$${i+2}`).join(',');
+    const result = await pool.query(`UPDATE day_activities SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (e) { next(e); }
+});
+app.delete('/api/activities/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM day_activities WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
   } catch (e) { next(e); }
 });
 
