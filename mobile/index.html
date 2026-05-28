@@ -69,43 +69,44 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 .day-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .nav-arrow{
   background:transparent;border:1px solid var(--gold-border);border-radius:2px;
-  color:var(--gold);font-size:22px;cursor:pointer;
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--gold);font-size:26px;cursor:pointer;
+  width:50px;height:50px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .nav-arrow:disabled{opacity:0.25;cursor:default;}
-.day-label{font-family:var(--font-serif);font-size:19px;color:var(--cream);letter-spacing:2px;text-align:center;flex:1;line-height:1.2;}
-.day-location{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:6px;}
-.day-title-txt{font-size:13px;color:var(--cream-dim);text-align:center;margin-top:2px;font-style:italic;}
+.day-label{font-family:var(--font-serif);font-size:28px;color:var(--cream);letter-spacing:2px;text-align:center;flex:1;line-height:1.2;}
+.day-location{font-size:20px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:6px;}
+.day-title-txt{font-size:18px;color:var(--cream-dim);text-align:center;margin-top:4px;font-style:italic;}
 
 /* ── Today: content ─── */
 #today-content{flex:1;overflow-y:auto;min-height:0;padding:14px 14px 14px;-webkit-overflow-scrolling:touch;}
 
 /* ── Timeline items ─── */
 .tl-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:14px 12px;background:var(--navy2);border:1px solid var(--border);
-  border-radius:4px;margin-bottom:10px;
+  display:flex;align-items:flex-start;gap:12px;
+  padding:18px 14px;min-height:80px;background:var(--navy2);border:1px solid var(--border);
+  border-radius:4px;margin-bottom:12px;
 }
 .tl-item.tl-sacred{border-left:3px solid var(--crimson);}
 .tl-item.tl-activity{border-left:3px solid var(--gold);}
 .tl-time{
-  font-family:var(--font-serif);font-size:16px;color:var(--gold);
-  min-width:42px;flex-shrink:0;padding-top:2px;text-align:right;line-height:1;
+  font-family:var(--font-serif);font-size:20px;color:var(--gold);
+  min-width:52px;flex-shrink:0;padding-top:2px;text-align:right;line-height:1;
 }
 .tl-time.empty{visibility:hidden;}
-.tl-icon{font-size:20px;flex-shrink:0;line-height:1;padding-top:1px;}
+.tl-icon{font-size:24px;flex-shrink:0;line-height:1;padding-top:2px;}
 .tl-body{flex:1;min-width:0;}
-.tl-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.tl-lbl{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .tl-lbl.gold{color:var(--gold);}
 .tl-lbl.crimson{color:var(--crimson);}
-.tl-main{font-family:var(--font-serif);font-size:17px;color:var(--cream);line-height:1.25;}
+.tl-main{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--cream);line-height:1.25;}
 .tl-main.crimson{color:#c44;}
-.tl-sub{font-size:12px;color:var(--ash);margin-top:3px;line-height:1.4;}
+.tl-sub{font-size:18px;color:var(--ash);margin-top:5px;line-height:1.4;}
 .tl-sub.crimson{color:#b55;}
-.tl-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;letter-spacing:1px;}
+.tl-ref{font-family:'Courier New',Courier,monospace;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:3px;margin-top:8px;}
+.tl-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:16px;letter-spacing:1px;}
 .day-notes-card{
-  padding:12px 14px;background:var(--navy3);border:1px solid var(--border-subtle);
-  border-radius:4px;margin-bottom:10px;font-size:13px;color:var(--cream-dim);line-height:1.6;font-style:italic;
+  padding:14px 16px;background:var(--navy3);border:1px solid var(--border-subtle);
+  border-radius:4px;margin-bottom:12px;font-size:18px;color:var(--cream-dim);line-height:1.6;font-style:italic;
 }
 
 /* ── Journey tab ─── */
@@ -232,6 +233,15 @@ function utcHHMM(ts){
   if(!ts)return'';
   const t=String(ts).replace('Z','').split('T')[1]||'';
   return t.slice(0,5);
+}
+function toHHMM(ts){
+  if(!ts)return'';
+  const s=String(ts);
+  if(s.includes('T')){
+    const d=new Date(s.replace('Z','')+'+00:00');
+    return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');
+  }
+  return s.slice(0,5);
 }
 function localDate(){
   const d=new Date();
@@ -393,7 +403,7 @@ function buildDayItems(day,dayDate){
 
   trains.forEach(t=>{
     if((t.journey_date||'').split('T')[0]===dayDate){
-      const tm=t.departure_time?t.departure_time.slice(0,5):'';
+      const tm=toHHMM(t.departure_time);
       items.push({sk:tm||'98:01',type:'train',d:t});
     }
   });
@@ -444,7 +454,7 @@ function renderItem({sk,type,d}){
       <div class="tl-body">
         <div class="tl-lbl">CHECK OUT</div>
         <div class="tl-main">${esc(d.hotel_name||'Hotel')}</div>
-        ${d.confirmation_number?`<div class="tl-sub">Conf: ${esc(d.confirmation_number)}</div>`:''}
+        ${d.confirmation_number?`<div class="tl-ref">${esc(d.confirmation_number)}</div>`:''}
       </div></div>`;
   }
   if(type==='checkin'){
@@ -456,7 +466,7 @@ function renderItem({sk,type,d}){
         <div class="tl-lbl gold">CHECK IN</div>
         <div class="tl-main">${esc(d.hotel_name||'Hotel')}</div>
         ${d.room_type?`<div class="tl-sub">${esc(d.room_type)}</div>`:''}
-        ${d.confirmation_number?`<div class="tl-sub">Conf: ${esc(d.confirmation_number)}</div>`:''}
+        ${d.confirmation_number?`<div class="tl-ref">${esc(d.confirmation_number)}</div>`:''}
       </div></div>`;
   }
   if(type==='dep'){
@@ -468,7 +478,7 @@ function renderItem({sk,type,d}){
         <div class="tl-lbl">DEPARTING FLIGHT</div>
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${arr?' · Arr '+arr:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
-        ${d.booking_ref?`<div class="tl-sub">PNR: ${esc(d.booking_ref)}</div>`:''}
+        ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
       </div></div>`;
   }
   if(type==='arr'){
@@ -480,12 +490,12 @@ function renderItem({sk,type,d}){
         <div class="tl-lbl">ARRIVING FLIGHT</div>
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${dep?' · Dep '+dep:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
-        ${d.booking_ref?`<div class="tl-sub">PNR: ${esc(d.booking_ref)}</div>`:''}
+        ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
       </div></div>`;
   }
   if(type==='train'){
-    const dep=d.departure_time?d.departure_time.slice(0,5):'';
-    const arr=d.arrival_time?d.arrival_time.slice(0,5):'';
+    const dep=toHHMM(d.departure_time);
+    const arr=toHHMM(d.arrival_time);
     return`<div class="tl-item">
       <div class="tl-time${dep?'':' empty'}">${dep}</div>
       <div class="tl-icon">🚂</div>
@@ -493,11 +503,11 @@ function renderItem({sk,type,d}){
         <div class="tl-lbl">TRAIN</div>
         <div class="tl-main">${esc((d.carrier||'')+' '+(d.train_number||''))}</div>
         <div class="tl-sub">${esc(d.departure_station||'')} → ${esc(d.arrival_station||'')}${arr?' · Arr '+arr:''}${d.class?' · '+esc(d.class):''}</div>
-        ${d.pnr?`<div class="tl-sub">PNR: ${esc(d.pnr)}</div>`:''}
+        ${d.pnr?`<div class="tl-ref">${esc(d.pnr)}</div>`:''}
       </div></div>`;
   }
   if(type==='transport'){
-    const t=d.pickup_time?d.pickup_time.slice(0,5):'';
+    const t=toHHMM(d.pickup_time);
     const ICONS={car:'🚗',taxi:'🚕',tuk:'🛺',auto:'🛺',driver:'🚗',bus:'🚌',boat:'⛵',moto:'🏍',rickshaw:'🛺'};
     const LABELS={car:'CAR TRANSFER',taxi:'TAXI',tuk:'TUK-TUK',auto:'AUTO RICKSHAW',driver:'PRIVATE DRIVER',bus:'BUS',boat:'BOAT',moto:'MOTORBIKE',rickshaw:'RICKSHAW'};
     const icon=ICONS[d.type]||'🚗';
@@ -509,7 +519,7 @@ function renderItem({sk,type,d}){
         <div class="tl-lbl">${lbl}</div>
         <div class="tl-main">${esc(d.vendor||d.pickup_location||'Transfer')}</div>
         ${(d.pickup_location&&d.dropoff_location)?`<div class="tl-sub">${esc(d.pickup_location)} → ${esc(d.dropoff_location)}</div>`:''}
-        ${d.confirmation?`<div class="tl-sub">Conf: ${esc(d.confirmation)}</div>`:''}
+        ${d.confirmation?`<div class="tl-ref">${esc(d.confirmation)}</div>`:''}
         ${d.notes?`<div class="tl-sub">${esc(d.notes)}</div>`:''}
       </div></div>`;
   }
