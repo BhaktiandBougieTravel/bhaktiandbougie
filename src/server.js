@@ -26,6 +26,14 @@ app.use('/admin', (req, res, next) => {
   next();
 });
 app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')));
+app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
+
+app.post('/api/mobile-auth', (req, res) => {
+  const { password } = req.body;
+  const correct = process.env.MOBILE_PASSWORD || 'india2026';
+  if (password === correct) res.json({ ok: true });
+  else res.status(401).json({ error: 'Invalid password' });
+});
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', company: 'Bhakti & Bougie Travel Ltd' }));
 

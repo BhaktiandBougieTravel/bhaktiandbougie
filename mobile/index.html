@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Bhakti &amp; Bougie</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B2A;--navy2:#111e2d;--navy3:#162333;
+  --gold:#C8860A;--gold2:#e09b18;--gold-dim:rgba(200,134,10,0.15);--gold-border:rgba(200,134,10,0.3);
+  --cream:#F2E6CC;--cream2:#E8D9B8;--cream-dim:rgba(242,230,204,0.6);
+  --crimson:#8B1A1A;--ash:#9A9490;
+  --muted:#6A8AAA;--green:#4a9e5c;--red:#cc4444;
+  --border:rgba(200,134,10,0.25);--border-subtle:rgba(242,230,204,0.08);
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Jost',sans-serif;
+  --nav-h:64px;
+}
+html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;overflow:hidden;}
+
+/* ── Password screen ─── */
+#pw-screen{
+  position:fixed;inset:0;background:var(--navy);z-index:9999;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;
+  padding:40px 24px;transition:opacity 0.4s;
+}
+#pw-screen.hidden{opacity:0;pointer-events:none;}
+.pw-mark{display:flex;flex-direction:column;gap:5px;align-items:center;}
+.pw-s{width:52px;height:10px;background:var(--ash);border-radius:5px;border:1.5px solid var(--gold);position:relative;}
+.pw-s.mid .pw-eye{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--gold);left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #111;}
+.pw-s.mid .pw-eye::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:var(--crimson);left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px solid #111;}
+.pw-title{font-family:var(--font-serif);font-size:28px;color:var(--cream);letter-spacing:5px;text-align:center;}
+.pw-rule{width:50px;height:1px;background:var(--gold);}
+.pw-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;text-align:center;}
+#pw-input{
+  background:var(--navy2);border:1.5px solid var(--gold-border);border-radius:3px;
+  padding:14px 20px;font-family:var(--font-sans);font-size:16px;color:var(--cream);
+  outline:none;width:280px;text-align:center;letter-spacing:3px;-webkit-appearance:none;
+}
+#pw-input:focus{border-color:var(--gold);}
+#pw-btn{
+  background:transparent;border:1.5px solid var(--gold-border);border-radius:3px;
+  padding:14px 32px;font-family:var(--font-sans);font-size:12px;font-weight:500;
+  color:var(--gold);cursor:pointer;letter-spacing:3px;text-transform:uppercase;
+  min-height:44px;width:280px;
+}
+#pw-error{font-size:12px;color:var(--red);min-height:16px;text-align:center;}
+#pw-msg{font-size:13px;color:var(--cream-dim);letter-spacing:1px;text-align:center;}
+
+/* ── App shell ─── */
+#app{
+  display:none;flex-direction:column;
+  height:100vh;height:100dvh;
+  max-width:430px;margin:0 auto;
+  overflow:hidden;
+}
+
+/* ── Tab panels ─── */
+.tab-panel{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+.tab-panel.active{display:flex;}
+
+/* ── Today: header ─── */
+#today-header{
+  background:var(--navy2);border-bottom:1px solid var(--border);
+  padding:14px 14px 12px;flex-shrink:0;
+}
+.day-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.nav-arrow{
+  background:transparent;border:1px solid var(--gold-border);border-radius:2px;
+  color:var(--gold);font-size:22px;cursor:pointer;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.nav-arrow:disabled{opacity:0.25;cursor:default;}
+.day-label{font-family:var(--font-serif);font-size:19px;color:var(--cream);letter-spacing:2px;text-align:center;flex:1;line-height:1.2;}
+.day-location{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:6px;}
+.day-title-txt{font-size:13px;color:var(--cream-dim);text-align:center;margin-top:2px;font-style:italic;}
+
+/* ── Today: content ─── */
+#today-content{flex:1;overflow-y:auto;min-height:0;padding:14px 14px 14px;-webkit-overflow-scrolling:touch;}
+
+/* ── Timeline items ─── */
+.tl-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:14px 12px;background:var(--navy2);border:1px solid var(--border);
+  border-radius:4px;margin-bottom:10px;
+}
+.tl-item.tl-sacred{border-left:3px solid var(--crimson);}
+.tl-item.tl-activity{border-left:3px solid var(--gold);}
+.tl-time{
+  font-family:var(--font-serif);font-size:16px;color:var(--gold);
+  min-width:42px;flex-shrink:0;padding-top:2px;text-align:right;line-height:1;
+}
+.tl-time.empty{visibility:hidden;}
+.tl-icon{font-size:20px;flex-shrink:0;line-height:1;padding-top:1px;}
+.tl-body{flex:1;min-width:0;}
+.tl-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.tl-lbl.gold{color:var(--gold);}
+.tl-lbl.crimson{color:var(--crimson);}
+.tl-main{font-family:var(--font-serif);font-size:17px;color:var(--cream);line-height:1.25;}
+.tl-main.crimson{color:#c44;}
+.tl-sub{font-size:12px;color:var(--ash);margin-top:3px;line-height:1.4;}
+.tl-sub.crimson{color:#b55;}
+.tl-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;letter-spacing:1px;}
+.day-notes-card{
+  padding:12px 14px;background:var(--navy3);border:1px solid var(--border-subtle);
+  border-radius:4px;margin-bottom:10px;font-size:13px;color:var(--cream-dim);line-height:1.6;font-style:italic;
+}
+
+/* ── Journey tab ─── */
+#journey-header{
+  background:var(--navy2);border-bottom:1px solid var(--border);padding:16px;
+  font-family:var(--font-serif);font-size:20px;color:var(--gold);letter-spacing:2px;flex-shrink:0;
+}
+#journey-content{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;}
+.jday-row{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--border-subtle);cursor:pointer;min-height:64px;
+  -webkit-tap-highlight-color:transparent;
+}
+.jday-row:active{background:var(--navy2);}
+.jday-row.is-today{border-left:3px solid var(--gold);background:var(--gold-dim);}
+.jday-num{font-family:var(--font-serif);font-size:22px;color:var(--muted);min-width:36px;text-align:right;flex-shrink:0;}
+.jday-row.is-today .jday-num{color:var(--gold);}
+.jday-info{flex:1;min-width:0;}
+.jday-date{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.jday-loc{font-family:var(--font-serif);font-size:17px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jday-icon{font-size:22px;flex-shrink:0;}
+
+/* ── Info tab ─── */
+#info-content{flex:1;overflow-y:auto;min-height:0;padding:20px 16px;-webkit-overflow-scrolling:touch;}
+.info-section{margin-bottom:28px;}
+.info-sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.info-trip-title{font-family:var(--font-serif);font-size:26px;color:var(--cream);margin-bottom:10px;line-height:1.2;}
+.info-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.info-key{font-size:11px;color:var(--muted);letter-spacing:1px;flex-shrink:0;}
+.info-val{font-size:13px;color:var(--cream);text-align:right;margin-left:12px;}
+.trav-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.trav-name{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
+.trav-role{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+.info-brand{text-align:center;padding:28px 0 8px;}
+.info-brand-name{font-family:var(--font-serif);font-size:22px;color:var(--cream);letter-spacing:4px;}
+.info-brand-email{font-size:12px;color:var(--gold);margin-top:6px;letter-spacing:1px;}
+
+/* ── Bottom nav ─── */
+#bottom-nav{
+  display:flex;background:var(--navy2);border-top:1px solid var(--border);
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  flex-shrink:0;
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:transparent;border:none;cursor:pointer;color:var(--muted);
+  font-family:var(--font-sans);min-height:44px;-webkit-tap-highlight-color:transparent;
+}
+.nav-btn.active{color:var(--gold);}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div id="pw-screen">
+  <div class="pw-mark">
+    <div class="pw-s"></div>
+    <div class="pw-s mid"><div class="pw-eye"></div></div>
+    <div class="pw-s"></div>
+  </div>
+  <div class="pw-title">BHAKTI &amp; BOUGIE</div>
+  <div class="pw-rule"></div>
+  <div class="pw-sub">Journey Companion</div>
+  <div id="pw-form">
+    <input id="pw-input" type="password" placeholder="Password" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+    <button id="pw-btn" onclick="doAuth()">ENTER</button>
+    <p id="pw-error"></p>
+  </div>
+  <div id="pw-msg" style="display:none"></div>
+</div>
+
+<div id="app">
+
+  <div id="tab-today" class="tab-panel active">
+    <div id="today-header">
+      <div class="day-nav">
+        <button class="nav-arrow" id="btn-prev" onclick="navigateDay(-1)">‹</button>
+        <div id="day-label" class="day-label"></div>
+        <button class="nav-arrow" id="btn-next" onclick="navigateDay(1)">›</button>
+      </div>
+      <div id="day-location" class="day-location"></div>
+      <div id="day-title-txt" class="day-title-txt"></div>
+    </div>
+    <div id="today-content"></div>
+  </div>
+
+  <div id="tab-journey" class="tab-panel">
+    <div id="journey-header">ALL DAYS</div>
+    <div id="journey-content"></div>
+  </div>
+
+  <div id="tab-info" class="tab-panel">
+    <div id="info-content"></div>
+  </div>
+
+  <nav id="bottom-nav">
+    <button class="nav-btn active" id="nav-today" onclick="showTab('today')">
+      <div class="nav-icon">☀</div>
+      <div class="nav-label">Today</div>
+    </button>
+    <button class="nav-btn" id="nav-journey" onclick="showTab('journey')">
+      <div class="nav-icon">✈</div>
+      <div class="nav-label">Journey</div>
+    </button>
+    <button class="nav-btn" id="nav-info" onclick="showTab('info')">
+      <div class="nav-icon">ℹ</div>
+      <div class="nav-label">Info</div>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+const API='https://bhaktiandbougie-production.up.railway.app/api';
+const DAY_NAMES=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+const MON_SHORT=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[];
+let currentDayIdx=0,activeTab='today';
+
+function utcHHMM(ts){
+  if(!ts)return'';
+  const t=String(ts).replace('Z','').split('T')[1]||'';
+  return t.slice(0,5);
+}
+function localDate(){
+  const d=new Date();
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function parseHotelTime(notes,type){
+  const re=type==='checkin'?/check-?in:\s*(\d{1,2}:\d{2})/i:/check-?out:\s*(\d{1,2}:\d{2})/i;
+  const m=String(notes||'').match(re);
+  return m?m[1]:'';
+}
+function fmtDayHeader(day){
+  const s=(day.date||'').split('T')[0];
+  const d=new Date(s+'T12:00:00');
+  return`DAY ${day.day_number} · ${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MON_SHORT[d.getMonth()]}`;
+}
+function fmtDateShort(dateStr){
+  const d=new Date((dateStr||'').split('T')[0]+'T12:00:00');
+  return`${MON_SHORT[d.getMonth()]} ${d.getDate()}`;
+}
+function fmtDateRange(s,e){
+  const ds=new Date((s||'').split('T')[0]+'T12:00:00');
+  const de=new Date((e||'').split('T')[0]+'T12:00:00');
+  return`${ds.getDate()} ${MON_SHORT[ds.getMonth()]} – ${de.getDate()} ${MON_SHORT[de.getMonth()]} ${de.getFullYear()}`;
+}
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  tripId=new URLSearchParams(location.search).get('trip');
+  if(sessionStorage.getItem('mob_auth')){
+    if(tripId)loadAndShow();
+    else showPwMsg('Add ?trip=TRIPID to the URL');
+  }
+  document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth();});
+
+  let tx=0,ty=0;
+  const tc=document.getElementById('today-content');
+  tc.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  tc.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    const dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){dx<0?navigateDay(1):navigateDay(-1);}
+  },{passive:true});
+});
+
+async function doAuth(){
+  const pw=document.getElementById('pw-input').value;
+  const errEl=document.getElementById('pw-error');
+  errEl.textContent='';
+  try{
+    const r=await fetch(`${API}/mobile-auth`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    if(!r.ok){errEl.textContent='Incorrect password';return;}
+    sessionStorage.setItem('mob_auth','1');
+    if(!tripId){showPwMsg('Authenticated. Add ?trip=TRIPID to the URL to load a journey.');return;}
+    loadAndShow();
+  }catch(e){errEl.textContent='Connection error — check signal';}
+}
+
+function showPwMsg(msg){
+  document.getElementById('pw-form').style.display='none';
+  const m=document.getElementById('pw-msg');
+  m.textContent=msg;m.style.display='block';
+}
+
+async function loadAndShow(){
+  showPwMsg('Loading your journey…');
+  try{
+    [trip,transports,trains,sacredSites,activities,hotelBookings]=await Promise.all([
+      fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
+      fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/sacred-sites?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/activities?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/hotel-bookings?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+    ]);
+    if(trip.error){showPwMsg('Trip not found');return;}
+
+    allDays=[...(trip.days||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+
+    const today=localDate();
+    currentDayIdx=allDays.findIndex(d=>(d.date||'').split('T')[0]===today);
+    if(currentDayIdx<0)currentDayIdx=0;
+
+    const ps=document.getElementById('pw-screen');
+    ps.classList.add('hidden');
+    setTimeout(()=>ps.style.display='none',420);
+    document.getElementById('app').style.display='flex';
+
+    renderToday();
+    renderJourney();
+    renderInfo();
+  }catch(e){
+    showPwMsg('Failed to load. Check your connection.');
+  }
+}
+
+function showTab(name){
+  activeTab=name;
+  ['today','journey','info'].forEach(t=>{
+    document.getElementById(`tab-${t}`).classList.toggle('active',t===name);
+    document.getElementById(`nav-${t}`).classList.toggle('active',t===name);
+  });
+}
+
+function navigateDay(delta){
+  const next=currentDayIdx+delta;
+  if(next<0||next>=allDays.length)return;
+  currentDayIdx=next;
+  renderToday();
+}
+
+function goToDay(idx){
+  currentDayIdx=idx;
+  renderToday();
+  showTab('today');
+}
+
+// ── Today ─────────────────────────────────────────────────────────────────────
+
+function renderToday(){
+  if(!allDays.length){
+    document.getElementById('day-label').textContent='NO DAYS';
+    document.getElementById('day-location').textContent='';
+    document.getElementById('day-title-txt').textContent='';
+    document.getElementById('today-content').innerHTML='<div class="tl-empty">No itinerary loaded</div>';
+    return;
+  }
+  const day=allDays[currentDayIdx];
+  const dateStr=(day.date||'').split('T')[0];
+
+  document.getElementById('day-label').textContent=fmtDayHeader(day);
+  document.getElementById('day-location').textContent=day.location||'';
+  document.getElementById('day-title-txt').textContent=day.title||'';
+  document.getElementById('btn-prev').disabled=currentDayIdx===0;
+  document.getElementById('btn-next').disabled=currentDayIdx===allDays.length-1;
+
+  const items=buildDayItems(day,dateStr);
+  let html='';
+  if(day.notes)html+=`<div class="day-notes-card">${esc(day.notes)}</div>`;
+  if(!items.length&&!day.notes)html='<div class="tl-empty">REST DAY</div>';
+  else items.forEach(it=>{html+=renderItem(it);});
+  document.getElementById('today-content').innerHTML=html;
+  document.getElementById('today-content').scrollTop=0;
+}
+
+function buildDayItems(day,dayDate){
+  const items=[];
+
+  hotelBookings.forEach(hb=>{
+    if((hb.check_out||'').split('T')[0]===dayDate)
+      items.push({sk:'00:00',type:'checkout',d:hb});
+  });
+
+  (trip.flights||[]).forEach(f=>{
+    if(f.arrival_time&&f.arrival_time.slice(0,10)===dayDate)
+      items.push({sk:utcHHMM(f.arrival_time)||'98:00',type:'arr',d:f});
+  });
+
+  trains.forEach(t=>{
+    if((t.journey_date||'').split('T')[0]===dayDate){
+      const tm=t.departure_time?t.departure_time.slice(0,5):'';
+      items.push({sk:tm||'98:01',type:'train',d:t});
+    }
+  });
+
+  (trip.flights||[]).forEach(f=>{
+    if(f.departure_time&&f.departure_time.slice(0,10)===dayDate)
+      items.push({sk:utcHHMM(f.departure_time)||'98:02',type:'dep',d:f});
+  });
+
+  transports.forEach(gt=>{
+    if((gt.transport_date||'').split('T')[0]===dayDate){
+      const tm=gt.pickup_time?gt.pickup_time.slice(0,5):'';
+      items.push({sk:tm||'98:03',type:'transport',d:gt});
+    }
+  });
+
+  sacredSites.forEach(s=>{
+    if(s.day_id===day.id){
+      const tm=s.site_time?s.site_time.slice(0,5):'';
+      items.push({sk:tm||'98:10',type:'sacred',d:s});
+    }
+  });
+
+  activities.forEach(a=>{
+    if(a.day_id===day.id){
+      const tm=a.activity_time?a.activity_time.slice(0,5):'';
+      items.push({sk:tm||'98:11',type:'activity',d:a});
+    }
+  });
+
+  hotelBookings.forEach(hb=>{
+    if((hb.check_in||'').split('T')[0]===dayDate)
+      items.push({sk:'99:99',type:'checkin',d:hb});
+  });
+
+  items.sort((a,b)=>a.sk.localeCompare(b.sk));
+  return items;
+}
+
+function renderItem({sk,type,d}){
+  const realTime=sk.slice(0,2)<'98'&&sk!=='00:00'&&sk!=='99:99';
+
+  if(type==='checkout'){
+    const t=parseHotelTime(d.notes,'checkout');
+    return`<div class="tl-item">
+      <div class="tl-time${t?'':' empty'}">${esc(t)}</div>
+      <div class="tl-icon">🏨</div>
+      <div class="tl-body">
+        <div class="tl-lbl">CHECK OUT</div>
+        <div class="tl-main">${esc(d.hotel_name||'Hotel')}</div>
+        ${d.confirmation_number?`<div class="tl-sub">Conf: ${esc(d.confirmation_number)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='checkin'){
+    const t=parseHotelTime(d.notes,'checkin');
+    return`<div class="tl-item">
+      <div class="tl-time${t?'':' empty'}">${esc(t)}</div>
+      <div class="tl-icon">🏨</div>
+      <div class="tl-body">
+        <div class="tl-lbl gold">CHECK IN</div>
+        <div class="tl-main">${esc(d.hotel_name||'Hotel')}</div>
+        ${d.room_type?`<div class="tl-sub">${esc(d.room_type)}</div>`:''}
+        ${d.confirmation_number?`<div class="tl-sub">Conf: ${esc(d.confirmation_number)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='dep'){
+    const dep=utcHHMM(d.departure_time),arr=utcHHMM(d.arrival_time);
+    return`<div class="tl-item">
+      <div class="tl-time">${dep}</div>
+      <div class="tl-icon">✈️</div>
+      <div class="tl-body">
+        <div class="tl-lbl">DEPARTING FLIGHT</div>
+        <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
+        <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${arr?' · Arr '+arr:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
+        ${d.booking_ref?`<div class="tl-sub">PNR: ${esc(d.booking_ref)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='arr'){
+    const arr=utcHHMM(d.arrival_time),dep=utcHHMM(d.departure_time);
+    return`<div class="tl-item">
+      <div class="tl-time">${arr}</div>
+      <div class="tl-icon">✈️</div>
+      <div class="tl-body">
+        <div class="tl-lbl">ARRIVING FLIGHT</div>
+        <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
+        <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${dep?' · Dep '+dep:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
+        ${d.booking_ref?`<div class="tl-sub">PNR: ${esc(d.booking_ref)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='train'){
+    const dep=d.departure_time?d.departure_time.slice(0,5):'';
+    const arr=d.arrival_time?d.arrival_time.slice(0,5):'';
+    return`<div class="tl-item">
+      <div class="tl-time${dep?'':' empty'}">${dep}</div>
+      <div class="tl-icon">🚂</div>
+      <div class="tl-body">
+        <div class="tl-lbl">TRAIN</div>
+        <div class="tl-main">${esc((d.carrier||'')+' '+(d.train_number||''))}</div>
+        <div class="tl-sub">${esc(d.departure_station||'')} → ${esc(d.arrival_station||'')}${arr?' · Arr '+arr:''}${d.class?' · '+esc(d.class):''}</div>
+        ${d.pnr?`<div class="tl-sub">PNR: ${esc(d.pnr)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='transport'){
+    const t=d.pickup_time?d.pickup_time.slice(0,5):'';
+    const ICONS={car:'🚗',taxi:'🚕',tuk:'🛺',auto:'🛺',driver:'🚗',bus:'🚌',boat:'⛵',moto:'🏍',rickshaw:'🛺'};
+    const LABELS={car:'CAR TRANSFER',taxi:'TAXI',tuk:'TUK-TUK',auto:'AUTO RICKSHAW',driver:'PRIVATE DRIVER',bus:'BUS',boat:'BOAT',moto:'MOTORBIKE',rickshaw:'RICKSHAW'};
+    const icon=ICONS[d.type]||'🚗';
+    const lbl=LABELS[d.type]||String(d.type||'TRANSFER').toUpperCase();
+    return`<div class="tl-item">
+      <div class="tl-time${t?'':' empty'}">${t}</div>
+      <div class="tl-icon">${icon}</div>
+      <div class="tl-body">
+        <div class="tl-lbl">${lbl}</div>
+        <div class="tl-main">${esc(d.vendor||d.pickup_location||'Transfer')}</div>
+        ${(d.pickup_location&&d.dropoff_location)?`<div class="tl-sub">${esc(d.pickup_location)} → ${esc(d.dropoff_location)}</div>`:''}
+        ${d.confirmation?`<div class="tl-sub">Conf: ${esc(d.confirmation)}</div>`:''}
+        ${d.notes?`<div class="tl-sub">${esc(d.notes)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='sacred'){
+    const t=d.site_time?d.site_time.slice(0,5):'';
+    return`<div class="tl-item tl-sacred">
+      <div class="tl-time${t?'':' empty'}">${t}</div>
+      <div class="tl-icon">🛕</div>
+      <div class="tl-body">
+        <div class="tl-main crimson">${esc(d.name)}</div>
+        ${d.notes?`<div class="tl-sub crimson">${esc(d.notes)}</div>`:''}
+      </div></div>`;
+  }
+  if(type==='activity'){
+    const t=d.activity_time?d.activity_time.slice(0,5):'';
+    return`<div class="tl-item tl-activity">
+      <div class="tl-time${t?'':' empty'}">${t}</div>
+      <div class="tl-icon">✨</div>
+      <div class="tl-body">
+        <div class="tl-main">${esc(d.description)}</div>
+      </div></div>`;
+  }
+  return'';
+}
+
+// ── Journey ───────────────────────────────────────────────────────────────────
+
+function renderJourney(){
+  if(!allDays.length){
+    document.getElementById('journey-content').innerHTML='<div class="tl-empty">No days found</div>';
+    return;
+  }
+  const today=localDate();
+  let html='';
+  allDays.forEach((day,idx)=>{
+    const dateStr=(day.date||'').split('T')[0];
+    const isToday=dateStr===today;
+    const icon=dayPrimaryIcon(day,dateStr);
+    html+=`<div class="jday-row${isToday?' is-today':''}" onclick="goToDay(${idx})">
+      <div class="jday-num">${day.day_number||idx+1}</div>
+      <div class="jday-info">
+        <div class="jday-date">${fmtDateShort(dateStr)}${isToday?' · TODAY':''}</div>
+        <div class="jday-loc">${esc(day.location||day.title||'—')}</div>
+      </div>
+      <div class="jday-icon">${icon}</div>
+    </div>`;
+  });
+  document.getElementById('journey-content').innerHTML=html;
+}
+
+function dayPrimaryIcon(day,dateStr){
+  const hasDep=(trip.flights||[]).some(f=>f.departure_time&&f.departure_time.slice(0,10)===dateStr);
+  const hasArr=(trip.flights||[]).some(f=>f.arrival_time&&f.arrival_time.slice(0,10)===dateStr);
+  if(hasDep||hasArr)return'✈️';
+  if(trains.some(t=>(t.journey_date||'').split('T')[0]===dateStr))return'🚂';
+  if(transports.some(gt=>(gt.transport_date||'').split('T')[0]===dateStr))return'🚗';
+  if(day.day_type==='travel')return'🚌';
+  return'🏨';
+}
+
+// ── Info ──────────────────────────────────────────────────────────────────────
+
+function renderInfo(){
+  if(!trip)return;
+  const travellers=trip.travellers||[];
+  let travHtml=travellers.length
+    ?travellers.map(t=>`<div class="trav-row"><div><div class="trav-name">${esc(t.first_name||'')} ${esc(t.last_name||'')}</div><div class="trav-role">${esc(t.role||'')}</div></div></div>`).join('')
+    :'<div class="tl-sub" style="padding:8px 0">No travellers listed</div>';
+
+  document.getElementById('info-content').innerHTML=`
+    <div class="info-section">
+      <div class="info-trip-title">${esc(trip.title||'Untitled Trip')}</div>
+      <div class="info-row"><span class="info-key">DATES</span><span class="info-val">${fmtDateRange(trip.start_date,trip.end_date)}</span></div>
+      <div class="info-row"><span class="info-key">PAX</span><span class="info-val">${trip.num_pax||1} ${(trip.num_pax||1)===1?'traveller':'travellers'}</span></div>
+      <div class="info-row"><span class="info-key">STATUS</span><span class="info-val">${esc((trip.status||'').toUpperCase())}</span></div>
+      ${allDays.length?`<div class="info-row"><span class="info-key">DAYS</span><span class="info-val">${allDays.length}</span></div>`:''}
+    </div>
+    <div class="info-section">
+      <div class="info-sec-title">TRAVELLERS</div>
+      ${travHtml}
+    </div>
+    <div class="info-section">
+      <div class="info-sec-title">EMERGENCY CONTACTS</div>
+      <div class="tl-sub" style="padding:8px 0;line-height:1.8">
+        Contact your Bhakti &amp; Bougie travel consultant for any urgent assistance during your journey.
+      </div>
+    </div>
+    <div class="info-brand">
+      <div class="pw-mark" style="margin:0 auto 14px;width:fit-content;">
+        <div class="pw-s"></div>
+        <div class="pw-s mid"><div class="pw-eye"></div></div>
+        <div class="pw-s"></div>
+      </div>
+      <div class="info-brand-name">BHAKTI &amp; BOUGIE</div>
+      <div class="info-brand-email">michael@bhaktiandbougie.travel</div>
+    </div>`;
+}
+</script>
+</body>
+</html>
