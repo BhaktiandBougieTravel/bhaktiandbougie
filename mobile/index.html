@@ -132,17 +132,18 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 /* ── Info tab ─── */
 #info-content{flex:1;overflow-y:auto;min-height:0;padding:20px 16px;-webkit-overflow-scrolling:touch;}
 .info-section{margin-bottom:28px;}
-.info-sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-.info-trip-title{font-family:var(--font-serif);font-size:26px;color:var(--cream);margin-bottom:10px;line-height:1.2;}
-.info-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
-.info-key{font-size:11px;color:var(--muted);letter-spacing:1px;flex-shrink:0;}
-.info-val{font-size:13px;color:var(--cream);text-align:right;margin-left:12px;}
-.trav-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
-.trav-name{font-family:var(--font-serif);font-size:16px;color:var(--cream);}
-.trav-role{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:1px;}
-.info-brand{text-align:center;padding:28px 0 8px;}
-.info-brand-name{font-family:var(--font-serif);font-size:22px;color:var(--cream);letter-spacing:4px;}
-.info-brand-email{font-size:12px;color:var(--gold);margin-top:6px;letter-spacing:1px;}
+.info-sec-title{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.info-trip-title{font-family:var(--font-serif);font-size:30px;color:var(--cream);margin-bottom:14px;line-height:1.2;}
+.info-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.info-key{font-size:14px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.info-val{font-size:18px;color:var(--cream);text-align:right;margin-left:12px;}
+.info-emerg{font-size:18px;color:var(--cream-dim);line-height:1.7;padding:4px 0;}
+.trav-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.trav-name{font-family:var(--font-serif);font-size:20px;color:var(--cream);}
+.trav-role{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.info-brand{text-align:center;padding:32px 0 12px;}
+.info-brand-name{font-family:var(--font-serif);font-size:24px;color:var(--cream);letter-spacing:4px;}
+.info-brand-email{font-size:16px;color:var(--gold);margin-top:8px;letter-spacing:1px;}
 
 /* ── Bottom nav ─── */
 #bottom-nav{
@@ -269,6 +270,9 @@ function fmtDateRange(s,e){
 function esc(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function normStr(s){
+  return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();
+}
 
 window.addEventListener('DOMContentLoaded',()=>{
   tripId=new URLSearchParams(location.search).get('trip');
@@ -375,7 +379,8 @@ function renderToday(){
 
   document.getElementById('day-label').textContent=fmtDayHeader(day);
   document.getElementById('day-location').textContent=day.location||'';
-  document.getElementById('day-title-txt').textContent=day.title||'';
+  const showTitle=day.title&&normStr(day.title)!==normStr(day.location||'');
+  document.getElementById('day-title-txt').textContent=showTitle?day.title:'';
   document.getElementById('btn-prev').disabled=currentDayIdx===0;
   document.getElementById('btn-next').disabled=currentDayIdx===allDays.length-1;
 
@@ -508,8 +513,8 @@ function renderItem({sk,type,d}){
   }
   if(type==='transport'){
     const t=toHHMM(d.pickup_time);
-    const ICONS={car:'🚗',taxi:'🚕',tuk:'🛺',auto:'🛺',driver:'🚗',bus:'🚌',boat:'⛵',moto:'🏍',rickshaw:'🛺'};
-    const LABELS={car:'CAR TRANSFER',taxi:'TAXI',tuk:'TUK-TUK',auto:'AUTO RICKSHAW',driver:'PRIVATE DRIVER',bus:'BUS',boat:'BOAT',moto:'MOTORBIKE',rickshaw:'RICKSHAW'};
+    const ICONS={car:'🚗',taxi:'🚕',tuk:'🛺',auto:'🛺',driver:'🚗',bus:'🚌',boat:'⛵',moto:'🏍',rickshaw:'🛺',E:'🚗',H:'🚐',U:'🚕',P:'🚗',D:'🚗',C:'🚙'};
+    const LABELS={car:'CAR TRANSFER',taxi:'TAXI',tuk:'TUK-TUK',auto:'AUTO RICKSHAW',driver:'PRIVATE DRIVER',bus:'BUS',boat:'BOAT',moto:'MOTORBIKE',rickshaw:'RICKSHAW',E:'Emirates Limo',H:'Hotel Transfer',U:'Uber / Taxi',P:'Private Transfer',D:'Hired Driver',C:'City Driver'};
     const icon=ICONS[d.type]||'🚗';
     const lbl=LABELS[d.type]||String(d.type||'TRANSFER').toUpperCase();
     return`<div class="tl-item">
@@ -574,10 +579,13 @@ function dayPrimaryIcon(day,dateStr){
   const hasDep=(trip.flights||[]).some(f=>f.departure_time&&f.departure_time.slice(0,10)===dateStr);
   const hasArr=(trip.flights||[]).some(f=>f.arrival_time&&f.arrival_time.slice(0,10)===dateStr);
   if(hasDep||hasArr)return'✈️';
-  if(trains.some(t=>(t.journey_date||'').split('T')[0]===dateStr))return'🚂';
-  if(transports.some(gt=>(gt.transport_date||'').split('T')[0]===dateStr))return'🚗';
-  if(day.day_type==='travel')return'🚌';
-  return'🏨';
+  const hasTrain=trains.some(t=>(t.journey_date||'').split('T')[0]===dateStr);
+  const hasTransport=transports.some(gt=>(gt.transport_date||'').split('T')[0]===dateStr);
+  if(hasTrain||hasTransport)return'🚗';
+  const hasHotel=hotelBookings.some(hb=>(hb.check_in||'').split('T')[0]===dateStr||(hb.check_out||'').split('T')[0]===dateStr);
+  if(hasHotel)return'🏨';
+  if(sacredSites.some(s=>s.day_id===day.id))return'🛕';
+  return'—';
 }
 
 // ── Info ──────────────────────────────────────────────────────────────────────
@@ -603,9 +611,8 @@ function renderInfo(){
     </div>
     <div class="info-section">
       <div class="info-sec-title">EMERGENCY CONTACTS</div>
-      <div class="tl-sub" style="padding:8px 0;line-height:1.8">
-        Contact your Bhakti &amp; Bougie travel consultant for any urgent assistance during your journey.
-      </div>
+      <div class="info-emerg">Contact your Bhakti &amp; Bougie consultant for any urgent assistance during your journey.</div>
+      <div class="info-row"><span class="info-key">EMAIL</span><span class="info-val" style="color:var(--gold)">michael@bhaktiandbougie.travel</span></div>
     </div>
     <div class="info-brand">
       <div class="pw-mark" style="margin:0 auto 14px;width:fit-content;">
