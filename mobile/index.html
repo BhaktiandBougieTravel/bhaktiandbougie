@@ -278,7 +278,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   tripId=new URLSearchParams(location.search).get('trip');
   if(sessionStorage.getItem('mob_auth')){
     if(tripId)loadAndShow();
-    else showPwMsg('Add ?trip=TRIPID to the URL');
+    else findAndLoadTrip();
   }
   document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth();});
 
@@ -292,6 +292,15 @@ window.addEventListener('DOMContentLoaded',()=>{
   },{passive:true});
 });
 
+async function findAndLoadTrip(){
+  try{
+    const trips=await fetch(`${API}/trips`).then(r=>r.json()).catch(()=>[]);
+    const pick=trips.find(t=>t.status==='active')||trips.find(t=>t.status==='confirmed');
+    if(pick){tripId=pick.id;loadAndShow();}
+    else showPwMsg('No active or confirmed trip found. Add ?trip=TRIPID to the URL.');
+  }catch(e){showPwMsg('Could not load trips. Add ?trip=TRIPID to the URL.');}
+}
+
 async function doAuth(){
   const pw=document.getElementById('pw-input').value;
   const errEl=document.getElementById('pw-error');
@@ -300,8 +309,8 @@ async function doAuth(){
     const r=await fetch(`${API}/mobile-auth`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
     if(!r.ok){errEl.textContent='Incorrect password';return;}
     sessionStorage.setItem('mob_auth','1');
-    if(!tripId){showPwMsg('Authenticated. Add ?trip=TRIPID to the URL to load a journey.');return;}
-    loadAndShow();
+    if(tripId)loadAndShow();
+    else findAndLoadTrip();
   }catch(e){errEl.textContent='Connection error — check signal';}
 }
 

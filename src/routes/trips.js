@@ -78,7 +78,7 @@ router.post('/',
 
 // PATCH /api/trips/:id
 router.patch('/:id', param('id').isUUID(), validate, async (req, res, next) => {
-  const allowed = ['title', 'status', 'start_date', 'end_date', 'num_pax', 'currency', 'base_price', 'paid_amount', 'notes'];
+  const allowed = ['title', 'status', 'start_date', 'end_date', 'num_pax', 'currency', 'base_price', 'paid_amount', 'notes', 'trip_code'];
   const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
   if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update' });
   const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(', ');

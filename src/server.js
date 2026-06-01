@@ -38,6 +38,7 @@ app.post('/api/mobile-auth', (req, res) => {
 app.get('/health', (_req, res) => res.json({ status: 'ok', company: 'Bhakti & Bougie Travel Ltd' }));
 
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS day_type VARCHAR(10) DEFAULT 'stay'").catch(e => console.error('[startup] day_type migration:', e.message));
+pool.query("ALTER TABLE trips ADD COLUMN IF NOT EXISTS trip_code VARCHAR(50) UNIQUE").catch(e => console.error('[startup] trip_code migration:', e.message));
 pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catch(e => console.error('[startup] days date type migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e => console.error('[startup] activities migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
@@ -315,6 +316,12 @@ app.delete('/api/activities/:id', async (req, res, next) => {
 });
 
 app.get('/', (_req, res) => res.redirect('/mobile'));
+
+app.get('/trip/:code', async (req, res) => {
+  const result = await pool.query('SELECT id FROM trips WHERE trip_code=$1', [req.params.code]);
+  if (result.rows.length) res.redirect('/mobile?trip=' + result.rows[0].id);
+  else res.status(404).send('Trip not found');
+});
 
 // Central error handler
 app.use((err, _req, res, _next) => {

@@ -471,6 +471,10 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <option value="EUR">EUR</option>
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label">Trip Code</label>
+        <input type="text" class="form-input" id="trip-code" placeholder="e.g. BST2026"/>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Notes</label>
@@ -1542,6 +1546,7 @@ function editTrip(id){
   document.getElementById('trip-pax').value=t.num_pax;
   document.getElementById('trip-price').value=t.base_price;
   document.getElementById('trip-currency').value=t.currency||'INR';
+  document.getElementById('trip-code').value=t.trip_code||'';
   document.getElementById('trip-desc').value=t.notes||'';
   openModal('trip-modal');
 }
@@ -1550,7 +1555,8 @@ async function saveTrip(){
   const start_date=document.getElementById('trip-start').value;
   const end_date=document.getElementById('trip-end').value;
   if(!start_date||!end_date){console.error('saveTrip: missing date — start:',start_date,'end:',end_date);return;}
-  const body={title:document.getElementById('trip-title').value,status:document.getElementById('trip-status').value,start_date,end_date,num_pax:document.getElementById('trip-pax').value,base_price:document.getElementById('trip-price').value,currency:document.getElementById('trip-currency').value,notes:document.getElementById('trip-desc').value};
+  const tripCode=document.getElementById('trip-code').value.trim();
+  const body={title:document.getElementById('trip-title').value,status:document.getElementById('trip-status').value,start_date,end_date,num_pax:document.getElementById('trip-pax').value,base_price:document.getElementById('trip-price').value,currency:document.getElementById('trip-currency').value,notes:document.getElementById('trip-desc').value,...(tripCode?{trip_code:tripCode}:{})};
   await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('trip-modal');
   document.getElementById('trip-id').value='';
