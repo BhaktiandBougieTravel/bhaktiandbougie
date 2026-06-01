@@ -379,7 +379,8 @@ function renderToday(){
 
   document.getElementById('day-label').textContent=fmtDayHeader(day);
   document.getElementById('day-location').textContent=day.location||'';
-  const showTitle=day.title&&normStr(day.title)!==normStr(day.location||'');
+  const titleIsBareDay=/^day\s*\d+$/i.test(normStr(day.title||''));
+  const showTitle=!titleIsBareDay&&day.title&&normStr(day.title)!==normStr(day.location||'');
   document.getElementById('day-title-txt').textContent=showTitle?day.title:'';
   document.getElementById('btn-prev').disabled=currentDayIdx===0;
   document.getElementById('btn-next').disabled=currentDayIdx===allDays.length-1;
@@ -399,6 +400,13 @@ function buildDayItems(day,dayDate){
   hotelBookings.forEach(hb=>{
     if((hb.check_out||'').split('T')[0]===dayDate)
       items.push({sk:'00:00',type:'checkout',d:hb});
+  });
+
+  hotelBookings.forEach(hb=>{
+    const ci=(hb.check_in||'').split('T')[0];
+    const co=(hb.check_out||'').split('T')[0];
+    if(ci&&co&&ci<dayDate&&dayDate<co)
+      items.push({sk:'01:00',type:'staying',d:hb});
   });
 
   (trip.flights||[]).forEach(f=>{
@@ -451,6 +459,17 @@ function buildDayItems(day,dayDate){
 function renderItem({sk,type,d}){
   const realTime=sk.slice(0,2)<'98'&&sk!=='00:00'&&sk!=='99:99';
 
+  if(type==='staying'){
+    return`<div class="tl-item">
+      <div class="tl-time empty"></div>
+      <div class="tl-icon">🏨</div>
+      <div class="tl-body">
+        <div class="tl-lbl">STAYING AT</div>
+        <div class="tl-main">${esc(d.hotel_name||'Hotel')}</div>
+        ${d.room_type?`<div class="tl-sub">${esc(d.room_type)}</div>`:''}
+        ${d.confirmation_number?`<div class="tl-ref">${esc(d.confirmation_number)}</div>`:''}
+      </div></div>`;
+  }
   if(type==='checkout'){
     const t=parseHotelTime(d.notes,'checkout');
     return`<div class="tl-item">
