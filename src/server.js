@@ -27,6 +27,7 @@ app.use('/admin', (req, res, next) => {
 });
 app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
+app.use('/website', express.static(path.join(__dirname, '../website')));
 
 app.post('/api/mobile-auth', (req, res) => {
   const { password } = req.body;
@@ -315,7 +316,7 @@ app.delete('/api/activities/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.get('/', (_req, res) => res.redirect('/mobile'));
+app.get('/', (_req, res) => res.redirect('/website'));
 
 app.get('/trip/:code', async (req, res) => {
   const result = await pool.query('SELECT id FROM trips WHERE trip_code=$1', [req.params.code]);

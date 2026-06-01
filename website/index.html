@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Bhakti & Bougie Travel Company Ltd. — Luxury Spiritual Journeys to India</title>
+<meta name="description" content="Bespoke luxury spiritual travel to India. Curated by Michael Levin — MA, MBA, Jam Dass, E-RYT 500. Sacred South India, Rajasthan Royal, Himalayan Immersion."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A;
+  --navy2:#111e2d;
+  --gold:#C8860A;
+  --cream:#F2E6CC;
+  --cream2:#E8D9B8;
+  --crimson:#8B1A1A;
+  --ash:#9A9490;
+  --gold-dim:rgba(200,134,10,0.15);
+  --gold-border:rgba(200,134,10,0.35);
+  --cream-dim:rgba(242,230,204,0.08);
+  --nav-h:68px;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Jost',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+section{width:100%}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.8s ease,transform 0.8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.15s}
+.reveal-delay-2{transition-delay:0.3s}
+.reveal-delay-3{transition-delay:0.45s}
+.reveal-delay-4{transition-delay:0.6s}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  background:rgba(13,27,42,0.96);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+}
+.nav-brand{display:flex;align-items:center;gap:14px}
+.nav-tripundra{width:36px;height:36px;flex-shrink:0}
+.nav-wordmark{
+  font-family:var(--font-serif);
+  font-size:18px;font-weight:500;letter-spacing:3px;
+  color:var(--cream);text-transform:uppercase;
+}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{
+  font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--ash);transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--gold)}
+.nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
+.nav-burger span{display:block;width:22px;height:1.5px;background:var(--cream);transition:all 0.3s}
+
+/* mobile nav */
+#nav-mobile{
+  display:none;position:fixed;top:var(--nav-h);left:0;right:0;z-index:99;
+  background:rgba(13,27,42,0.98);
+  border-bottom:1px solid var(--gold-border);
+  flex-direction:column;padding:24px 32px 32px;gap:24px;
+}
+#nav-mobile.open{display:flex}
+#nav-mobile a{
+  font-size:16px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--cream2);border-bottom:1px solid rgba(200,134,10,0.15);
+  padding-bottom:20px;
+}
+#nav-mobile a:last-child{border-bottom:none;padding-bottom:0}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  padding-top:var(--nav-h);
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:var(--navy);
+}
+/* geometric gold pattern */
+.hero-pattern{
+  position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(45deg, var(--gold-dim) 0, var(--gold-dim) 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, var(--gold-dim) 0, var(--gold-dim) 1px, transparent 0, transparent 50%);
+  background-size:60px 60px;
+  opacity:0.6;
+}
+.hero-vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center, transparent 30%, rgba(13,27,42,0.85) 100%);
+}
+.hero-content{
+  position:relative;z-index:2;
+  text-align:center;
+  padding:60px 24px;
+  max-width:800px;
+}
+.hero-tripundra{
+  width:80px;height:80px;
+  margin:0 auto 36px;
+  opacity:0;transform:scale(0.8);
+  transition:opacity 1s ease,transform 1s ease;
+}
+.hero-tripundra.visible{opacity:1;transform:scale(1)}
+.hero-rule{
+  width:80px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:24px auto;
+}
+.hero-wordmark{
+  font-family:var(--font-serif);
+  font-size:clamp(44px,8vw,88px);
+  font-weight:500;
+  letter-spacing:0.12em;
+  color:var(--cream);
+  line-height:1.05;
+}
+.hero-company{
+  font-size:13px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--gold);
+  margin-top:10px;
+}
+.hero-tagline{
+  font-family:var(--font-serif);
+  font-size:clamp(18px,2.5vw,24px);
+  font-style:italic;
+  font-weight:300;
+  color:var(--cream2);
+  margin-top:28px;line-height:1.5;
+}
+.hero-badge{
+  display:inline-block;margin-top:28px;
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);
+  border:1px solid var(--gold-border);
+  padding:8px 20px;
+}
+.hero-cta{
+  display:inline-block;margin-top:36px;
+  background:var(--gold);color:var(--navy);
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  font-weight:500;padding:14px 36px;
+  transition:background 0.2s,color 0.2s;
+}
+.hero-cta:hover{background:var(--cream2);color:var(--navy)}
+
+/* ── SECTION COMMON ── */
+.section-inner{max-width:1100px;margin:0 auto;padding:100px 40px}
+.section-label{
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;
+}
+.section-title{
+  font-family:var(--font-serif);
+  font-size:clamp(36px,5vw,56px);
+  font-weight:400;color:var(--cream);
+  line-height:1.1;margin-bottom:48px;
+}
+.section-rule{
+  width:60px;height:2px;background:var(--gold);
+  margin-bottom:48px;
+}
+
+/* ── PHILOSOPHY ── */
+#philosophy{background:var(--navy2)}
+.philosophy-grid{
+  display:grid;
+  grid-template-columns:1fr 1.4fr;
+  gap:80px;align-items:start;
+}
+.philosophy-quote{
+  font-family:var(--font-serif);
+  font-size:clamp(24px,3vw,36px);
+  font-weight:300;
+  font-style:italic;
+  color:var(--cream);
+  line-height:1.45;
+  border-left:3px solid var(--gold);
+  padding-left:28px;
+  position:sticky;top:calc(var(--nav-h) + 40px);
+}
+.philosophy-body p{
+  font-size:16px;line-height:1.85;
+  color:rgba(242,230,204,0.8);
+  margin-bottom:24px;
+}
+.philosophy-body p:last-child{margin-bottom:0}
+
+/* ── JOURNEYS ── */
+#journeys{background:var(--navy)}
+.journeys-note{
+  font-family:var(--font-serif);
+  font-style:italic;font-size:18px;
+  color:var(--ash);
+  margin-bottom:56px;
+}
+.journeys-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2px;
+}
+.journey-card{
+  background:var(--navy2);
+  border-top:2px solid var(--gold);
+  padding:40px 32px;
+  display:flex;flex-direction:column;
+  transition:background 0.2s;
+}
+.journey-card:hover{background:rgba(17,30,45,0.7)}
+.journey-region{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+.journey-title{
+  font-family:var(--font-serif);
+  font-size:28px;font-weight:500;
+  color:var(--cream);line-height:1.2;
+  margin-bottom:16px;
+}
+.journey-desc{
+  font-size:14px;color:rgba(242,230,204,0.7);
+  line-height:1.75;flex:1;margin-bottom:32px;
+}
+.journey-destinations{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;
+}
+.journey-tag{
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--ash);
+  border:1px solid rgba(154,148,144,0.3);
+  padding:4px 10px;
+}
+.journey-cta{
+  display:inline-block;
+  font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);
+  border-bottom:1px solid var(--gold-border);
+  padding-bottom:4px;align-self:flex-start;
+  transition:color 0.2s,border-color 0.2s;
+}
+.journey-cta:hover{color:var(--cream);border-color:var(--cream)}
+
+/* ── MICHAEL ── */
+#michael{background:var(--navy2)}
+.michael-grid{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:80px;align-items:start;
+}
+.michael-photo-wrap{text-align:center}
+.michael-photo{
+  width:220px;height:220px;border-radius:50%;
+  background:var(--navy);
+  border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  overflow:hidden;
+  font-size:64px;
+}
+.michael-name{
+  font-family:var(--font-serif);
+  font-size:22px;font-weight:500;color:var(--cream);
+  margin-bottom:8px;
+}
+.michael-credentials{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);line-height:1.8;
+}
+.michael-bio p{
+  font-size:16px;line-height:1.85;
+  color:rgba(242,230,204,0.8);margin-bottom:20px;
+}
+.michael-bio p:last-child{margin-bottom:0}
+.michael-quote{
+  margin-top:36px;
+  font-family:var(--font-serif);
+  font-size:clamp(22px,2.8vw,30px);
+  font-style:italic;font-weight:300;
+  color:var(--cream);
+  border-left:3px solid var(--crimson);
+  padding-left:24px;line-height:1.5;
+}
+
+/* ── SEVA ── */
+#seva{background:var(--navy)}
+.seva-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:80px;align-items:start;
+}
+.seva-heading-block{}
+.seva-devanagari{
+  font-family:var(--font-serif);
+  font-size:clamp(48px,6vw,72px);
+  font-weight:300;color:var(--gold);
+  line-height:1;margin-bottom:8px;
+}
+.seva-heading{
+  font-family:var(--font-serif);
+  font-size:clamp(28px,4vw,44px);
+  font-weight:400;color:var(--cream);
+  margin-bottom:32px;
+}
+.seva-body p{
+  font-size:16px;line-height:1.85;
+  color:rgba(242,230,204,0.8);margin-bottom:20px;
+}
+.seva-body p:last-child{margin-bottom:0}
+.seva-contact{
+  display:inline-block;margin-top:28px;
+  font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid var(--gold-border);
+  padding-bottom:3px;transition:color 0.2s;
+}
+.seva-contact:hover{color:var(--cream)}
+.seva-note{
+  margin-top:28px;
+  font-size:13px;color:var(--ash);
+  font-style:italic;line-height:1.7;
+}
+
+/* ── INQUIRE ── */
+#inquire{background:var(--navy2)}
+.inquire-grid{
+  display:grid;grid-template-columns:1fr 1.2fr;
+  gap:80px;align-items:start;
+}
+.inquire-intro{font-size:16px;line-height:1.85;color:rgba(242,230,204,0.8)}
+.inquire-intro strong{color:var(--cream);font-weight:500}
+.form-field{margin-bottom:28px}
+.form-label{
+  display:block;
+  font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+.form-input,
+.form-textarea,
+.form-select{
+  width:100%;
+  background:rgba(242,230,204,0.06);
+  border:1px solid rgba(200,134,10,0.25);
+  color:var(--cream);
+  font-family:var(--font-sans);
+  font-size:15px;font-weight:300;
+  padding:14px 16px;
+  outline:none;
+  transition:border-color 0.2s,background 0.2s;
+  -webkit-appearance:none;appearance:none;
+}
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus{
+  border-color:var(--gold);
+  background:rgba(200,134,10,0.07);
+}
+.form-textarea{resize:vertical;min-height:120px}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(242,230,204,0.3)}
+.form-submit{
+  background:var(--gold);color:var(--navy);
+  border:none;cursor:pointer;
+  font-family:var(--font-sans);font-size:12px;
+  letter-spacing:3px;text-transform:uppercase;
+  font-weight:500;padding:16px 44px;
+  transition:background 0.2s,color 0.2s;
+  width:100%;
+}
+.form-submit:hover{background:var(--cream2)}
+.form-success{
+  display:none;
+  background:rgba(200,134,10,0.12);
+  border:1px solid var(--gold-border);
+  padding:20px 24px;
+  font-family:var(--font-serif);
+  font-size:18px;font-style:italic;
+  color:var(--cream2);margin-top:16px;text-align:center;
+}
+
+/* ── FOOTER ── */
+#footer{
+  background:var(--navy2);
+  border-top:1px solid var(--gold-border);
+  padding:60px 40px;
+  text-align:center;
+}
+.footer-tripundra{width:40px;height:40px;margin:0 auto 20px;opacity:0.7}
+.footer-brand{
+  font-family:var(--font-serif);
+  font-size:16px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--cream);margin-bottom:8px;
+}
+.footer-india{
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;
+}
+.footer-email{
+  font-size:13px;letter-spacing:1px;color:var(--ash);
+  transition:color 0.2s;
+}
+.footer-email:hover{color:var(--cream)}
+.footer-sep{
+  width:40px;height:1px;background:var(--gold-border);
+  margin:24px auto;
+}
+.footer-fora{font-size:11px;color:rgba(154,148,144,0.5)}
+.footer-copy{margin-top:8px;font-size:11px;color:rgba(154,148,144,0.4)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:800px){
+  .nav-links{display:none}
+  .nav-burger{display:flex}
+  .section-inner{padding:72px 24px}
+  .philosophy-grid,.michael-grid,.seva-grid,.inquire-grid{grid-template-columns:1fr;gap:48px}
+  .philosophy-quote{position:static}
+  .michael-grid{grid-template-columns:1fr}
+  .michael-photo-wrap{margin-bottom:8px}
+  .journeys-grid{grid-template-columns:1fr}
+  .journey-card{padding:32px 24px}
+  #nav{padding:0 20px}
+}
+@media(max-width:500px){
+  .section-inner{padding:60px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <div class="nav-brand">
+    <svg class="nav-tripundra" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- three horizontal stripes (tripundra bhasma lines) -->
+      <rect x="8" y="14" width="44" height="7" rx="3.5" fill="#C8860A"/>
+      <rect x="8" y="26" width="44" height="7" rx="3.5" fill="#C8860A"/>
+      <rect x="8" y="38" width="44" height="7" rx="3.5" fill="#C8860A"/>
+      <!-- crimson bindu -->
+      <circle cx="30" cy="30" r="5" fill="#8B1A1A"/>
+    </svg>
+    <span class="nav-wordmark">Bhakti &amp; Bougie</span>
+  </div>
+  <nav class="nav-links">
+    <a href="#philosophy">Philosophy</a>
+    <a href="#journeys">Journeys</a>
+    <a href="#michael">Michael</a>
+    <a href="#seva">Seva</a>
+    <a href="#inquire">Inquire</a>
+  </nav>
+  <div class="nav-burger" id="nav-burger" role="button" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div id="nav-mobile">
+  <a href="#philosophy" onclick="closeNav()">Philosophy</a>
+  <a href="#journeys" onclick="closeNav()">Journeys</a>
+  <a href="#michael" onclick="closeNav()">Michael</a>
+  <a href="#seva" onclick="closeNav()">Seva</a>
+  <a href="#inquire" onclick="closeNav()">Inquire</a>
+</div>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-content">
+    <svg class="hero-tripundra" id="hero-tripundra" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="20" width="80" height="13" rx="6.5" fill="#C8860A"/>
+      <rect x="10" y="43" width="80" height="13" rx="6.5" fill="#C8860A"/>
+      <rect x="10" y="66" width="80" height="13" rx="6.5" fill="#C8860A"/>
+      <circle cx="50" cy="50" r="9" fill="#8B1A1A"/>
+    </svg>
+
+    <div class="reveal">
+      <div class="hero-rule"></div>
+      <div class="hero-wordmark">Bhakti &amp; Bougie</div>
+      <div class="hero-company">Travel Company Ltd.</div>
+      <div class="hero-rule"></div>
+    </div>
+
+    <div class="reveal reveal-delay-1">
+      <div class="hero-tagline">Auspicious sadhana. Uncompromising luxury.</div>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="hero-badge">India Only</div>
+    </div>
+
+    <div class="reveal reveal-delay-3">
+      <a href="#inquire" class="hero-cta">Begin Your Journey</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── PHILOSOPHY ── -->
+<section id="philosophy">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">What We Believe</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="philosophy-grid">
+      <div class="reveal reveal-delay-1">
+        <blockquote class="philosophy-quote">
+          "Luxury and spirituality are not opposites. In India, they never were."
+        </blockquote>
+      </div>
+      <div class="philosophy-body reveal reveal-delay-2">
+        <p>We believe in depth over breadth. A single week at the right temple, with the right guide, in the right room overlooking the right ghats, changes a person more than three weeks of checked boxes ever could. India asks something of you. We make sure you arrive worthy of her ask.</p>
+        <p>The sacred and the bougie are not in tension here — they are complementary. A cold-press juice after a 5am puja. A heritage haveli bed after a dusty pilgrimage road. A master chef's thali after a long silence. These are not indulgences. They are the container that makes the practice sustainable, the comfort that lets you go deeper than you ever dared.</p>
+        <p>Every itinerary we create is hand-curated — never templated, never resold. We work with a small number of travelers each year by design. Your journey is not a product. It is a conversation between you, India, and us — and it begins the moment you reach out.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── JOURNEYS ── -->
+<section id="journeys">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Signature Journeys</div>
+      <div class="section-title">Where We Go</div>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <p class="journeys-note">All itineraries are bespoke. These are starting points, not fixed products.</p>
+    </div>
+    <div class="journeys-grid">
+
+      <div class="journey-card reveal reveal-delay-1">
+        <div class="journey-region">South India</div>
+        <div class="journey-title">Sacred South</div>
+        <div class="journey-desc">The ancient Dravidian heartland — towering gopurams, devotional music older than memory, backwater silences, and spice-scented colonial grandeur. Tamil Nadu and Kerala offer the most intact living temple tradition on earth.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Tamil Nadu</span>
+          <span class="journey-tag">Kerala</span>
+          <span class="journey-tag">Madurai</span>
+          <span class="journey-tag">Chidambaram</span>
+          <span class="journey-tag">Kumarakom</span>
+        </div>
+        <a href="#inquire" class="journey-cta">Inquire</a>
+      </div>
+
+      <div class="journey-card reveal reveal-delay-2">
+        <div class="journey-region">Rajasthan</div>
+        <div class="journey-title">Rajasthan Royal</div>
+        <div class="journey-desc">Maharaja palaces converted to heritage hotels. Camel caravans into the Thar at dusk. The pink city, the blue city, the golden city — and the eternal temples of Pushkar and Ranakpur woven between them.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Jaipur</span>
+          <span class="journey-tag">Jodhpur</span>
+          <span class="journey-tag">Jaisalmer</span>
+          <span class="journey-tag">Pushkar</span>
+          <span class="journey-tag">Udaipur</span>
+        </div>
+        <a href="#inquire" class="journey-cta">Inquire</a>
+      </div>
+
+      <div class="journey-card reveal reveal-delay-3">
+        <div class="journey-region">Himalayas</div>
+        <div class="journey-title">Himalayan Immersion</div>
+        <div class="journey-desc">The roof of the world meets the source of the Ganges. Morning yoga on the banks at Rishikesh, an audience with a mountain sadhu, and the silence above the treeline that no amount of meditation app minutes can replicate.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Rishikesh</span>
+          <span class="journey-tag">Haridwar</span>
+          <span class="journey-tag">Uttarakhand</span>
+          <span class="journey-tag">Mussoorie</span>
+        </div>
+        <a href="#inquire" class="journey-cta">Inquire</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── MICHAEL ── -->
+<section id="michael">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">The Curator</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="michael-grid">
+      <div class="michael-photo-wrap reveal reveal-delay-1">
+        <div class="michael-photo">🪷</div>
+        <div class="michael-name">Michael Levin</div>
+        <div class="michael-credentials">MA · MBA<br/>Jam Dass<br/>E-RYT 500</div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="michael-bio">
+          <p>Michael's love affair with India began before he could fully explain it — a pull that predated any rational justification and has never required one. Over two decades of returns, he has studied Sanskrit, been initiated into a devotional lineage, completed advanced yoga teacher training in Mysore, and learned to navigate the subcontinent with equal fluency in five-star heritage hotels and roadside chai stalls.</p>
+          <p>He holds a Master's degree in International Studies and an MBA, and spent years in business before recognizing that the work he was born to do was to help others find what India had given him: a direct encounter with the sacred, held in conditions beautiful enough that the ego stops fighting and the real journey can begin.</p>
+          <p>He works with a small number of travelers each year — people who are spiritually curious, unafraid of depth, and unwilling to compromise on comfort. He does not use templates. He does not rush. He has never led a tour he wouldn't want to be on himself.</p>
+        </div>
+        <blockquote class="michael-quote">
+          "I don't sell tours. I share a love affair."
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEVA ── -->
+<section id="seva">
+  <div class="section-inner">
+    <div class="seva-grid">
+      <div class="seva-heading-block reveal">
+        <div class="seva-devanagari">सेवा</div>
+        <div class="seva-heading">Selfless Service</div>
+        <div class="section-rule"></div>
+        <div class="seva-note">
+          Bhakti &amp; Bougie is structured as a for-profit travel company. The charitable work below is personal — Michael's own, offered here because it is inseparable from why this company exists.
+        </div>
+      </div>
+      <div class="seva-body reveal reveal-delay-2">
+        <p>In a small Dalit village outside Jaipur, Rajasthan, Michael has been involved with a community-run girls' education centre for years. The project grew from relationships formed on early solo journeys — the kind of relationships that happen when you slow down, stay longer, and stop treating a country as a backdrop.</p>
+        <p>During the COVID lockdowns of 2020–21, when the village lost its primary income source overnight, Michael helped coordinate emergency food and supply distribution through local contacts and international donors. What had been a spiritual curiosity became an obligation of love.</p>
+        <p>The girls' education centre is now fully staffed by local teachers. It serves children who would otherwise have no formal schooling. It is the thing Michael is most proud of, and it has nothing to do with luxury — except that the luxury is what made it possible to stay long enough to care.</p>
+        <p>A portion of every booking goes toward the centre's operational costs. Travelers who wish to visit during their journey are welcome to ask.</p>
+        <a href="mailto:michael@bhaktiandbougie.travel" class="seva-contact">michael@bhaktiandbougie.travel</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INQUIRE ── -->
+<section id="inquire">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Begin Here</div>
+      <div class="section-title">Inquire</div>
+    </div>
+    <div class="inquire-grid">
+      <div class="inquire-intro reveal reveal-delay-1">
+        <p>Every journey begins with a conversation. Tell us a little about yourself and what's calling you to India — there are no wrong answers, and no obligation attached to reaching out.</p>
+        <br/>
+        <p>We typically respond within 48 hours. For urgent inquiries, email <strong><a href="mailto:michael@bhaktiandbougie.travel">michael@bhaktiandbougie.travel</a></strong> directly.</p>
+        <br/>
+        <p style="font-family:var(--font-serif);font-style:italic;font-size:18px;color:var(--ash)">We accept a limited number of bookings each year. If the timing is right, we'll know quickly.</p>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <form id="inquire-form" onsubmit="submitForm(event)">
+          <div class="form-field">
+            <label class="form-label" for="f-name">Your Name</label>
+            <input class="form-input" type="text" id="f-name" name="name" placeholder="First and last name" required/>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-email">Email Address</label>
+            <input class="form-input" type="email" id="f-email" name="email" placeholder="you@example.com" required/>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-call">What Calls You to India?</label>
+            <textarea class="form-textarea" id="f-call" name="calling" placeholder="A spiritual practice, a bucket list dream, a feeling you can't quite name — all of the above are fine answers." required></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="f-timing">When Are You Thinking of Traveling?</label>
+            <input class="form-input" type="text" id="f-timing" name="timing" placeholder="e.g. October 2026, flexible, not sure yet"/>
+          </div>
+          <button type="submit" class="form-submit">Send Inquiry</button>
+          <div class="form-success" id="form-success">
+            Thank you. Michael will be in touch within 48 hours. ✦
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer id="footer">
+  <svg class="footer-tripundra" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="14" width="44" height="7" rx="3.5" fill="#C8860A"/>
+    <rect x="8" y="26" width="44" height="7" rx="3.5" fill="#C8860A"/>
+    <rect x="8" y="38" width="44" height="7" rx="3.5" fill="#C8860A"/>
+    <circle cx="30" cy="30" r="5" fill="#8B1A1A"/>
+  </svg>
+  <div class="footer-brand">Bhakti &amp; Bougie Travel Company Ltd.</div>
+  <div class="footer-india">India Only</div>
+  <a href="mailto:michael@bhaktiandbougie.travel" class="footer-email">michael@bhaktiandbougie.travel</a>
+  <div class="footer-sep"></div>
+  <div class="footer-fora">Powered by Fora Travel</div>
+  <div class="footer-copy">&copy; 2025 Bhakti &amp; Bougie Travel Company Ltd. All rights reserved.</div>
+</footer>
+
+<script>
+// ── HAMBURGER NAV ──
+const burger = document.getElementById('nav-burger');
+const mobileNav = document.getElementById('nav-mobile');
+burger.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  const spans = burger.querySelectorAll('span');
+  const isOpen = mobileNav.classList.contains('open');
+  spans[0].style.transform = isOpen ? 'translateY(6.5px) rotate(45deg)' : '';
+  spans[1].style.opacity = isOpen ? '0' : '1';
+  spans[2].style.transform = isOpen ? 'translateY(-6.5px) rotate(-45deg)' : '';
+});
+function closeNav() {
+  mobileNav.classList.remove('open');
+  burger.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// hero tripundra separate reveal
+const heroTri = document.getElementById('hero-tripundra');
+setTimeout(() => { if(heroTri) heroTri.classList.add('visible'); }, 200);
+
+// ── INQUIRY FORM ──
+function submitForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('inquire-form');
+  const data = new FormData(form);
+  const name = data.get('name');
+  const email = data.get('email');
+  const calling = data.get('calling');
+  const timing = data.get('timing');
+
+  const subject = encodeURIComponent(`India Journey Inquiry — ${name}`);
+  const body = encodeURIComponent(
+    `Name: ${name}\nEmail: ${email}\n\nWhat calls you to India:\n${calling}\n\nTiming: ${timing || 'Not specified'}`
+  );
+  window.location.href = `mailto:michael@bhaktiandbougie.travel?subject=${subject}&body=${body}`;
+
+  form.reset();
+  const success = document.getElementById('form-success');
+  success.style.display = 'block';
+  setTimeout(() => { success.style.display = 'none'; }, 6000);
+}
+
+// ── CLOSE MOBILE NAV ON RESIZE ──
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 800) closeNav();
+});
+</script>
+</body>
+</html>
