@@ -314,6 +314,8 @@ app.delete('/api/activities/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+app.get('/', (_req, res) => res.redirect('/mobile'));
+
 // Central error handler
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
