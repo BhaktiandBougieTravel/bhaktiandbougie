@@ -387,7 +387,7 @@ function renderToday(){
   const items=buildDayItems(day,dateStr);
   let html='';
   if(day.notes)html+=`<div class="day-notes-card">${esc(day.notes)}</div>`;
-  if(!items.length&&!day.notes)html='<div class="tl-empty">REST DAY</div>';
+  if(!items.length&&!day.notes)html='<div class="tl-empty">STAY DAY</div>';
   else items.forEach(it=>{html+=renderItem(it);});
   document.getElementById('today-content').innerHTML=html;
   document.getElementById('today-content').scrollTop=0;
