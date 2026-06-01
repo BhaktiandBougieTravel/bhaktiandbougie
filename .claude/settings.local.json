@@ -6,7 +6,14 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(railway --version)"
+      "Bash(railway --version)",
+      "Bash(railway logs *)",
+      "Bash(psql *)",
+      "Bash(cp \"L:/Dropbox/_BHAKTI AND BOUGIE/Website/Bougie Tile Images/yatra-shiva-north.jpg\"  \"L:/Dropbox/_BHAKTI AND BOUGIE/CLAUD CODE STUFF/website/images/yatra-01.jpg\")",
+      "Bash(cp \"L:/Dropbox/_BHAKTI AND BOUGIE/Website/Bougie Tile Images/yatra-shiva-souith.jpg\"  \"L:/Dropbox/_BHAKTI AND BOUGIE/CLAUD CODE STUFF/website/images/yatra-02.jpg\")",
+      "Bash(cp \"L:/Dropbox/_BHAKTI AND BOUGIE/Website/Bougie Tile Images/yatra-krishna.jpg\"       \"L:/Dropbox/_BHAKTI AND BOUGIE/CLAUD CODE STUFF/website/images/yatra-03.jpg\")",
+      "Bash(cp \"L:/Dropbox/_BHAKTI AND BOUGIE/Website/Bougie Tile Images/yatra-buddha.jpg\"        \"L:/Dropbox/_BHAKTI AND BOUGIE/CLAUD CODE STUFF/website/images/yatra-04.jpg\")",
+      "Bash(cp \"L:/Dropbox/_BHAKTI AND BOUGIE/Website/Bougie Tile Images/yatra-tantra.jpg\"        \"L:/Dropbox/_BHAKTI AND BOUGIE/CLAUD CODE STUFF/website/images/yatra-05.jpg\")"
     ]
   }
 }
