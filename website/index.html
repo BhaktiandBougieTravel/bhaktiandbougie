@@ -296,35 +296,7 @@ section{width:100%}
 .journey-card-cta .journey-cta:hover{background:var(--cream2);color:var(--navy)}
 
 /* ── SACRED SITES ── */
-#sacred{background:var(--navy2)}
-.sacred-intro{
-  font-family:var(--font-serif);font-style:italic;
-  font-size:clamp(18px,2vw,22px);color:rgba(242,230,204,0.7);
-  max-width:680px;margin-bottom:64px;line-height:1.75;
-}
-.sacred-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:0;
-}
-.sacred-item{
-  border-top:1px solid var(--gold-border);
-  border-left:1px solid rgba(200,134,10,0.08);
-  padding:36px 32px 40px;
-}
-.sacred-item:nth-child(3n+1){border-left:none}
-.sacred-name{
-  font-family:var(--font-serif);
-  font-size:clamp(22px,2.5vw,30px);font-weight:400;
-  color:var(--cream);line-height:1.15;margin-bottom:8px;
-}
-.sacred-place{
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--gold);margin-bottom:16px;
-}
-.sacred-desc{
-  font-size:14px;color:rgba(242,230,204,0.65);line-height:1.75;
-}
+#sacred{background:var(--navy)}
 
 /* ── STICKY BAR ── */
 #sticky-bar{
@@ -354,9 +326,9 @@ section{width:100%}
 #properties{background:var(--navy)}
 .prop-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
-  gap:2px;
+  gap:0;
 }
-.prop-card{background:var(--navy2);display:flex;flex-direction:column;overflow:hidden;}
+.prop-card{background:var(--navy2);border-top:2px solid var(--gold);display:flex;flex-direction:column;overflow:hidden;}
 .prop-img{width:100%;height:200px;object-fit:cover;display:block;}
 .prop-body{padding:24px 24px 32px;display:flex;flex-direction:column;flex:1;}
 .prop-name{
@@ -375,6 +347,8 @@ section{width:100%}
 .exp-grid{
   display:grid;grid-template-columns:1fr 1fr;
   column-gap:60px;
+  border-top:2px solid var(--gold);
+  padding-top:8px;
 }
 .exp-item{
   font-size:15px;color:rgba(242,230,204,0.85);
@@ -564,8 +538,6 @@ section{width:100%}
   .journey-card{padding:32px 24px}
   .prop-grid{grid-template-columns:1fr}
   .exp-grid{grid-template-columns:1fr}
-  .sacred-grid{grid-template-columns:1fr}
-  .sacred-item{border-left:none}
   .journey-img{max-width:none;width:calc(100% + 48px);margin:-32px -24px 24px -24px;}
   #nav{padding:0 20px}
 }
@@ -666,7 +638,7 @@ section{width:100%}
 <section id="journeys">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Sacred circuits. Five-star beds.</div>
+      <div class="section-label">Auspicious sadhana</div>
       <div class="section-title">The Yatras</div>
     </div>
     <div class="reveal reveal-delay-1">
@@ -740,44 +712,50 @@ section{width:100%}
       <div class="section-title">The Holy Places</div>
     </div>
     <div class="reveal reveal-delay-1">
-      <p class="sacred-intro">India is not a backdrop. It is the destination — a subcontinent organised around the sacred, where every city, river, mountain, and crossroads has a name the gods gave it first. These are the places we return to.</p>
+      <p class="journeys-note">India is not a backdrop. It is the destination — a subcontinent organised around the sacred, where every city, river, mountain, and crossroads has a name the gods gave it first. These are the places we return to.</p>
     </div>
-    <div class="sacred-grid">
+    <div class="journeys-grid">
 
-      <div class="sacred-item reveal reveal-delay-1">
-        <div class="sacred-name">Varanasi</div>
-        <div class="sacred-place">Uttar Pradesh</div>
-        <div class="sacred-desc">The oldest continuously inhabited city on earth. The eternal city. Every Hindu hopes to die here — because Shiva himself whispers the taraka mantra into the ear of the dying.</div>
+      <div class="journey-card reveal reveal-delay-1">
+        <img class="journey-img" src="images/sacred-varanasi.jpg" alt="Varanasi ghats at dawn"/>
+        <div class="journey-region">Uttar Pradesh</div>
+        <div class="journey-title">Varanasi</div>
+        <div class="journey-desc">The oldest continuously inhabited city on earth. The eternal city. Every Hindu hopes to die here — because Shiva himself whispers the taraka mantra into the ear of the dying.</div>
       </div>
 
-      <div class="sacred-item reveal reveal-delay-2">
-        <div class="sacred-name">Kedarnath</div>
-        <div class="sacred-place">Uttarakhand</div>
-        <div class="sacred-desc">At 3,583 metres, in the ice, above the cloud line. One of the 12 jyotirlingas. Shiva's abode in the high Himalayas — a temple that closes every winter and opens again to pilgrims who have waited all year.</div>
+      <div class="journey-card reveal reveal-delay-2">
+        <img class="journey-img" src="images/sacred-kedarnath.jpg" alt="Kedarnath temple in snow"/>
+        <div class="journey-region">Uttarakhand</div>
+        <div class="journey-title">Kedarnath</div>
+        <div class="journey-desc">At 3,583 metres, in the ice, above the cloud line. One of the 12 jyotirlingas. Shiva's abode in the high Himalayas — a temple that closes every winter and opens again to pilgrims who have waited all year.</div>
       </div>
 
-      <div class="sacred-item reveal reveal-delay-3">
-        <div class="sacred-name">Arunachala</div>
-        <div class="sacred-place">Tamil Nadu</div>
-        <div class="sacred-desc">The hill that is Shiva himself. Not a metaphor. The mountain is the deity — the lingam of fire that burst through the earth at the beginning of time. Ramana Maharshi never left its sight.</div>
+      <div class="journey-card reveal reveal-delay-3">
+        <img class="journey-img" src="images/sacred-chidambaram.jpg" alt="Chidambaram Nataraja temple gopuram"/>
+        <div class="journey-region">Tamil Nadu</div>
+        <div class="journey-title">Chidambaram</div>
+        <div class="journey-desc">Where Nataraja performs the cosmic dance for eternity in a golden hall. One of the five elemental Shiva temples — the akasha lingam, the lingam of space itself.</div>
       </div>
 
-      <div class="sacred-item reveal reveal-delay-1">
-        <div class="sacred-name">Vrindavan</div>
-        <div class="sacred-place">Uttar Pradesh</div>
-        <div class="sacred-desc">Where Krishna spent his childhood, danced with the gopis, stole butter, and broke every heart. Every street a temple. Every temple a love story. The dust of Vrindavan is said to be sacred.</div>
+      <div class="journey-card reveal reveal-delay-1">
+        <img class="journey-img" src="images/sacred-vrindavan.jpg" alt="Vrindavan temple at dusk"/>
+        <div class="journey-region">Uttar Pradesh</div>
+        <div class="journey-title">Vrindavan</div>
+        <div class="journey-desc">Where Krishna spent his childhood, danced with the gopis, stole butter, and broke every heart. Every street a temple. Every temple a love story. The dust of Vrindavan is said to be sacred.</div>
       </div>
 
-      <div class="sacred-item reveal reveal-delay-2">
-        <div class="sacred-name">Bodh Gaya</div>
-        <div class="sacred-place">Bihar</div>
-        <div class="sacred-desc">The bodhi tree. The exact spot. The moment Siddhartha touched the earth and the world changed. Every Buddhist tradition on earth maintains a presence here. The silence is unlike anywhere else.</div>
+      <div class="journey-card reveal reveal-delay-2">
+        <img class="journey-img" src="images/sacred-bodhgaya.jpg" alt="Mahabodhi temple and bodhi tree"/>
+        <div class="journey-region">Bihar</div>
+        <div class="journey-title">Bodh Gaya</div>
+        <div class="journey-desc">The bodhi tree. The exact spot. The moment Siddhartha touched the earth and the world changed. Every Buddhist tradition on earth maintains a presence here. The silence is unlike anywhere else.</div>
       </div>
 
-      <div class="sacred-item reveal reveal-delay-3">
-        <div class="sacred-name">Kamakhya</div>
-        <div class="sacred-place">Assam</div>
-        <div class="sacred-desc">One of the 51 shakti peethas. The goddess who bleeds. The most electrifying pilgrimage in India — and the least understood. For those who know, it needs no explanation.</div>
+      <div class="journey-card reveal reveal-delay-3">
+        <img class="journey-img" src="images/sacred-kasardevi.jpg" alt="Kasar Devi Temple, Kumaon Himalayas"/>
+        <div class="journey-region">Uttarakhand</div>
+        <div class="journey-title">Kasar Devi Temple</div>
+        <div class="journey-desc">Perched above Almora in the Kumaon Himalayas, within a Van Allen Belt anomaly that drew Swami Vivekananda, D.H. Lawrence, and Cat Stevens. Sacred and strange in equal measure.</div>
       </div>
 
     </div>
@@ -788,7 +766,7 @@ section{width:100%}
 <section id="properties">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Where You Sleep</div>
+      <div class="section-label">Uncompromising luxury</div>
       <div class="section-title">The Properties</div>
     </div>
     <div class="prop-grid">
