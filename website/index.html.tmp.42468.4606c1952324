@@ -235,10 +235,6 @@ section{width:100%}
   font-size:10px;letter-spacing:3px;text-transform:uppercase;
   color:rgba(200,134,10,0.5);margin-bottom:6px;
 }
-.journey-stops{
-  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--gold);margin-bottom:10px;line-height:1.6;
-}
 .journey-title{
   font-family:var(--font-serif);
   font-size:28px;font-weight:500;
@@ -293,43 +289,6 @@ section{width:100%}
   font-size:11px;letter-spacing:2.5px;
 }
 .journey-card-cta .journey-cta:hover{background:var(--cream2);color:var(--navy)}
-
-/* ── PROPERTIES ── */
-#properties{background:var(--navy)}
-.prop-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:2px;
-}
-.prop-card{background:var(--navy2);display:flex;flex-direction:column;overflow:hidden;}
-.prop-img{width:100%;height:200px;object-fit:cover;display:block;}
-.prop-body{padding:24px 24px 32px;display:flex;flex-direction:column;flex:1;}
-.prop-name{
-  font-family:var(--font-serif);
-  font-size:20px;font-weight:500;color:var(--cream);
-  margin-bottom:4px;line-height:1.2;
-}
-.prop-location{
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--gold);margin-bottom:14px;
-}
-.prop-desc{font-size:14px;color:rgba(242,230,204,0.7);line-height:1.7;flex:1;}
-
-/* ── EXPERIENCES ── */
-#experiences{background:var(--navy2)}
-.exp-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  column-gap:60px;
-}
-.exp-item{
-  font-size:15px;color:rgba(242,230,204,0.85);
-  padding:15px 0;border-bottom:1px solid rgba(200,134,10,0.12);
-  display:flex;justify-content:space-between;align-items:baseline;
-  gap:16px;line-height:1.5;
-}
-.exp-loc{
-  font-size:10px;letter-spacing:2px;text-transform:uppercase;
-  color:var(--gold);opacity:0.75;flex-shrink:0;text-align:right;
-}
 
 /* ── MICHAEL ── */
 #michael{background:var(--navy2)}
@@ -506,8 +465,6 @@ section{width:100%}
   .michael-photo-wrap{margin-bottom:8px}
   .journeys-grid{grid-template-columns:1fr}
   .journey-card{padding:32px 24px}
-  .prop-grid{grid-template-columns:1fr}
-  .exp-grid{grid-template-columns:1fr}
   .journey-img{width:calc(100% + 48px);margin:-32px -24px 24px -24px;}
   #nav{padding:0 20px}
 }
@@ -623,152 +580,90 @@ section{width:100%}
         <img class="journey-img" src="images/yatra-01.jpg" alt="Kedarnath temple with golden trishul, Himalayas"/>
         <div class="journey-region">North India · Uttarakhand · Uttar Pradesh</div>
         <div class="journey-number">Yatra 01</div>
-        <div class="journey-stops">Kedarnath · Guptakashi · Rishikesh · Varanasi</div>
         <div class="journey-title">Shiva in the North</div>
         <div class="journey-desc">From the high Himalayan source to the eternal city. Where the Ganga descends and the air itself is prana.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Kedarnath</span>
+          <span class="journey-tag">Guptakashi</span>
+          <span class="journey-tag">Rishikesh</span>
+          <span class="journey-tag">Varanasi</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
       <div class="journey-card reveal reveal-delay-2">
-        <img class="journey-img" src="images/yatra-02.jpg" alt="Chidambaram Nataraja temple gopuram" style="object-position:top center"/>
+        <img class="journey-img" src="images/yatra-02.jpg" alt="Chidambaram Nataraja temple gopuram and sacred tank"/>
         <div class="journey-region">South India · Tamil Nadu</div>
         <div class="journey-number">Yatra 02</div>
-        <div class="journey-stops">Arunachala · Chidambaram · Rameshwaram · Madurai</div>
         <div class="journey-title">Shiva in the South</div>
         <div class="journey-desc">The 79th meridian. Nataraja's domain. The fire hill of Arunachala, the dancing god of Chidambaram, the island temple at the edge of the world.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Arunachala</span>
+          <span class="journey-tag">Chidambaram</span>
+          <span class="journey-tag">Rameshwaram</span>
+          <span class="journey-tag">Madurai</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
       <div class="journey-card reveal reveal-delay-3">
-        <img class="journey-img" src="images/yatra-03.jpg" alt="Krishna statue with marigold garlands"/>
         <div class="journey-region">North India · Uttar Pradesh · Gujarat</div>
         <div class="journey-number">Yatra 03</div>
-        <div class="journey-stops">Vrindavan · Mathura · Kurukshetra · Dwarka · Delhi</div>
         <div class="journey-title">The Footsteps of Krishna</div>
         <div class="journey-desc">The complete geography of Krishna's life — the forests where he danced, the battlefield where he spoke the Gita, the kingdom at the edge of the sea.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Vrindavan</span>
+          <span class="journey-tag">Mathura</span>
+          <span class="journey-tag">Kurukshetra</span>
+          <span class="journey-tag">Dwarka</span>
+          <span class="journey-tag">Delhi</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
       <div class="journey-card reveal reveal-delay-1">
-        <img class="journey-img" src="images/yatra-04.jpg" alt="Golden Buddha at Swayambhunath, Nepal"/>
         <div class="journey-region">Nepal · Bihar · Uttar Pradesh · Himachal</div>
         <div class="journey-number">Yatra 04</div>
-        <div class="journey-stops">Lumbini · Kushinagar · Bodh Gaya · Varanasi · Dharamshala</div>
         <div class="journey-title">The Buddha's Trail</div>
         <div class="journey-desc">From the birthplace to the bodhi tree to the first sermon to the final passing. The complete arc of the Buddha's life, walked in reverse.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Lumbini</span>
+          <span class="journey-tag">Kushinagar</span>
+          <span class="journey-tag">Bodh Gaya</span>
+          <span class="journey-tag">Varanasi</span>
+          <span class="journey-tag">Dharamshala</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
       <div class="journey-card reveal reveal-delay-2">
-        <img class="journey-img" src="images/yatra-05.jpg" alt="Sri Yantra with candles and incense"/>
         <div class="journey-region">Northeast India · Bengal · Andhra · Tamil Nadu · Nepal</div>
         <div class="journey-number">Yatra 05</div>
-        <div class="journey-stops">Guwahati · Kolkata · Devipuram · Kanchipuram · Kathmandu</div>
         <div class="journey-title">Tantra Yatra</div>
         <div class="journey-desc">For serious practitioners only. The great Shakta circuit — Kamakhya, Kalighat, the Sri Yantra temples, the living Tantric traditions of Nepal. Not for beginners.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Guwahati</span>
+          <span class="journey-tag">Kolkata</span>
+          <span class="journey-tag">Devipuram</span>
+          <span class="journey-tag">Kanchipuram</span>
+          <span class="journey-tag">Kathmandu</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
       <div class="journey-card journey-card-cta reveal reveal-delay-3">
         <div class="journey-region">All of India</div>
         <div class="journey-number">Yatra 06</div>
-        <div class="journey-stops">Your Practice · Your Timing · Your Depth</div>
         <div class="journey-title">Create Your Yatra</div>
         <div class="journey-desc">Your practice is your compass. Tell us what calls you — a deity, a tradition, a place, a festival, a question — and we will build the journey around it. Nothing is templated. Everything is possible.</div>
+        <div class="journey-destinations">
+          <span class="journey-tag">Your Practice</span>
+          <span class="journey-tag">Your Timing</span>
+          <span class="journey-tag">Your Depth</span>
+        </div>
         <a href="#inquire" class="journey-cta">Inquire</a>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- ── PROPERTIES ── -->
-<section id="properties">
-  <div class="section-inner">
-    <div class="reveal">
-      <div class="section-label">Where You Sleep</div>
-      <div class="section-title">The Properties</div>
-    </div>
-    <div class="prop-grid">
-
-      <div class="prop-card reveal reveal-delay-1">
-        <img class="prop-img" src="images/prop-taj-lake-palace.jpg" alt="Taj Lake Palace, Udaipur"/>
-        <div class="prop-body">
-          <div class="prop-name">Taj Lake Palace</div>
-          <div class="prop-location">Udaipur</div>
-          <div class="prop-desc">Private boat arrival. A palace floating on Lake Pichola. The most romantic hotel in India.</div>
-        </div>
-      </div>
-
-      <div class="prop-card reveal reveal-delay-2">
-        <img class="prop-img" src="images/prop-imperial.jpg" alt="The Imperial, New Delhi"/>
-        <div class="prop-body">
-          <div class="prop-name">The Imperial</div>
-          <div class="prop-location">New Delhi</div>
-          <div class="prop-desc">1931 Art Deco masterpiece. The finest address in Delhi. Where India's history breathes.</div>
-        </div>
-      </div>
-
-      <div class="prop-card reveal reveal-delay-3">
-        <img class="prop-img" src="images/prop-brijrama.jpg" alt="Brijrama Palace, Varanasi"/>
-        <div class="prop-body">
-          <div class="prop-name">Brijrama Palace</div>
-          <div class="prop-location">Varanasi</div>
-          <div class="prop-desc">A 200-year-old palace on the Ganges ghats. Watch the morning aarti from your window.</div>
-        </div>
-      </div>
-
-      <div class="prop-card reveal reveal-delay-1">
-        <img class="prop-img" src="images/prop-leela.jpg" alt="The Leela Kovalam, Kerala"/>
-        <div class="prop-body">
-          <div class="prop-name">The Leela Kovalam</div>
-          <div class="prop-location">Kerala</div>
-          <div class="prop-desc">Clifftop heritage above the Arabian Sea. Home to Kerala's finest Ayurvedic spa.</div>
-        </div>
-      </div>
-
-      <div class="prop-card reveal reveal-delay-2">
-        <img class="prop-img" src="images/prop-oberoi.jpg" alt="Oberoi Amarvilas, Agra"/>
-        <div class="prop-body">
-          <div class="prop-name">Oberoi Amarvilas</div>
-          <div class="prop-location">Agra</div>
-          <div class="prop-desc">Every room with a Taj Mahal view. The most intentionally positioned hotel in the world.</div>
-        </div>
-      </div>
-
-      <div class="prop-card reveal reveal-delay-3">
-        <img class="prop-img" src="images/prop-taj-rishikesh.jpg" alt="Taj Rishikesh Resort &amp; Spa"/>
-        <div class="prop-body">
-          <div class="prop-name">Taj Rishikesh Resort &amp; Spa</div>
-          <div class="prop-location">Rishikesh</div>
-          <div class="prop-desc">Himalayan foothills on the Ganga. The anchor for Shiva in the North.</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ── EXPERIENCES ── -->
-<section id="experiences">
-  <div class="section-inner">
-    <div class="reveal">
-      <div class="section-label">What You'll Do</div>
-      <div class="section-title">Experiences</div>
-    </div>
-    <div class="exp-grid reveal reveal-delay-1">
-      <div class="exp-item">Salaam Baalak Trust City Walk<span class="exp-loc">Delhi</span></div>
-      <div class="exp-item">Silk weaving workshop<span class="exp-loc">Varanasi</span></div>
-      <div class="exp-item">Nizamuddin Thursday qawwali<span class="exp-loc">Delhi</span></div>
-      <div class="exp-item">Kumartuli potters quarter<span class="exp-loc">Kolkata</span></div>
-      <div class="exp-item">Private cooking lessons — all regional cuisines</div>
-      <div class="exp-item">Tibetan medicine introduction<span class="exp-loc">Dharamshala</span></div>
-      <div class="exp-item">Kolam lesson<span class="exp-loc">Tamil Nadu</span></div>
-      <div class="exp-item">Hiking — Himalayas, Uttarakhand, Ladakh</div>
-      <div class="exp-item">Fire yajna at Parmarth Niketan<span class="exp-loc">Rishikesh</span></div>
-      <div class="exp-item">Luxury houseboat stays<span class="exp-loc">Kerala Backwaters</span></div>
-      <div class="exp-item">River rafting<span class="exp-loc">Rishikesh</span></div>
-      <div class="exp-item">Ashram stays</div>
     </div>
   </div>
 </section>
@@ -782,7 +677,7 @@ section{width:100%}
     </div>
     <div class="michael-grid">
       <div class="michael-photo-wrap reveal reveal-delay-1">
-        <div class="michael-photo"><img src="images/michael.jpg" alt="Michael Levin" style="width:100%;height:100%;object-fit:cover;object-position:center top;"/></div>
+        <div class="michael-photo">🪷</div>
         <div class="michael-name">Michael Levin</div>
         <div class="michael-credentials">MA · MBA<br/>Jam Dass<br/>E-RYT 500</div>
       </div>
