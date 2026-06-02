@@ -26,7 +26,7 @@
   --font-sans:'Jost',sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;line-height:1.7;overflow-x:hidden;padding-bottom:44px}
+body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;line-height:1.7;overflow-x:hidden;padding-bottom:88px}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 section{width:100%}
@@ -332,17 +332,19 @@ section{width:100%}
   background:rgba(13,27,42,0.97);
   backdrop-filter:blur(12px);
   border-top:1px solid var(--gold-border);
-  padding:10px 32px;
-  display:flex;align-items:center;justify-content:center;
-  gap:20px;
+  padding:16px 32px 18px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;
   pointer-events:none;
 }
 .sticky-india{
-  font-size:10px;letter-spacing:4px;text-transform:uppercase;
-  color:var(--gold);
+  font-size:17px;letter-spacing:6px;text-transform:uppercase;
+  color:var(--gold);font-weight:700;font-family:var(--font-sans);
 }
-.sticky-sep{font-size:10px;color:var(--gold-border)}
-.sticky-fora{font-size:11px;color:rgba(154,148,144,0.55)}
+.sticky-fora{
+  font-size:14px;letter-spacing:1.5px;
+  color:var(--cream);font-weight:600;font-family:var(--font-sans);
+}
 
 /* ── PROPERTIES ── */
 #properties{background:var(--navy)}
@@ -881,7 +883,7 @@ section{width:100%}
     </div>
     <div class="michael-grid">
       <div class="michael-photo-wrap reveal reveal-delay-1">
-        <div class="michael-photo"><img src="images/michael.jpg" alt="Michael Levin" style="width:100%;height:100%;object-fit:cover;object-position:center top;"/></div>
+        <div class="michael-photo"><img src="images/michael.jpg" alt="Michael Levin" style="width:100%;height:100%;object-fit:cover;object-position:center 65%;"/></div>
         <div class="michael-name">Michael Levin</div>
         <div class="michael-credentials">MA · MBA<br/>Jam Dass<br/>E-RYT 500</div>
       </div>
