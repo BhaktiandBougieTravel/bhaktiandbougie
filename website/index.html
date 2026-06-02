@@ -26,7 +26,7 @@
   --font-sans:'Jost',sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;line-height:1.7;overflow-x:hidden}
+body{background:var(--navy);color:var(--cream);font-family:var(--font-sans);font-weight:300;line-height:1.7;overflow-x:hidden;padding-bottom:44px}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 section{width:100%}
@@ -217,11 +217,13 @@ section{width:100%}
   border-top:2px solid var(--gold);
   padding:40px 32px;
   display:flex;flex-direction:column;
+  overflow:hidden;
   transition:background 0.2s;
 }
 .journey-card:hover{background:rgba(17,30,45,0.7)}
 .journey-img{
   display:block;
+  max-width:none;
   width:calc(100% + 64px);
   height:200px;
   object-fit:cover;
@@ -292,6 +294,55 @@ section{width:100%}
   font-size:11px;letter-spacing:2.5px;
 }
 .journey-card-cta .journey-cta:hover{background:var(--cream2);color:var(--navy)}
+
+/* ── SACRED SITES ── */
+#sacred{background:var(--navy2)}
+.sacred-intro{
+  font-family:var(--font-serif);font-style:italic;
+  font-size:clamp(18px,2vw,22px);color:rgba(242,230,204,0.7);
+  max-width:680px;margin-bottom:64px;line-height:1.75;
+}
+.sacred-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+}
+.sacred-item{
+  border-top:1px solid var(--gold-border);
+  border-left:1px solid rgba(200,134,10,0.08);
+  padding:36px 32px 40px;
+}
+.sacred-item:nth-child(3n+1){border-left:none}
+.sacred-name{
+  font-family:var(--font-serif);
+  font-size:clamp(22px,2.5vw,30px);font-weight:400;
+  color:var(--cream);line-height:1.15;margin-bottom:8px;
+}
+.sacred-place{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;
+}
+.sacred-desc{
+  font-size:14px;color:rgba(242,230,204,0.65);line-height:1.75;
+}
+
+/* ── STICKY BAR ── */
+#sticky-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(13,27,42,0.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--gold-border);
+  padding:10px 32px;
+  display:flex;align-items:center;justify-content:center;
+  gap:20px;
+  pointer-events:none;
+}
+.sticky-india{
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);
+}
+.sticky-sep{font-size:10px;color:var(--gold-border)}
+.sticky-fora{font-size:11px;color:rgba(154,148,144,0.55)}
 
 /* ── PROPERTIES ── */
 #properties{background:var(--navy)}
@@ -507,7 +558,9 @@ section{width:100%}
   .journey-card{padding:32px 24px}
   .prop-grid{grid-template-columns:1fr}
   .exp-grid{grid-template-columns:1fr}
-  .journey-img{width:calc(100% + 48px);margin:-32px -24px 24px -24px;}
+  .sacred-grid{grid-template-columns:1fr}
+  .sacred-item{border-left:none}
+  .journey-img{max-width:none;width:calc(100% + 48px);margin:-32px -24px 24px -24px;}
   #nav{padding:0 20px}
 }
 @media(max-width:500px){
@@ -579,7 +632,7 @@ section{width:100%}
     </div>
 
     <div class="reveal reveal-delay-3">
-      <a href="#inquire" class="hero-cta">Now Accepting Applications for 2027</a>
+      <a href="#inquire" class="hero-cta">Accepting Applications for 2027</a>
     </div>
   </div>
 </section>
@@ -670,6 +723,58 @@ section{width:100%}
         <div class="journey-title">Create Your Yatra</div>
         <div class="journey-desc">Your practice is your compass. Tell us what calls you — a deity, a tradition, a place, a festival, a question — and we will build the journey around it. Nothing is templated. Everything is possible.</div>
         <a href="#inquire" class="journey-cta">Inquire</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SACRED SITES ── -->
+<section id="sacred">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Sacred Geography</div>
+      <div class="section-title">The Holy Places</div>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <p class="sacred-intro">India is not a backdrop. It is the destination — a subcontinent organised around the sacred, where every city, river, mountain, and crossroads has a name the gods gave it first. These are the places we return to.</p>
+    </div>
+    <div class="sacred-grid">
+
+      <div class="sacred-item reveal reveal-delay-1">
+        <div class="sacred-name">Varanasi</div>
+        <div class="sacred-place">Uttar Pradesh</div>
+        <div class="sacred-desc">The oldest continuously inhabited city on earth. The eternal city. Every Hindu hopes to die here — because Shiva himself whispers the taraka mantra into the ear of the dying.</div>
+      </div>
+
+      <div class="sacred-item reveal reveal-delay-2">
+        <div class="sacred-name">Kedarnath</div>
+        <div class="sacred-place">Uttarakhand</div>
+        <div class="sacred-desc">At 3,583 metres, in the ice, above the cloud line. One of the 12 jyotirlingas. Shiva's abode in the high Himalayas — a temple that closes every winter and opens again to pilgrims who have waited all year.</div>
+      </div>
+
+      <div class="sacred-item reveal reveal-delay-3">
+        <div class="sacred-name">Arunachala</div>
+        <div class="sacred-place">Tamil Nadu</div>
+        <div class="sacred-desc">The hill that is Shiva himself. Not a metaphor. The mountain is the deity — the lingam of fire that burst through the earth at the beginning of time. Ramana Maharshi never left its sight.</div>
+      </div>
+
+      <div class="sacred-item reveal reveal-delay-1">
+        <div class="sacred-name">Vrindavan</div>
+        <div class="sacred-place">Uttar Pradesh</div>
+        <div class="sacred-desc">Where Krishna spent his childhood, danced with the gopis, stole butter, and broke every heart. Every street a temple. Every temple a love story. The dust of Vrindavan is said to be sacred.</div>
+      </div>
+
+      <div class="sacred-item reveal reveal-delay-2">
+        <div class="sacred-name">Bodh Gaya</div>
+        <div class="sacred-place">Bihar</div>
+        <div class="sacred-desc">The bodhi tree. The exact spot. The moment Siddhartha touched the earth and the world changed. Every Buddhist tradition on earth maintains a presence here. The silence is unlike anywhere else.</div>
+      </div>
+
+      <div class="sacred-item reveal reveal-delay-3">
+        <div class="sacred-name">Kamakhya</div>
+        <div class="sacred-place">Assam</div>
+        <div class="sacred-desc">One of the 51 shakti peethas. The goddess who bleeds. The most electrifying pilgrimage in India — and the least understood. For those who know, it needs no explanation.</div>
       </div>
 
     </div>
@@ -876,6 +981,13 @@ section{width:100%}
   <div class="footer-fora">Powered by Fora Travel</div>
   <div class="footer-copy">&copy; 2025 BHAKTI &amp; BOUGIE Travel Company Ltd. All rights reserved.</div>
 </footer>
+
+<!-- ── STICKY BAR ── -->
+<div id="sticky-bar">
+  <span class="sticky-india">India Only</span>
+  <span class="sticky-sep">·</span>
+  <span class="sticky-fora">Powered by Fora Travel</span>
+</div>
 
 <script>
 // ── HAMBURGER NAV ──
