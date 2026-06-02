@@ -332,18 +332,22 @@ section{width:100%}
   background:rgba(13,27,42,0.97);
   backdrop-filter:blur(12px);
   border-top:1px solid var(--gold-border);
-  padding:16px 32px 18px;
+  padding:14px 32px 16px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;
+  gap:0;
   pointer-events:none;
 }
 .sticky-india{
   font-size:17px;letter-spacing:6px;text-transform:uppercase;
   color:var(--gold);font-weight:700;font-family:var(--font-sans);
+  margin-bottom:6px;
+}
+.sticky-sep{
+  width:80px;height:1px;background:#C8860A;opacity:0.6;margin-bottom:6px;
 }
 .sticky-fora{
-  font-size:14px;letter-spacing:1.5px;
-  color:var(--cream);font-weight:600;font-family:var(--font-sans);
+  font-size:14px;letter-spacing:1.5px;font-style:italic;
+  color:var(--cream);font-weight:500;font-family:var(--font-sans);
 }
 
 /* ── PROPERTIES ── */
@@ -407,7 +411,7 @@ section{width:100%}
 }
 .michael-credentials{
   font-size:11px;letter-spacing:2px;text-transform:uppercase;
-  color:var(--gold);line-height:1.8;
+  color:var(--gold);line-height:1.8;text-decoration:none;
 }
 .michael-bio p{
   font-size:16px;line-height:1.85;
@@ -883,7 +887,7 @@ section{width:100%}
     </div>
     <div class="michael-grid">
       <div class="michael-photo-wrap reveal reveal-delay-1">
-        <div class="michael-photo"><img src="images/michael.jpg" alt="Michael Levin" style="width:100%;height:100%;object-fit:cover;object-position:center 65%;"/></div>
+        <div class="michael-photo"><img src="images/michael.jpg" alt="Michael Levin" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;"/></div>
         <div class="michael-name">Michael Levin</div>
         <div class="michael-credentials">MA · MBA<br/>Jam Dass<br/>E-RYT 500</div>
       </div>
@@ -987,7 +991,7 @@ section{width:100%}
 <!-- ── STICKY BAR ── -->
 <div id="sticky-bar">
   <span class="sticky-india">India Only</span>
-  <span class="sticky-sep">·</span>
+  <div class="sticky-sep"></div>
   <span class="sticky-fora">Powered by Fora Travel</span>
 </div>
 
