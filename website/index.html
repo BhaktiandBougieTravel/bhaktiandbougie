@@ -220,6 +220,13 @@ section{width:100%}
   transition:background 0.2s;
 }
 .journey-card:hover{background:rgba(17,30,45,0.7)}
+.journey-img{
+  display:block;
+  width:calc(100% + 64px);
+  height:200px;
+  object-fit:cover;
+  margin:-40px -32px 28px -32px;
+}
 .journey-region{
   font-size:10px;letter-spacing:3px;text-transform:uppercase;
   color:var(--gold);margin-bottom:10px;
@@ -260,20 +267,14 @@ section{width:100%}
   border:1px solid var(--gold-border);
   border-top:2px solid var(--gold);
   background:
-    radial-gradient(ellipse at 50% 50%, rgba(200,134,10,0.10) 0%, transparent 65%),
-    repeating-conic-gradient(from 0deg at 50% 50%, rgba(200,134,10,0.045) 0deg 12deg, transparent 12deg 24deg),
-    radial-gradient(circle at 50% 50%, transparent 28%, rgba(200,134,10,0.03) 29%, transparent 30%),
-    radial-gradient(circle at 50% 50%, transparent 48%, rgba(200,134,10,0.03) 49%, transparent 50%),
-    radial-gradient(circle at 50% 50%, transparent 68%, rgba(200,134,10,0.03) 69%, transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(200,134,10,0.08) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(200,134,10,0.05) 30%, transparent 70%),
     var(--navy2);
 }
 .journey-card-cta:hover{
   background:
-    radial-gradient(ellipse at 50% 50%, rgba(200,134,10,0.16) 0%, transparent 65%),
-    repeating-conic-gradient(from 0deg at 50% 50%, rgba(200,134,10,0.07) 0deg 12deg, transparent 12deg 24deg),
-    radial-gradient(circle at 50% 50%, transparent 28%, rgba(200,134,10,0.05) 29%, transparent 30%),
-    radial-gradient(circle at 50% 50%, transparent 48%, rgba(200,134,10,0.05) 49%, transparent 50%),
-    radial-gradient(circle at 50% 50%, transparent 68%, rgba(200,134,10,0.05) 69%, transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(200,134,10,0.13) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(200,134,10,0.08) 30%, transparent 70%),
     var(--navy2);
 }
 .journey-card-cta .journey-number{color:var(--gold);opacity:0.7}
@@ -464,6 +465,7 @@ section{width:100%}
   .michael-photo-wrap{margin-bottom:8px}
   .journeys-grid{grid-template-columns:1fr}
   .journey-card{padding:32px 24px}
+  .journey-img{width:calc(100% + 48px);margin:-32px -24px 24px -24px;}
   #nav{padding:0 20px}
 }
 @media(max-width:500px){
@@ -567,7 +569,7 @@ section{width:100%}
   <div class="section-inner">
     <div class="reveal">
       <div class="section-label">Sacred circuits. Five-star beds.</div>
-      <div class="section-title">The Yatras.</div>
+      <div class="section-title">The Yatras</div>
     </div>
     <div class="reveal reveal-delay-1">
       <p class="journeys-note">Each yatra follows a specific sacred geography — a deity, a tradition, a living circuit of temples and places that have been calling practitioners for millennia. These are not itineraries. They are pilgrimages.</p>
@@ -575,6 +577,7 @@ section{width:100%}
     <div class="journeys-grid">
 
       <div class="journey-card reveal reveal-delay-1">
+        <img class="journey-img" src="images/yatra-01.jpg" alt="Kedarnath temple with golden trishul, Himalayas"/>
         <div class="journey-region">North India · Uttarakhand · Uttar Pradesh</div>
         <div class="journey-number">Yatra 01</div>
         <div class="journey-title">Shiva in the North</div>
@@ -589,6 +592,7 @@ section{width:100%}
       </div>
 
       <div class="journey-card reveal reveal-delay-2">
+        <img class="journey-img" src="images/yatra-02.jpg" alt="Chidambaram Nataraja temple gopuram and sacred tank"/>
         <div class="journey-region">South India · Tamil Nadu</div>
         <div class="journey-number">Yatra 02</div>
         <div class="journey-title">Shiva in the South</div>
@@ -603,6 +607,7 @@ section{width:100%}
       </div>
 
       <div class="journey-card reveal reveal-delay-3">
+        <img class="journey-img" src="images/yatra-03.jpg" alt="Krishna statue with marigold garlands"/>
         <div class="journey-region">North India · Uttar Pradesh · Gujarat</div>
         <div class="journey-number">Yatra 03</div>
         <div class="journey-title">The Footsteps of Krishna</div>
@@ -618,6 +623,7 @@ section{width:100%}
       </div>
 
       <div class="journey-card reveal reveal-delay-1">
+        <img class="journey-img" src="images/yatra-04.jpg" alt="Golden Buddha at Swayambhunath, Nepal"/>
         <div class="journey-region">Nepal · Bihar · Uttar Pradesh · Himachal</div>
         <div class="journey-number">Yatra 04</div>
         <div class="journey-title">The Buddha's Trail</div>
@@ -633,6 +639,7 @@ section{width:100%}
       </div>
 
       <div class="journey-card reveal reveal-delay-2">
+        <img class="journey-img" src="images/yatra-05.jpg" alt="Sri Yantra with candles and incense"/>
         <div class="journey-region">Northeast India · Bengal · Andhra · Tamil Nadu · Nepal</div>
         <div class="journey-number">Yatra 05</div>
         <div class="journey-title">Tantra Yatra</div>
