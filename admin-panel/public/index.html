@@ -201,6 +201,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div class="tab" data-tab="festivals">Festivals</div>
       <div class="tab" data-tab="ground-transport">Transport</div>
       <div class="tab" data-tab="guides">Guides</div>
+      <div class="tab" data-tab="vendors">Vendors</div>
     </nav>
   </header>
   <main class="content">
@@ -417,6 +418,96 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <button class="btn btn-gold" onclick="openModal('guide-modal')">+ New Guide</button>
       </div>
       <div id="guides-table"><div class="loading dot-pulse">Loading</div></div>
+    </div>
+
+    <div class="tab-panel" id="tab-vendors">
+      <div id="vendor-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
+      <div class="sh-row">
+        <div class="sh">Vendor Partners</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="exportVendorsCSV()">Export CSV</button>
+          <button class="btn btn-gold" onclick="toggleVendorAddForm()">+ Add Vendor</button>
+        </div>
+      </div>
+      <div id="vendor-add-form" style="display:none;background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:20px;margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" id="vnew-contact-name"/></div>
+          <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="vnew-company-name"/></div>
+          <div class="form-group"><label class="form-label">Region</label><input class="form-input" id="vnew-region" placeholder="e.g. Kerala, Tamil Nadu"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">Contact Email</label><input class="form-input" id="vnew-email"/></div>
+          <div class="form-group"><label class="form-label">Contact WhatsApp</label><input class="form-input" id="vnew-whatsapp"/></div>
+          <div class="form-group"><label class="form-label">Contact Social (FB/IG/Other)</label><input class="form-input" id="vnew-social"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="vnew-website"/></div>
+          <div class="form-group"><label class="form-label">Languages</label><input class="form-input" id="vnew-languages"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">Tier</label>
+            <select class="form-select" id="vnew-tier">
+              <option value="">— Select —</option>
+              <option value="A">A — Promising</option>
+              <option value="B">B — Possible</option>
+              <option value="C">C — Unlikely</option>
+              <option value="X">X — Disqualified</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Source</label><input class="form-input" id="vnew-source" placeholder="e.g. FB post June 2026"/></div>
+          <div class="form-group"><label class="form-label">BB Potential</label>
+            <select class="form-select" id="vnew-bb-potential">
+              <option value="">— Select —</option>
+              <option>Partner</option><option>Property Scout</option><option>Guide</option><option>Driver</option><option>Rejected</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Score (1–10)</label><input class="form-input" type="number" min="1" max="10" id="vnew-score"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">First Impression / Notes</label><textarea class="form-textarea" id="vnew-first-impression"></textarea></div>
+          <div class="form-group"><label class="form-label">Special Assets</label><textarea class="form-textarea" id="vnew-special-assets" placeholder="e.g. Has contracts with Taj and Oberoi"></textarea></div>
+          <div class="form-group"><label class="form-label">Limitations / Does Not Offer</label><textarea class="form-textarea" id="vnew-limitations"></textarea></div>
+          <div class="form-group"><label class="form-label">Questionnaire Response</label><textarea class="form-textarea" id="vnew-q-response"></textarea></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group"><label class="form-label">Lineage / Tradition</label><input class="form-input" id="vnew-lineage"/></div>
+          <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:20px;">
+            <input type="checkbox" id="vnew-q-sent" style="accent-color:var(--gold);width:16px;height:16px;"/>
+            <label for="vnew-q-sent" class="form-label" style="margin:0;cursor:pointer;">Questionnaire Sent</label>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div class="form-label" style="margin-bottom:8px;">Services Offered</div>
+          <div id="vnew-services-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;background:var(--navy3);border:1px solid var(--border);border-radius:2px;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div class="form-label" style="margin-bottom:8px;">Special Credentials</div>
+          <div id="vnew-credentials-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;background:var(--navy3);border:1px solid var(--border);border-radius:2px;"></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn btn-outline" onclick="toggleVendorAddForm()">Cancel</button>
+          <button class="btn btn-gold" onclick="saveNewVendor()">Add Vendor</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+        <input class="form-input" id="vendor-search" placeholder="Search name, company, region, notes…" style="flex:1;min-width:200px;" oninput="vendorSearchChange(this.value)"/>
+        <select class="form-select" id="vendor-tier-filter" style="width:160px;" onchange="vendorFilterChange()">
+          <option value="">All Tiers</option>
+          <option value="A">A — Promising</option>
+          <option value="B">B — Possible</option>
+          <option value="C">C — Unlikely</option>
+          <option value="X">X — Disqualified</option>
+        </select>
+        <select class="form-select" id="vendor-potential-filter" style="width:180px;" onchange="vendorFilterChange()">
+          <option value="">All Potentials</option>
+          <option value="Partner">Partner</option>
+          <option value="Property Scout">Property Scout</option>
+          <option value="Guide">Guide</option>
+          <option value="Driver">Driver</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div id="vendors-table"><div class="loading dot-pulse">Loading</div></div>
     </div>
   </main>
 </div>
@@ -1316,6 +1407,7 @@ function onTabChange(tab){
   if(tab==='festivals'){loadFestNextUp();}
   if(tab==='ground-transport')loadGroundTransport();
   if(tab==='guides')loadGuides();
+  if(tab==='vendors')loadVendors();
 }
 function initApp(){
   renderClocks();setInterval(renderClocks,1000);
@@ -2774,6 +2866,219 @@ function fmtDateTime(d){
   if(!d)return'–';
   return new Date(d).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false});
 }
+// ── VENDORS ──────────────────────────────────────────────────────────────────
+const VENDOR_SERVICES=['Private guiding','Group tours','Temple administration access','Priest / panda relationships','Private puja arrangement','Luxury hotels / 5-star','Historic palaces / royal properties','Heritage properties / Havelis','Boutique properties','Ashrams / spiritual stays','Homestays','Tented camps / glamping','Luxury ground transport','Driver only','Train / flight ticketing','Ayurveda / wellness programming','Photography / content creation','Trekking / adventure','Culinary experiences','Festival / events logistics','Corporate / MICE'];
+const VENDOR_CREDENTIALS=['Brahmin priest','Practicing sadhu / renunciant','Classical musician','Classical dancer','Ayurvedic practitioner / vaidya','Yoga teacher (note lineage in Special Assets)','Academic / professor','Former government / archaeological survey','Royal family connection','Published author / expert'];
+const TIER_BADGE_MAP={A:'badge-active',B:'badge-confirmed',C:'badge-enquiry',X:'badge-cancelled'};
+const TIER_LABEL_MAP={A:'A — Promising',B:'B — Possible',C:'C — Unlikely',X:'X — Disqualified'};
+let vendorsCache=[];
+let vendorSortField='created_at';
+let vendorSortDir=-1;
+let vendorSearchTerm='';
+let vendorTierFilter='';
+let vendorPotentialFilter='';
+const openVendorRows=new Set();
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function toggleVendorAddForm(){
+  const f=document.getElementById('vendor-add-form');
+  const opening=f.style.display==='none';
+  f.style.display=opening?'block':'none';
+  if(opening){
+    const sg=document.getElementById('vnew-services-grid');
+    const cg=document.getElementById('vnew-credentials-grid');
+    if(!sg.children.length){
+      sg.innerHTML=VENDOR_SERVICES.map(s=>`<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--cream-dim)"><input type="checkbox" class="vnew-svc" data-svc="${escH(s)}" style="accent-color:var(--gold)"/> ${escH(s)}</label>`).join('');
+      cg.innerHTML=VENDOR_CREDENTIALS.map(c=>`<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--cream-dim)"><input type="checkbox" class="vnew-cred" data-cred="${escH(c)}" style="accent-color:var(--gold)"/> ${escH(c)}</label>`).join('');
+    }
+  }
+}
+
+function vendorFilteredData(){
+  const s=vendorSearchTerm.toLowerCase();
+  return vendorsCache.filter(v=>{
+    if(s&&![v.contact_name,v.company_name,v.region,v.first_impression,v.source,v.special_assets].join(' ').toLowerCase().includes(s))return false;
+    if(vendorTierFilter&&v.tier!==vendorTierFilter)return false;
+    if(vendorPotentialFilter&&v.bb_potential!==vendorPotentialFilter)return false;
+    return true;
+  }).sort((a,b)=>{
+    if(vendorSortField==='score')return(Number(a.score||0)-Number(b.score||0))*vendorSortDir;
+    return String(a[vendorSortField]||'').localeCompare(String(b[vendorSortField]||''))*vendorSortDir;
+  });
+}
+
+async function loadVendors(){
+  const el=document.getElementById('vendors-table');
+  try{
+    vendorsCache=await(await fetch(`${API}/vendors`)).json();
+    renderVendorStats();
+    renderVendorsTable();
+  }catch(e){el.innerHTML='<div class="loading">Unable to load vendors</div>';}
+}
+
+function renderVendorStats(){
+  const total=vendorsCache.length;
+  const aTier=vendorsCache.filter(v=>v.tier==='A').length;
+  const qSent=vendorsCache.filter(v=>v.questionnaire_sent).length;
+  const scored=vendorsCache.filter(v=>v.score!=null&&v.score!=='').length;
+  document.getElementById('vendor-stats').innerHTML=[{n:total,l:'Total Vendors'},{n:aTier,l:'A-Tier'},{n:qSent,l:'Questionnaire Sent'},{n:scored,l:'Scored'}]
+    .map(s=>`<div class="card" style="text-align:center;border-top:2px solid var(--gold);"><div style="font-family:var(--font-serif);font-size:40px;color:var(--cream);line-height:1;">${s.n}</div><div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-top:6px;">${s.l}</div></div>`).join('');
+}
+
+function renderVendorsTable(){
+  const el=document.getElementById('vendors-table');
+  const data=vendorFilteredData();
+  if(!data.length){el.innerHTML='<div class="loading">No vendors match your filters.</div>';return;}
+  const arr=f=>vendorSortField===f?(vendorSortDir>0?' ↑':' ↓'):'';
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr>
+    <th style="cursor:pointer" onclick="vendorSort('contact_name')">Name${arr('contact_name')}</th>
+    <th style="cursor:pointer" onclick="vendorSort('company_name')">Company${arr('company_name')}</th>
+    <th style="cursor:pointer" onclick="vendorSort('region')">Region${arr('region')}</th>
+    <th style="cursor:pointer" onclick="vendorSort('tier')">Tier${arr('tier')}</th>
+    <th>Services</th>
+    <th style="cursor:pointer" onclick="vendorSort('score')">Score${arr('score')}</th>
+    <th></th>
+  </tr></thead><tbody>${data.map(v=>{
+    const svcs=v.services||[];
+    const svcStr=svcs.slice(0,3).join(', ')+(svcs.length>3?' +'+(svcs.length-3)+'…':'');
+    return `<tr style="cursor:pointer" onclick="toggleVendorDetail('${v.id}')">
+      <td class="td-primary">${escH(v.contact_name)}</td>
+      <td>${escH(v.company_name)}</td>
+      <td>${escH(v.region)}</td>
+      <td><span class="badge ${TIER_BADGE_MAP[v.tier]||'badge-enquiry'}">${escH(TIER_LABEL_MAP[v.tier]||v.tier||'–')}</span></td>
+      <td style="font-size:11px;color:var(--muted);max-width:220px;">${escH(svcStr)||'–'}</td>
+      <td style="font-family:var(--font-serif);font-size:18px;">${v.score||'–'}</td>
+      <td class="td-action" onclick="event.stopPropagation();deleteVendor('${v.id}')">✕</td>
+    </tr>
+    <tr class="${openVendorRows.has(v.id)?'':'hidden'}" id="vdr-${v.id}"><td colspan="7" style="padding:0;">${renderVendorDetailForm(v)}</td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+function vendorSort(f){
+  if(vendorSortField===f)vendorSortDir*=-1;else{vendorSortField=f;vendorSortDir=1;}
+  renderVendorsTable();
+}
+function vendorSearchChange(v){vendorSearchTerm=v;renderVendorsTable();}
+function vendorFilterChange(){
+  vendorTierFilter=document.getElementById('vendor-tier-filter').value;
+  vendorPotentialFilter=document.getElementById('vendor-potential-filter').value;
+  renderVendorsTable();
+}
+function toggleVendorDetail(id){
+  const row=document.getElementById('vdr-'+id);
+  if(!row)return;
+  const nowHidden=row.classList.toggle('hidden');
+  if(nowHidden)openVendorRows.delete(id);else openVendorRows.add(id);
+}
+
+function renderVendorDetailForm(v){
+  const svcHtml=VENDOR_SERVICES.map(s=>`<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--cream-dim)"><input type="checkbox" ${(v.services||[]).includes(s)?'checked':''} data-svc="${escH(s)}" style="accent-color:var(--gold)"/> ${escH(s)}</label>`).join('');
+  const credHtml=VENDOR_CREDENTIALS.map(c=>`<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--cream-dim)"><input type="checkbox" ${(v.credentials||[]).includes(c)?'checked':''} data-cred="${escH(c)}" style="accent-color:var(--gold)"/> ${escH(c)}</label>`).join('');
+  const tierOpts=['A','B','C','X'].map(t=>`<option value="${t}"${v.tier===t?' selected':''}>${escH(TIER_LABEL_MAP[t])}</option>`).join('');
+  const potOpts=['Partner','Property Scout','Guide','Driver','Rejected'].map(p=>`<option${v.bb_potential===p?' selected':''}>${p}</option>`).join('');
+  return `<div id="vd-${v.id}" style="padding:20px;background:var(--navy3);border-top:1px solid var(--border);">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" value="${escH(v.contact_name)}" data-field="contact_name"/></div>
+      <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" value="${escH(v.company_name)}" data-field="company_name"/></div>
+      <div class="form-group"><label class="form-label">Region</label><input class="form-input" value="${escH(v.region)}" data-field="region"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="${escH(v.contact_email)}" data-field="contact_email"/></div>
+      <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" value="${escH(v.contact_whatsapp)}" data-field="contact_whatsapp"/></div>
+      <div class="form-group"><label class="form-label">Social</label><input class="form-input" value="${escH(v.contact_social)}" data-field="contact_social"/></div>
+      <div class="form-group"><label class="form-label">Website</label><input class="form-input" value="${escH(v.website)}" data-field="website"/></div>
+      <div class="form-group"><label class="form-label">Languages</label><input class="form-input" value="${escH(v.languages)}" data-field="languages"/></div>
+      <div class="form-group"><label class="form-label">Source</label><input class="form-input" value="${escH(v.source)}" data-field="source"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="form-group"><label class="form-label">Tier</label><select class="form-select" data-field="tier"><option value="">— Select —</option>${tierOpts}</select></div>
+      <div class="form-group"><label class="form-label">Score (1–10)</label><input class="form-input" type="number" min="1" max="10" value="${escH(v.score)}" data-field="score"/></div>
+      <div class="form-group"><label class="form-label">BB Potential</label><select class="form-select" data-field="bb_potential"><option value="">— Select —</option>${potOpts}</select></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+        <input type="checkbox" id="qsent-${v.id}" ${v.questionnaire_sent?'checked':''} data-field="questionnaire_sent" style="accent-color:var(--gold);width:16px;height:16px;"/>
+        <label for="qsent-${v.id}" class="form-label" style="margin:0;cursor:pointer;">Questionnaire Sent</label>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="form-group"><label class="form-label">First Impression / Notes</label><textarea class="form-textarea" data-field="first_impression">${escH(v.first_impression)}</textarea></div>
+      <div class="form-group"><label class="form-label">Special Assets</label><textarea class="form-textarea" data-field="special_assets">${escH(v.special_assets)}</textarea></div>
+      <div class="form-group"><label class="form-label">Limitations / Does Not Offer</label><textarea class="form-textarea" data-field="limitations">${escH(v.limitations)}</textarea></div>
+      <div class="form-group"><label class="form-label">Questionnaire Response</label><textarea class="form-textarea" data-field="questionnaire_response">${escH(v.questionnaire_response)}</textarea></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Lineage / Tradition</label><input class="form-input" value="${escH(v.lineage_tradition)}" data-field="lineage_tradition"/></div>
+    <div style="margin-bottom:12px;">
+      <div class="form-label" style="margin-bottom:8px;">Services Offered</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;background:var(--navy2);border:1px solid var(--border);border-radius:2px;">${svcHtml}</div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div class="form-label" style="margin-bottom:8px;">Special Credentials</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px;background:var(--navy2);border:1px solid var(--border);border-radius:2px;">${credHtml}</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-gold" onclick="updateVendor('${v.id}')">Save Changes</button>
+      <button class="btn btn-outline" onclick="toggleVendorDetail('${v.id}')">Close</button>
+    </div>
+  </div>`;
+}
+
+async function saveNewVendor(){
+  const g=id=>document.getElementById(id);
+  const body={
+    contact_name:g('vnew-contact-name').value,company_name:g('vnew-company-name').value,
+    region:g('vnew-region').value,contact_email:g('vnew-email').value,
+    contact_whatsapp:g('vnew-whatsapp').value,contact_social:g('vnew-social').value,
+    website:g('vnew-website').value,languages:g('vnew-languages').value,
+    tier:g('vnew-tier').value,source:g('vnew-source').value,
+    bb_potential:g('vnew-bb-potential').value,
+    score:g('vnew-score').value?parseInt(g('vnew-score').value):null,
+    first_impression:g('vnew-first-impression').value,special_assets:g('vnew-special-assets').value,
+    questionnaire_sent:g('vnew-q-sent').checked,questionnaire_response:g('vnew-q-response').value,
+    limitations:g('vnew-limitations').value,lineage_tradition:g('vnew-lineage').value,
+    services:Array.from(document.querySelectorAll('.vnew-svc:checked')).map(el=>el.dataset.svc),
+    credentials:Array.from(document.querySelectorAll('.vnew-cred:checked')).map(el=>el.dataset.cred)
+  };
+  try{
+    await fetch(`${API}/vendors`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    toggleVendorAddForm();
+    ['vnew-contact-name','vnew-company-name','vnew-region','vnew-email','vnew-whatsapp','vnew-social','vnew-website','vnew-languages','vnew-source','vnew-first-impression','vnew-special-assets','vnew-q-response','vnew-limitations','vnew-lineage','vnew-score'].forEach(id=>{const el=g(id);if(el)el.value='';});
+    g('vnew-tier').value='';g('vnew-bb-potential').value='';g('vnew-q-sent').checked=false;
+    document.querySelectorAll('.vnew-svc,.vnew-cred').forEach(el=>el.checked=false);
+    await loadVendors();
+  }catch(e){alert('Error saving vendor: '+e.message);}
+}
+
+async function updateVendor(id){
+  const container=document.getElementById('vd-'+id);
+  const body={};
+  container.querySelectorAll('[data-field]').forEach(el=>{
+    const f=el.dataset.field;
+    if(el.type==='checkbox')body[f]=el.checked;
+    else if(el.type==='number')body[f]=el.value?parseInt(el.value):null;
+    else body[f]=el.value;
+  });
+  body.services=Array.from(container.querySelectorAll('[data-svc]:checked')).map(el=>el.dataset.svc);
+  body.credentials=Array.from(container.querySelectorAll('[data-cred]:checked')).map(el=>el.dataset.cred);
+  try{
+    await fetch(`${API}/vendors/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    openVendorRows.add(id);
+    await loadVendors();
+  }catch(e){alert('Error updating vendor: '+e.message);}
+}
+
+async function deleteVendor(id){
+  if(!confirm('Delete this vendor? This cannot be undone.'))return;
+  await fetch(`${API}/vendors/${id}`,{method:'DELETE'});
+  openVendorRows.delete(id);
+  await loadVendors();
+}
+
+function exportVendorsCSV(){
+  const data=vendorFilteredData();
+  const headers=['ID','Contact Name','Company','Region','Email','WhatsApp','Social','Website','Languages','Tier','Source','First Impression','Special Assets','Q Sent','Q Response','Score','BB Potential','Limitations','Lineage','Services','Credentials','Created'];
+  const rows=data.map(v=>[v.id,v.contact_name,v.company_name,v.region,v.contact_email,v.contact_whatsapp,v.contact_social,v.website,v.languages,v.tier,v.source,v.first_impression,v.special_assets,v.questionnaire_sent?'Yes':'No',v.questionnaire_response,v.score,v.bb_potential,v.limitations,v.lineage_tradition,(v.services||[]).join('|'),(v.credentials||[]).join('|'),v.created_at].map(c=>`"${String(c||'').replace(/"/g,'""')}"`));
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='bb-vendors.csv';a.click();
+}
+
 document.querySelectorAll('.modal-overlay').forEach(overlay=>{
   if(overlay.id==='day-modal')return;
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.add('hidden');});

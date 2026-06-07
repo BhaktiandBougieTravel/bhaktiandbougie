@@ -45,6 +45,7 @@ pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e 
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_sacred_sites (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), name TEXT NOT NULL, site_time TEXT, notes TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_sacred_sites:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_activities (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), description TEXT NOT NULL, activity_time TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_activities:', e.message));
+pool.query(`CREATE TABLE IF NOT EXISTS vendor_partners (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), contact_name TEXT, company_name TEXT, region TEXT, contact_email TEXT, contact_whatsapp TEXT, contact_social TEXT, website TEXT, languages TEXT, tier VARCHAR(2), source TEXT, first_impression TEXT, special_assets TEXT, questionnaire_sent BOOLEAN DEFAULT false, questionnaire_response TEXT, score INTEGER, bb_potential TEXT, limitations TEXT, lineage_tradition TEXT, services TEXT[], credentials TEXT[], created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] vendor_partners:', e.message));
 
 app.use('/api/trips',          tripsRouter);
 app.use('/api/contacts',       contactsRouter);
@@ -322,6 +323,46 @@ app.get('/trip/:code', async (req, res) => {
   const result = await pool.query('SELECT id FROM trips WHERE trip_code=$1', [req.params.code]);
   if (result.rows.length) res.redirect('/mobile?trip=' + result.rows[0].id);
   else res.status(404).send('Trip not found');
+});
+
+// ── Vendors ───────────────────────────────────────────────────────────────────
+app.get('/api/vendors', async (req, res, next) => {
+  try {
+    const result = await pool.query('SELECT * FROM vendor_partners ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch(e) { next(e); }
+});
+
+app.post('/api/vendors', async (req, res, next) => {
+  try {
+    const { contact_name, company_name, region, contact_email, contact_whatsapp, contact_social, website, languages, tier, source, first_impression, special_assets, questionnaire_sent, questionnaire_response, score, bb_potential, limitations, lineage_tradition, services, credentials } = req.body;
+    const result = await pool.query(
+      `INSERT INTO vendor_partners (contact_name,company_name,region,contact_email,contact_whatsapp,contact_social,website,languages,tier,source,first_impression,special_assets,questionnaire_sent,questionnaire_response,score,bb_potential,limitations,lineage_tradition,services,credentials)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) RETURNING *`,
+      [contact_name,company_name,region,contact_email,contact_whatsapp,contact_social,website,languages,tier,source,first_impression,special_assets,questionnaire_sent||false,questionnaire_response,score||null,bb_potential,limitations,lineage_tradition,services||[],credentials||[]]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch(e) { next(e); }
+});
+
+app.patch('/api/vendors/:id', async (req, res, next) => {
+  try {
+    const allowed = ['contact_name','company_name','region','contact_email','contact_whatsapp','contact_social','website','languages','tier','source','first_impression','special_assets','questionnaire_sent','questionnaire_response','score','bb_potential','limitations','lineage_tradition','services','credentials'];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
+    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+    const fields = Object.keys(updates).map((k,i) => `${k}=$${i+2}`).join(',');
+    const result = await pool.query(`UPDATE vendor_partners SET ${fields} WHERE id=$1 RETURNING *`, [req.params.id, ...Object.values(updates)]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch(e) { next(e); }
+});
+
+app.delete('/api/vendors/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM vendor_partners WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
+  } catch(e) { next(e); }
 });
 
 // Central error handler
