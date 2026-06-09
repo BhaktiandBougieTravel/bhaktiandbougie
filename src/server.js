@@ -19,6 +19,22 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Subdomain routing: app.bhaktiandbougie.travel → mobile app
+app.use(async (req, res, next) => {
+  if (req.hostname !== 'app.bhaktiandbougie.travel') return next();
+  const tripMatch = req.path.match(/^\/trip\/([^/]+)$/i);
+  if (tripMatch) {
+    try {
+      const result = await pool.query('SELECT id FROM trips WHERE trip_code=$1', [tripMatch[1].toUpperCase()]);
+      if (result.rows.length) return res.redirect('/mobile?trip=' + result.rows[0].id);
+      return res.status(404).send('Trip not found');
+    } catch (e) { return next(e); }
+  }
+  if (req.path === '/' || req.path === '') return res.redirect('/mobile');
+  next();
+});
+
 app.use('/admin', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
