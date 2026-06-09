@@ -22,6 +22,7 @@ app.use(express.json());
 
 // Subdomain routing: app.bhaktiandbougie.travel → mobile app
 app.use(async (req, res, next) => {
+  if (req.hostname === 'center.bhaktiandbougie.travel') return res.redirect('/india-command');
   if (req.hostname !== 'app.bhaktiandbougie.travel') return next();
   const tripMatch = req.path.match(/^\/trip\/([^/]+)$/i);
   if (tripMatch) {
@@ -35,13 +36,14 @@ app.use(async (req, res, next) => {
   next();
 });
 
-app.use('/admin', (req, res, next) => {
+app.use(['/admin', '/india-command'], (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   next();
 });
 app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')));
+app.use('/india-command', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
 app.use('/website', express.static(path.join(__dirname, '../website')));
 
