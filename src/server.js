@@ -22,7 +22,7 @@ app.use(express.json());
 
 // Subdomain routing: app.bhaktiandbougie.travel → mobile app
 app.use(async (req, res, next) => {
-  if (req.hostname === 'center.bhaktiandbougie.travel') return res.redirect('/india-command');
+  if (req.hostname === 'center.bhaktiandbougie.travel' && !req.path.startsWith('/india-command')) return res.redirect('/india-command');
   if (req.hostname !== 'app.bhaktiandbougie.travel') return next();
   const tripMatch = req.path.match(/^\/trip\/([^/]+)$/i);
   if (tripMatch) {
