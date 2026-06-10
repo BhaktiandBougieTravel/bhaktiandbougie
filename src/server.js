@@ -45,7 +45,7 @@ app.use(['/admin', '/india-command'], (req, res, next) => {
 app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/india-command', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
-app.use('/website', express.static(path.join(__dirname, '../website')));
+app.use('/', express.static(path.join(__dirname, '../website')));
 
 app.post('/api/mobile-auth', (req, res) => {
   const { password } = req.body;
