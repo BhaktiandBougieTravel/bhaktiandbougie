@@ -45,7 +45,7 @@ app.use(['/admin', '/india-command'], (req, res, next) => {
 app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/india-command', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
-app.use('/', express.static(path.join(__dirname, '../website')));
+app.use('/website', express.static(path.join(__dirname, '../website')));
 
 app.post('/api/mobile-auth', (req, res) => {
   const { password } = req.body;
@@ -335,7 +335,7 @@ app.delete('/api/activities/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.get('/website', (_req, res) => res.redirect('/'));
+app.get('/', (_req, res) => res.redirect('/website'));
 app.get('/favicon.ico', (_req, res) => res.sendFile('Favicon-10.png', { root: path.join(__dirname, '../website') }));
 
 app.get('/trip/:code', async (req, res) => {
