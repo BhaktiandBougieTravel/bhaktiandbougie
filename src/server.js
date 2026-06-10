@@ -335,7 +335,7 @@ app.delete('/api/activities/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.get('/', (_req, res) => res.redirect('/website'));
+app.get('/website', (_req, res) => res.redirect('/'));
 app.get('/favicon.ico', (_req, res) => res.sendFile('Favicon-10.png', { root: path.join(__dirname, '../website') }));
 
 app.get('/trip/:code', async (req, res) => {
