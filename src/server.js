@@ -336,6 +336,7 @@ app.delete('/api/activities/:id', async (req, res, next) => {
 });
 
 app.get('/', (_req, res) => res.redirect('/website'));
+app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(__dirname, '../website/favicon.ico')));
 
 app.get('/trip/:code', async (req, res) => {
   const result = await pool.query('SELECT id FROM trips WHERE trip_code=$1', [req.params.code]);
