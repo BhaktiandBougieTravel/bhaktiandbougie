@@ -1809,6 +1809,8 @@ let itinDaysCache=[];
 const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)',C:'rgba(106,138,170,0.12)'};
 const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830',C:'var(--muted)'};
 async function loadItinerary(){
+  const _scrollEl=document.querySelector('.content');
+  const _savedScroll=_scrollEl?_scrollEl.scrollTop:0;
   const tripId=document.getElementById('itin-trip-select').value;
   currentItinTripId=tripId;
   const el=document.getElementById('itinerary-content');
@@ -1943,6 +1945,7 @@ async function loadItinerary(){
       </div>`;
     }).join('');
     el.innerHTML=legend+cards;
+    requestAnimationFrame(()=>{if(_scrollEl)_scrollEl.scrollTop=_savedScroll;});
   }catch(e){el.innerHTML='<div class="loading">Unable to load itinerary</div>';console.error(e);}
 }
 // ── DAY MODAL HELPERS ──────────────────────────────────────────────────────
