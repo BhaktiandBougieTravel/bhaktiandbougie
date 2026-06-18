@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const pool = require('../db/pool');
+const travelersRouter = require('./travelers');
 
 const router = express.Router();
 
@@ -131,5 +132,8 @@ router.delete('/:id', param('id').isUUID(), validate, async (req, res, next) => 
     res.status(204).end();
   } catch (err) { next(err); }
 });
+
+// /api/trips/:tripId/travelers
+router.use('/:tripId/travelers', travelersRouter);
 
 module.exports = router;

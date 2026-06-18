@@ -161,6 +161,14 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
 .day-type-btn{flex:1;padding:10px;font-family:var(--font-sans);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:all 0.2s;background:var(--navy3);border:1.5px solid var(--border);color:var(--cream-dim);text-align:center;}
 .day-type-btn:hover:not(.active){border-color:var(--gold);color:var(--cream);}
 .day-type-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.nav-group-hdr{padding:4px 8px 4px 14px;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);cursor:default;white-space:nowrap;border-left:1px solid var(--gold-border);margin-left:8px;opacity:0.75;align-self:center;}
+.trav-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:4px;}
+.trav-card{background:var(--navy2);border:1px solid var(--border);border-radius:2px;padding:16px;cursor:pointer;transition:border-color 0.2s;}
+.trav-card:hover{border-color:var(--gold);}
+.trav-card-name{font-family:var(--font-serif);font-size:17px;color:var(--cream);margin-bottom:6px;}
+.trav-card-meta{font-size:11px;color:var(--muted);letter-spacing:0.5px;line-height:1.8;}
+.form-sec-hdr{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--gold-border);}
+.form-sec-hdr:first-child{margin-top:0;}
 </style>
 </head>
 <body>
@@ -193,15 +201,18 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     <nav class="nav-tabs">
       <div class="tab active" data-tab="command">Command</div>
       <div class="tab" data-tab="trips">Trips</div>
+      <div class="tab" data-tab="travelers">Travelers</div>
       <div class="tab" data-tab="itinerary">Itinerary</div>
-      <div class="tab" data-tab="contacts">Contacts</div>
-      <div class="tab" data-tab="hotels">Hotels</div>
-      <div class="tab" data-tab="flights">Flights</div>
       <div class="tab" data-tab="expenses">Expenses</div>
       <div class="tab" data-tab="festivals">Festivals</div>
+      <span class="nav-group-hdr">Travel</span>
+      <div class="tab" data-tab="hotels">Hotels</div>
+      <div class="tab" data-tab="flights">Flights</div>
       <div class="tab" data-tab="ground-transport">Transport</div>
-      <div class="tab" data-tab="guides">Guides</div>
+      <span class="nav-group-hdr">Vendors</span>
       <div class="tab" data-tab="vendors">Vendors</div>
+      <div class="tab" data-tab="guides">Guides</div>
+      <div class="tab" data-tab="contacts">Contacts</div>
     </nav>
   </header>
   <main class="content">
@@ -418,6 +429,64 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <button class="btn btn-gold" onclick="openModal('guide-modal')">+ New Guide</button>
       </div>
       <div id="guides-table"><div class="loading dot-pulse">Loading</div></div>
+    </div>
+
+    <div class="tab-panel" id="tab-travelers">
+      <!-- List view -->
+      <div id="travelers-list-view">
+        <div class="sh-row">
+          <div class="sh">Travelers</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="form-select" style="width:220px;" id="trav-trip-select" onchange="loadTravelers()">
+              <option value="">Select trip...</option>
+            </select>
+            <button class="btn btn-gold" onclick="openTravelerForm(null)">+ Add Traveler</button>
+          </div>
+        </div>
+        <div id="travelers-grid"><div class="loading">Select a trip to view travelers</div></div>
+      </div>
+      <!-- Detail / edit form view -->
+      <div id="travelers-form-view" style="display:none;">
+        <div class="sh-row" style="margin-bottom:20px;">
+          <div class="sh" id="trav-form-title">New Traveler</div>
+          <button class="btn btn-outline btn-sm" onclick="showTravelersListView()">← Back to List</button>
+        </div>
+        <input type="hidden" id="trav-id"/>
+        <div class="form-sec-hdr">Personal</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="trav-first-name"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="trav-last-name"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="trav-email"/></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-input" id="trav-phone"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Address</label><textarea class="form-textarea" id="trav-address" rows="2"></textarea></div>
+        <div class="form-sec-hdr">Passport</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Passport Number</label><input type="text" class="form-input" id="trav-passport-number"/></div>
+          <div class="form-group"><label class="form-label">Issuing Country</label><input type="text" class="form-input" id="trav-passport-country"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Passport Expiry</label><input type="date" class="form-input" id="trav-passport-expiry"/></div>
+        <div class="form-sec-hdr">Travel Insurance</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Provider</label><input type="text" class="form-input" id="trav-ins-provider"/></div>
+          <div class="form-group"><label class="form-label">Policy Number</label><input type="text" class="form-input" id="trav-ins-policy"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Insurance Phone</label><input type="text" class="form-input" id="trav-ins-phone"/></div>
+        <div class="form-sec-hdr">Emergency Contact</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Contact Name</label><input type="text" class="form-input" id="trav-ec-name"/></div>
+          <div class="form-group"><label class="form-label">Contact Phone</label><input type="text" class="form-input" id="trav-ec-phone"/></div>
+        </div>
+        <div class="form-sec-hdr">Notes</div>
+        <div class="form-group"><label class="form-label">Dietary Notes</label><textarea class="form-textarea" id="trav-dietary" rows="2"></textarea></div>
+        <div class="form-group"><label class="form-label">Medical Notes</label><textarea class="form-textarea" id="trav-medical" rows="2"></textarea></div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="btn btn-gold" onclick="saveTraveler()">Save</button>
+          <button class="btn btn-outline" id="trav-delete-btn" onclick="deleteTraveler()">Delete</button>
+        </div>
+      </div>
     </div>
 
     <div class="tab-panel" id="tab-vendors">
@@ -1409,6 +1478,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
 });
 function onTabChange(tab){
   if(tab==='trips')loadTrips();
+  if(tab==='travelers')loadTravelers();
   if(tab==='contacts')loadContacts();
   if(tab==='hotels'){loadHotels();loadBookings();}
   if(tab==='flights')loadFlights();
@@ -2738,7 +2808,7 @@ async function populateTripSelects(){
   if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
   console.log('[populateTripSelects] trips:', tripsCache.map(t=>({id:t.id,title:t.title})));
   const opts=tripsCache.map(t=>`<option value="${t.id}">${t.title}</option>`).join('');
-  ['itin-trip-select','booking-trip','flight-trip','expense-trip','gt-trip'].forEach(id=>{
+  ['itin-trip-select','booking-trip','flight-trip','expense-trip','gt-trip','trav-trip-select'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.innerHTML=opts;
   });
@@ -3097,6 +3167,109 @@ function exportVendorsCSV(){
   const rows=data.map(v=>[v.id,v.contact_name,v.company_name,v.region,v.contact_email,v.contact_whatsapp,v.contact_social,v.website,v.languages,v.tier,v.source,v.first_impression,v.special_assets,v.questionnaire_sent?'Yes':'No',v.questionnaire_response,v.score,v.bb_potential,v.limitations,v.lineage_tradition,(v.services||[]).join('|'),(v.credentials||[]).join('|'),v.created_at].map(c=>`"${String(c||'').replace(/"/g,'""')}"`));
   const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='bb-vendors.csv';a.click();
+}
+
+// ── TRAVELERS ────────────────────────────────────────────────────────────────
+let travelersCache=[];
+let currentTraveler=null;
+
+async function loadTravelers(){
+  const tripId=document.getElementById('trav-trip-select').value;
+  const el=document.getElementById('travelers-grid');
+  if(!tripId){el.innerHTML='<div class="loading">Select a trip to view travelers</div>';return;}
+  el.innerHTML='<div class="loading dot-pulse">Loading</div>';
+  try{
+    travelersCache=await fetch(`${API}/trips/${tripId}/travelers`).then(r=>r.json());
+    renderTravelersList();
+  }catch(e){el.innerHTML='<div class="loading">Unable to load travelers</div>';}
+}
+
+function renderTravelersList(){
+  const el=document.getElementById('travelers-grid');
+  if(!travelersCache.length){el.innerHTML='<div class="loading">No travelers added yet. Click + Add Traveler to begin.</div>';return;}
+  el.innerHTML=`<div class="trav-cards-grid">${travelersCache.map(t=>`
+    <div class="trav-card" onclick="openTravelerForm('${t.id}')">
+      <div class="trav-card-name">${escH(t.first_name||'')} ${escH(t.last_name||'')}</div>
+      <div class="trav-card-meta">
+        ${t.phone?escH(t.phone)+'<br>':''}
+        ${t.passport_country?escH(t.passport_country):''}${t.passport_expiry?' · exp '+(t.passport_expiry||'').split('T')[0]:''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function openTravelerForm(travelerId){
+  currentTraveler=travelerId?travelersCache.find(t=>t.id===travelerId)||null:null;
+  const t=currentTraveler||{};
+  document.getElementById('trav-form-title').textContent=travelerId?'Edit Traveler':'New Traveler';
+  document.getElementById('trav-id').value=t.id||'';
+  document.getElementById('trav-first-name').value=t.first_name||'';
+  document.getElementById('trav-last-name').value=t.last_name||'';
+  document.getElementById('trav-email').value=t.email||'';
+  document.getElementById('trav-phone').value=t.phone||'';
+  document.getElementById('trav-address').value=t.address||'';
+  document.getElementById('trav-passport-number').value=t.passport_number||'';
+  document.getElementById('trav-passport-country').value=t.passport_country||'';
+  document.getElementById('trav-passport-expiry').value=t.passport_expiry?(t.passport_expiry||'').split('T')[0]:'';
+  document.getElementById('trav-ins-provider').value=t.insurance_provider||'';
+  document.getElementById('trav-ins-policy').value=t.insurance_policy||'';
+  document.getElementById('trav-ins-phone').value=t.insurance_phone||'';
+  document.getElementById('trav-ec-name').value=t.emergency_contact_name||'';
+  document.getElementById('trav-ec-phone').value=t.emergency_contact_phone||'';
+  document.getElementById('trav-dietary').value=t.dietary_notes||'';
+  document.getElementById('trav-medical').value=t.medical_notes||'';
+  document.getElementById('trav-delete-btn').style.display=travelerId?'':'none';
+  document.getElementById('travelers-list-view').style.display='none';
+  document.getElementById('travelers-form-view').style.display='block';
+}
+
+function showTravelersListView(){
+  document.getElementById('travelers-form-view').style.display='none';
+  document.getElementById('travelers-list-view').style.display='block';
+  currentTraveler=null;
+}
+
+async function saveTraveler(){
+  const tripId=document.getElementById('trav-trip-select').value;
+  if(!tripId)return;
+  const g=id=>document.getElementById(id);
+  const body={
+    first_name:g('trav-first-name').value||null,
+    last_name:g('trav-last-name').value||null,
+    email:g('trav-email').value||null,
+    phone:g('trav-phone').value||null,
+    address:g('trav-address').value||null,
+    passport_number:g('trav-passport-number').value||null,
+    passport_country:g('trav-passport-country').value||null,
+    passport_expiry:g('trav-passport-expiry').value||null,
+    insurance_provider:g('trav-ins-provider').value||null,
+    insurance_policy:g('trav-ins-policy').value||null,
+    insurance_phone:g('trav-ins-phone').value||null,
+    emergency_contact_name:g('trav-ec-name').value||null,
+    emergency_contact_phone:g('trav-ec-phone').value||null,
+    dietary_notes:g('trav-dietary').value||null,
+    medical_notes:g('trav-medical').value||null,
+  };
+  const id=g('trav-id').value;
+  try{
+    if(id){
+      await fetch(`${API}/travelers/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }else{
+      await fetch(`${API}/trips/${tripId}/travelers`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }
+    showTravelersListView();
+    await loadTravelers();
+  }catch(e){alert('Error saving traveler: '+e.message);}
+}
+
+async function deleteTraveler(){
+  const id=document.getElementById('trav-id').value;
+  if(!id)return;
+  if(!confirm('Delete this traveler? This cannot be undone.'))return;
+  try{
+    await fetch(`${API}/travelers/${id}`,{method:'DELETE'});
+    showTravelersListView();
+    await loadTravelers();
+  }catch(e){alert('Error deleting traveler: '+e.message);}
 }
 
 document.querySelectorAll('.modal-overlay').forEach(overlay=>{

@@ -144,6 +144,18 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 .info-brand{text-align:center;padding:32px 0 12px;}
 .info-brand-name{font-family:var(--font-serif);font-size:24px;color:var(--cream);letter-spacing:4px;}
 .info-brand-email{font-size:16px;color:var(--gold);margin-top:8px;letter-spacing:1px;}
+.trav-card{border-bottom:1px solid var(--border-subtle);}
+.trav-card:last-child{border-bottom:none;}
+.trav-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 0;cursor:pointer;user-select:none;}
+.trav-card-fullname{font-family:var(--font-serif);font-size:20px;color:var(--cream);}
+.trav-card-chevron{font-size:12px;color:var(--muted);transition:transform 0.2s;}
+.trav-card.open .trav-card-chevron{transform:rotate(180deg);}
+.trav-card-body{display:none;padding-bottom:14px;}
+.trav-card.open .trav-card-body{display:block;}
+.trav-detail-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.trav-detail-row:last-child{border-bottom:none;}
+.trav-detail-key{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.trav-detail-val{font-size:16px;color:var(--cream);text-align:right;margin-left:12px;}
 
 /* ── Bottom nav ─── */
 #bottom-nav{
@@ -227,7 +239,7 @@ const API='https://bhaktiandbougie-production.up.railway.app/api';
 const DAY_NAMES=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
 const MON_SHORT=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
-let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[];
+let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[],tripTravelers=[];
 let currentDayIdx=0,activeTab='today';
 
 function utcHHMM(ts){
@@ -323,13 +335,14 @@ function showPwMsg(msg){
 async function loadAndShow(){
   showPwMsg('Loading your journey…');
   try{
-    [trip,transports,trains,sacredSites,activities,hotelBookings]=await Promise.all([
+    [trip,transports,trains,sacredSites,activities,hotelBookings,tripTravelers]=await Promise.all([
       fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/sacred-sites?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/activities?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/hotel-bookings?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/trips/${tripId}/travelers`).then(r=>r.json()).catch(()=>[]),
     ]);
     if(trip.error){showPwMsg('Trip not found');return;}
 
@@ -618,12 +631,32 @@ function dayPrimaryIcon(day,dateStr){
 
 // ── Info ──────────────────────────────────────────────────────────────────────
 
+function fmtPassportExpiry(dateStr){
+  if(!dateStr)return'';
+  const d=new Date((dateStr||'').split('T')[0]+'T12:00:00');
+  return`${d.getDate()} ${MON_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderTravelerCard(t){
+  const rows=[];
+  if(t.phone)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">PHONE</span><span class="trav-detail-val">${esc(t.phone)}</span></div>`);
+  if(t.passport_country||t.passport_expiry)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">PASSPORT</span><span class="trav-detail-val">${esc(t.passport_country||'')}${t.passport_expiry?' · exp '+fmtPassportExpiry(t.passport_expiry):''}</span></div>`);
+  if(t.insurance_provider||t.insurance_policy)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">INSURANCE</span><span class="trav-detail-val">${esc(t.insurance_provider||'')}${t.insurance_policy?' · '+esc(t.insurance_policy):''}</span></div>`);
+  if(t.emergency_contact_name||t.emergency_contact_phone)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">EMERGENCY</span><span class="trav-detail-val">${esc(t.emergency_contact_name||'')}${t.emergency_contact_phone?' · '+esc(t.emergency_contact_phone):''}</span></div>`);
+  return`<div class="trav-card">
+    <div class="trav-card-hdr" onclick="this.parentElement.classList.toggle('open')">
+      <span class="trav-card-fullname">${esc(t.first_name||'')} ${esc(t.last_name||'')}</span>
+      <span class="trav-card-chevron">▼</span>
+    </div>
+    <div class="trav-card-body">${rows.join('')}</div>
+  </div>`;
+}
+
 function renderInfo(){
   if(!trip)return;
-  const travellers=trip.travellers||[];
-  let travHtml=travellers.length
-    ?travellers.map(t=>`<div class="trav-row"><div><div class="trav-name">${esc(t.first_name||'')} ${esc(t.last_name||'')}</div><div class="trav-role">${esc(t.role||'')}</div></div></div>`).join('')
-    :'<div class="tl-sub" style="padding:8px 0">No travellers listed</div>';
+  const travelerCards=tripTravelers.length
+    ?tripTravelers.map(renderTravelerCard).join('')
+    :'<div class="tl-sub" style="padding:8px 0">No travelers added yet.</div>';
 
   document.getElementById('info-content').innerHTML=`
     <div class="info-section">
@@ -634,15 +667,8 @@ function renderInfo(){
       ${allDays.length?`<div class="info-row"><span class="info-key">DAYS</span><span class="info-val">${allDays.length}</span></div>`:''}
     </div>
     <div class="info-section">
-      <div class="info-sec-title">TRAVELLERS</div>
-      ${travHtml}
-    </div>
-    <div class="info-section">
-      <div class="info-sec-title">EMERGENCY CONTACTS</div>
-      ${(trip.emergency_contact_name||trip.emergency_contact_info)
-        ?`${trip.emergency_contact_name?`<div class="info-row"><span class="info-key">CONTACT</span><span class="info-val">${esc(trip.emergency_contact_name)}</span></div>`:''}
-         ${trip.emergency_contact_info?`<div class="info-row"><span class="info-key">REACH</span><span class="info-val">${esc(trip.emergency_contact_info)}</span></div>`:''}`
-        :`<div class="info-emerg">Contact michael@bhaktiandbougie.travel for any urgent assistance during your journey.</div>`}
+      <div class="info-sec-title">TRAVELERS</div>
+      ${travelerCards}
     </div>
     <div class="info-brand">
       <div class="pw-mark" style="margin:0 auto 14px;width:fit-content;">
@@ -651,7 +677,7 @@ function renderInfo(){
         <div class="pw-s"></div>
       </div>
       <div class="info-brand-name">BHAKTI &amp; BOUGIE</div>
-      <div class="info-brand-email">michael@bhaktiandbougie.travel</div>
+      <div class="info-brand-email">Questions? michael@bhaktiandbougie.travel</div>
     </div>`;
 }
 </script>

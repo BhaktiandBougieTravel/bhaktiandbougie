@@ -384,6 +384,35 @@ app.delete('/api/vendors/:id', async (req, res, next) => {
   } catch(e) { next(e); }
 });
 
+// ── Travelers (individual record update/delete) ───────────────────────────────
+const TRAVELER_FIELDS = [
+  'first_name','last_name','email','phone','address',
+  'passport_number','passport_expiry','passport_country',
+  'insurance_provider','insurance_policy','insurance_phone',
+  'emergency_contact_name','emergency_contact_phone',
+  'dietary_notes','medical_notes',
+];
+app.patch('/api/travelers/:id', async (req, res, next) => {
+  const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => TRAVELER_FIELDS.includes(k)));
+  if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
+  const fields = Object.keys(updates).map((k, i) => `${k}=$${i + 2}`).join(',');
+  try {
+    const { rows } = await pool.query(
+      `UPDATE trip_travelers SET ${fields} WHERE id=$1 RETURNING *`,
+      [req.params.id, ...Object.values(updates)]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (e) { next(e); }
+});
+app.delete('/api/travelers/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM trip_travelers WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
+  } catch (e) { next(e); }
+});
+
 // Central error handler
 app.use((err, _req, res, _next) => {
   console.error(err.stack);

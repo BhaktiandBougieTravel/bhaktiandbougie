@@ -49,6 +49,33 @@ CREATE TABLE trips (
   CONSTRAINT end_after_start CHECK (end_date >= start_date)
 );
 
+-- ============================================================
+-- TRIP TRAVELERS
+-- Per-person profile records for each traveler on a trip
+-- ============================================================
+CREATE TABLE IF NOT EXISTS trip_travelers (
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  trip_id                 UUID REFERENCES trips(id) ON DELETE CASCADE,
+  first_name              TEXT,
+  last_name               TEXT,
+  email                   TEXT,
+  phone                   TEXT,
+  address                 TEXT,
+  passport_number         TEXT,
+  passport_expiry         DATE,
+  passport_country        TEXT,
+  insurance_provider      TEXT,
+  insurance_policy        TEXT,
+  insurance_phone         TEXT,
+  emergency_contact_name  TEXT,
+  emergency_contact_phone TEXT,
+  dietary_notes           TEXT,
+  medical_notes           TEXT,
+  created_at              TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_trip_travelers_trip ON trip_travelers(trip_id);
+
 -- Link trips to their travellers (clients)
 CREATE TABLE trip_contacts (
   trip_id       UUID NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
