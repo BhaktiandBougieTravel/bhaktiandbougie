@@ -639,8 +639,10 @@ function renderInfo(){
     </div>
     <div class="info-section">
       <div class="info-sec-title">EMERGENCY CONTACTS</div>
-      <div class="info-emerg">Contact your Bhakti &amp; Bougie consultant for any urgent assistance during your journey.</div>
-      <div class="info-row"><span class="info-key">EMAIL</span><span class="info-val" style="color:var(--gold)">michael@bhaktiandbougie.travel</span></div>
+      ${(trip.emergency_contact_name||trip.emergency_contact_info)
+        ?`${trip.emergency_contact_name?`<div class="info-row"><span class="info-key">CONTACT</span><span class="info-val">${esc(trip.emergency_contact_name)}</span></div>`:''}
+         ${trip.emergency_contact_info?`<div class="info-row"><span class="info-key">REACH</span><span class="info-val">${esc(trip.emergency_contact_info)}</span></div>`:''}`
+        :`<div class="info-emerg">Contact michael@bhaktiandbougie.travel for any urgent assistance during your journey.</div>`}
     </div>
     <div class="info-brand">
       <div class="pw-mark" style="margin:0 auto 14px;width:fit-content;">

@@ -41,7 +41,9 @@ CREATE TABLE trips (
   currency      CHAR(3) NOT NULL DEFAULT 'INR',
   base_price    NUMERIC(12, 2),   -- total quoted price to client
   paid_amount   NUMERIC(12, 2) DEFAULT 0,
-  notes         TEXT,
+  notes                    TEXT,
+  emergency_contact_name   TEXT,
+  emergency_contact_info   TEXT,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT end_after_start CHECK (end_date >= start_date)
