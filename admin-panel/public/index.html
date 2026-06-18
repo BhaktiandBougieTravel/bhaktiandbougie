@@ -1806,6 +1806,7 @@ async function exportExpenses(){
 }
 let currentItinTripId=null;
 let itinDaysCache=[];
+let activeModalDayId=null;
 const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)',C:'rgba(106,138,170,0.12)'};
 const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830',C:'var(--muted)'};
 async function loadItinerary(){
@@ -1926,7 +1927,7 @@ async function loadItinerary(){
       const note=d.notes||d.description||'';
       if(note)items+=`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('notes','','${tripId}','${d.id}')"><span class="itin-emoji">📝</span><div class="itin-body"><div class="itin-note">${note}</div></div>${P}</div>`;
       const empty=!items?`<div style="font-size:11px;color:var(--muted);padding:6px 0;font-style:italic;">Nothing scheduled — use + to add</div>`:'';
-      return`<div class="card" style="margin-bottom:10px;border-left:3px solid var(--border);padding:14px 16px;">
+      return`<div class="card" data-day-id="${d.id}" style="margin-bottom:10px;border-left:3px solid var(--border);padding:14px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${items||empty?'10px':'0'};">
           <div>
             <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;">
@@ -2075,7 +2076,7 @@ async function saveFlight(){
         await fetch(`${API}/days`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trip_id:tripId,date:arrDate,day_type:'travel',day_number:maxNum+1,title:to+' Arrival'})}).catch(()=>{});
       }
     }
-    newFltItem();loadFltList();loadItinerary();
+    newFltItem();loadFltList();await loadItinerary();if(activeModalDayId){requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${activeModalDayId}"]`)?.scrollIntoView({block:'center'});});}
   }catch(e){console.error('[saveFlight]',e);alert('Failed to save flight');}
 }
 async function editFlt(id){
@@ -2349,7 +2350,7 @@ async function saveCheckin(){
         }
       }
     }catch(e){console.error('[saveCheckin] auto-create days error:',e);}
-    newCiItem();loadCiList();loadItinerary();
+    newCiItem();loadCiList();await loadItinerary();if(activeModalDayId){requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${activeModalDayId}"]`)?.scrollIntoView({block:'center'});});}
   }catch(e){console.error('[saveCheckin]',e);alert('Failed to save check-in');}
 }
 async function editCi(id){
@@ -2414,7 +2415,7 @@ async function saveCheckout(){
   try{
     const r=await fetch(`${API}/hotel-bookings/${bookingId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));console.error('[saveCheckout] error:',err);alert('Failed to save check-out: '+(err.error||r.status));return;}
-    newCoItem();loadCoList();loadItinerary();
+    newCoItem();loadCoList();await loadItinerary();if(activeModalDayId){requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${activeModalDayId}"]`)?.scrollIntoView({block:'center'});});}
   }catch(e){console.error('[saveCheckout]',e);alert('Failed to save check-out');}
 }
 async function editCo(id){
@@ -2475,7 +2476,7 @@ async function saveActivity(){
   try{
     const r=await fetch(aid?`${API}/activities/${aid}`:`${API}/activities`,{method:aid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
-    newActItem();loadActList();loadItinerary();
+    newActItem();loadActList();await loadItinerary();if(activeModalDayId){requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${activeModalDayId}"]`)?.scrollIntoView({block:'center'});});}
   }catch(e){console.error('[saveActivity]',e);alert('Failed to save activity');}
 }
 async function editAct(id){
@@ -2523,7 +2524,7 @@ async function saveSacredSite(){
   try{
     const r=await fetch(sid?`${API}/sacred-sites/${sid}`:`${API}/sacred-sites`,{method:sid?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
-    newSacredItem();loadSacredList();loadItinerary();
+    newSacredItem();loadSacredList();await loadItinerary();if(activeModalDayId){requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${activeModalDayId}"]`)?.scrollIntoView({block:'center'});});}
   }catch(e){console.error('[saveSacredSite]',e);alert('Failed to save sacred site');}
 }
 async function editSacred(id){
@@ -2605,6 +2606,7 @@ async function openAddDay(){
 }
 function openDayAdd(tripId,date,dayId){
   currentItinTripId=tripId;
+  activeModalDayId=dayId||null;
   resetDayModal();
   document.getElementById('day-modal-title').textContent='Add to Day';
   document.getElementById('day-modal-trip-id').value=tripId;
@@ -2626,6 +2628,7 @@ function openDayAdd(tripId,date,dayId){
 }
 async function editDay(dayId,tripId){
   currentItinTripId=tripId;
+  activeModalDayId=dayId||null;
   resetDayModal();
   document.getElementById('day-modal-trip-id').value=tripId;
   try{
@@ -2648,6 +2651,7 @@ async function editDay(dayId,tripId){
 }
 async function editDayItem(type,itemId,tripId,dayId){
   currentItinTripId=tripId;
+  activeModalDayId=dayId||null;
   resetDayModal();
   document.getElementById('day-modal-trip-id').value=tripId;
   document.getElementById('day-edit-item-type').value=type;
@@ -2715,7 +2719,8 @@ async function saveDay(){
   if(isSectionActive('notes'))dayBody.notes=document.getElementById('day-notes-text').value;
   await fetch(dayId?`${API}/days/${dayId}`:`${API}/days`,{method:dayId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dayBody)});
   closeModal('day-modal');
-  loadItinerary();
+  await loadItinerary();
+  if(activeModalDayId){const _tid=activeModalDayId;activeModalDayId=null;requestAnimationFrame(()=>{document.querySelector(`[data-day-id="${_tid}"]`)?.scrollIntoView({block:'center'});});}
 }
 async function populateTripSelects(){
   if(!tripsCache.length)try{tripsCache=await(await fetch(`${API}/trips`)).json();}catch(e){return;}
