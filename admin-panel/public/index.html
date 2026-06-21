@@ -209,7 +209,8 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
     </div>
     <nav class="nav-tabs">
-      <div class="tab active" data-tab="itinerary">Itinerary</div>
+      <div class="tab" data-tab="command">Command</div>
+      <div class="tab" data-tab="itinerary">Itinerary</div>
       <div class="tab" data-tab="travelers">Travelers</div>
       <div class="nav-dropdown" id="vendors-dropdown">
         <div class="nav-dropdown-hdr" onclick="toggleVendorDropdown()">Vendors <span class="nav-chevron">▾</span></div>
@@ -223,7 +224,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </nav>
   </header>
   <main class="content">
-    <div class="tab-panel" id="tab-command">
+    <div class="tab-panel active" id="tab-command">
       <div style="display:grid;grid-template-columns:480px 1fr 1fr 1fr;gap:12px;align-items:stretch;margin-bottom:20px;">
 
         <!-- Col 1: Clocks 2×2 -->
@@ -323,7 +324,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       </div>
       <div id="trips-table"><div class="loading dot-pulse">Loading trips</div></div>
     </div>
-    <div class="tab-panel active" id="tab-itinerary">
+    <div class="tab-panel" id="tab-itinerary">
       <div class="sh-row">
         <div class="sh">Itinerary</div>
         <div style="display:flex;gap:10px;align-items:center;">
