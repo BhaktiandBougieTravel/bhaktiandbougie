@@ -257,6 +257,11 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
             <input type="number" id="fx-input" class="form-select" style="width:90px;font-size:17px;" placeholder="1" min="0" oninput="calcFX()">
             <span style="font-size:13px;color:var(--ash);" id="fx-converted">= ₹–</span>
           </div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+            <span style="font-size:13px;color:var(--ash);">₹</span>
+            <input type="number" id="fx-input-inr" class="form-select" style="width:90px;font-size:17px;" placeholder="1" min="0" oninput="calcFXReverse()">
+            <span style="font-size:13px;color:var(--ash);" id="fx-converted-inr">= –</span>
+          </div>
           <canvas id="fx-sparkline" width="260" height="48" style="margin-top:auto;padding-top:12px;display:block;width:100%;box-sizing:border-box;"></canvas>
         </div>
 
@@ -1296,12 +1301,18 @@ async function loadFX(){
     document.getElementById('fx-rate').textContent=`₹${fxRate.toFixed(2)}`;
     document.getElementById('fx-sub').textContent=`Updated: ${new Date(d.time_last_update_utc).toLocaleDateString()}`;
     calcFX();
+    calcFXReverse();
     loadFXSparkline(cur);
   }catch(e){document.getElementById('fx-rate').textContent='–';}
 }
 function calcFX(){
   const amt=parseFloat(document.getElementById('fx-input')?.value)||1;
   document.getElementById('fx-converted').textContent=fxRate?`= ₹${(amt*fxRate).toFixed(2)}`:'= ₹–';
+}
+function calcFXReverse(){
+  const cur=(document.getElementById('fx-currency-select')?.value)||'USD';
+  const amt=parseFloat(document.getElementById('fx-input-inr')?.value)||1;
+  document.getElementById('fx-converted-inr').textContent=fxRate?`= ${(amt/fxRate).toFixed(2)} ${cur}`:'= –';
 }
 async function loadFXSparkline(cur){
   const canvas=document.getElementById('fx-sparkline');
