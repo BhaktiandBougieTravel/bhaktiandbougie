@@ -4,6 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Bhakti &amp; Bougie</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="B&amp;B Travel"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+<meta name="theme-color" content="#0D1B2A"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -172,6 +178,48 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 .nav-btn.active{color:var(--gold);}
 .nav-icon{font-size:20px;line-height:1;}
 .nav-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+
+/* ── My Notes ─── */
+.my-notes-card{
+  margin-top:16px;padding:14px 16px;background:var(--navy3);
+  border:1px solid var(--border-subtle);border-radius:4px;
+}
+.my-notes-label{
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;
+}
+.my-notes-ta{
+  width:100%;min-height:100px;background:var(--navy2);
+  border:1px solid var(--gold-border);border-radius:3px;
+  color:var(--cream);font-family:var(--font-sans);font-size:16px;
+  font-weight:300;padding:12px;resize:vertical;line-height:1.5;
+  -webkit-appearance:none;outline:none;
+}
+.my-notes-ta::placeholder{color:var(--ash);font-style:italic;}
+.my-notes-ta:focus{border-color:var(--gold);}
+.my-notes-status{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:1px;min-height:16px;}
+
+/* ── Name picker ─── */
+#name-picker{
+  position:fixed;inset:0;background:var(--navy);z-index:9998;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:14px;padding:48px 24px;overflow-y:auto;
+}
+#name-picker.hidden{display:none;}
+.picker-title{font-family:var(--font-serif);font-size:26px;color:var(--cream);letter-spacing:3px;text-align:center;}
+.picker-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:6px;}
+.picker-btn{
+  background:var(--navy2);border:1.5px solid var(--gold-border);border-radius:3px;
+  padding:16px 24px;width:100%;max-width:300px;
+  font-family:var(--font-sans);font-size:16px;color:var(--cream);
+  cursor:pointer;letter-spacing:1px;text-align:center;min-height:52px;
+  -webkit-tap-highlight-color:transparent;display:block;
+}
+.picker-btn:active{border-color:var(--gold);background:var(--gold-dim);}
+.picker-skip{
+  font-size:12px;color:var(--muted);letter-spacing:1px;text-decoration:underline;
+  background:none;border:none;cursor:pointer;padding:8px;margin-top:4px;
+}
 </style>
 </head>
 <body>
@@ -191,6 +239,13 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
     <p id="pw-error"></p>
   </div>
   <div id="pw-msg" style="display:none"></div>
+</div>
+
+<div id="name-picker" class="hidden">
+  <div class="picker-title">WHO ARE YOU?</div>
+  <div class="picker-sub">Select your name to enable journey notes</div>
+  <div id="picker-list"></div>
+  <button class="picker-skip" onclick="document.getElementById('name-picker').classList.add('hidden')">Skip for now</button>
 </div>
 
 <div id="app">
@@ -241,6 +296,7 @@ const MON_SHORT=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NO
 
 let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[],tripTravelers=[];
 let currentDayIdx=0,activeTab='today';
+let travelerName=localStorage.getItem('travelerName')||'';
 
 function utcHHMM(ts){
   if(!ts)return'';
@@ -360,6 +416,7 @@ async function loadAndShow(){
     renderToday();
     renderJourney();
     renderInfo();
+    if(!travelerName&&tripTravelers.length)showNamePicker();
   }catch(e){
     showPwMsg('Failed to load. Check your connection.');
   }
@@ -412,8 +469,13 @@ function renderToday(){
   if(day.notes)html+=`<div class="day-notes-card">${esc(day.notes)}</div>`;
   if(!items.length&&!day.notes)html='<div class="tl-empty">STAY DAY</div>';
   else items.forEach(it=>{html+=renderItem(it);});
-  document.getElementById('today-content').innerHTML=html;
+  const myNotesHtml=travelerName?`<div class="my-notes-card"><div class="my-notes-label">MY NOTES</div><textarea id="my-notes-ta" class="my-notes-ta" placeholder="Add a note for this day…"></textarea><div id="my-notes-status" class="my-notes-status"></div></div>`:'';
+  document.getElementById('today-content').innerHTML=html+myNotesHtml;
   document.getElementById('today-content').scrollTop=0;
+  if(travelerName){
+    document.getElementById('my-notes-ta').addEventListener('blur',saveCurrentNote);
+    loadDayNote(day.id);
+  }
 }
 
 function buildDayItems(day,dayDate){
@@ -591,6 +653,62 @@ function renderItem({sk,type,d}){
   return'';
 }
 
+// ── Day notes ─────────────────────────────────────────────────────────────────
+
+async function loadDayNote(dayId){
+  if(!travelerName||!tripId)return;
+  const ta=document.getElementById('my-notes-ta');
+  if(!ta)return;
+  const statusEl=document.getElementById('my-notes-status');
+  try{
+    const notes=await fetch(`${API}/notes?trip=${tripId}&traveler=${encodeURIComponent(travelerName)}`).then(r=>r.json());
+    if(document.getElementById('my-notes-ta')!==ta)return;
+    const note=notes.find(n=>n.day_id===dayId);
+    ta.value=note?note.note_text||'':'';
+    if(statusEl)statusEl.textContent='';
+  }catch(e){
+    if(document.getElementById('my-notes-ta')===ta&&statusEl)statusEl.textContent='Could not load note';
+  }
+}
+
+async function saveCurrentNote(){
+  const ta=document.getElementById('my-notes-ta');
+  const statusEl=document.getElementById('my-notes-status');
+  if(!ta||!travelerName||!tripId)return;
+  const day=allDays[currentDayIdx];
+  if(!day)return;
+  if(statusEl)statusEl.textContent='Saving…';
+  try{
+    await fetch(`${API}/notes`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({trip_id:tripId,traveler_name:travelerName,day_id:day.id,note_text:ta.value})
+    });
+    if(statusEl){statusEl.textContent='Saved';setTimeout(()=>{if(statusEl)statusEl.textContent='';},2000);}
+  }catch(e){
+    if(statusEl)statusEl.textContent='Save failed';
+  }
+}
+
+// ── Name picker ───────────────────────────────────────────────────────────────
+
+function showNamePicker(){
+  if(!tripTravelers.length)return;
+  window._pickerNames=tripTravelers.map(t=>`${t.first_name||''} ${t.last_name||''}`.trim());
+  const list=document.getElementById('picker-list');
+  list.innerHTML=window._pickerNames.map((name,i)=>
+    `<button class="picker-btn" onclick="selectTravelerName(window._pickerNames[${i}])">${esc(name)}</button>`
+  ).join('');
+  document.getElementById('name-picker').classList.remove('hidden');
+}
+
+function selectTravelerName(name){
+  travelerName=name;
+  localStorage.setItem('travelerName',name);
+  document.getElementById('name-picker').classList.add('hidden');
+  renderToday();
+}
+
 // ── Journey ───────────────────────────────────────────────────────────────────
 
 function renderJourney(){
@@ -679,6 +797,10 @@ function renderInfo(){
       <div class="info-brand-name">BHAKTI &amp; BOUGIE</div>
       <div class="info-brand-email">Questions? michael@bhaktiandbougie.travel</div>
     </div>`;
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
 }
 </script>
 </body>

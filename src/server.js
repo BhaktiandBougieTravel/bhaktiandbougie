@@ -46,6 +46,9 @@ app.use('/admin', express.static(path.join(__dirname, '../admin-panel/public')))
 app.use('/india-command', express.static(path.join(__dirname, '../admin-panel/public')));
 app.use('/mobile', express.static(path.join(__dirname, '../mobile')));
 app.use('/website', express.static(path.join(__dirname, '../website')));
+app.get('/manifest.json', (_req, res) => res.sendFile(path.join(__dirname, '../manifest.json')));
+app.get('/service-worker.js', (_req, res) => res.sendFile(path.join(__dirname, '../service-worker.js')));
+app.use('/icons', express.static(path.join(__dirname, '../icons')));
 
 app.post('/api/mobile-auth', (req, res) => {
   const { password } = req.body;
@@ -64,6 +67,7 @@ pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(
 pool.query(`CREATE TABLE IF NOT EXISTS day_sacred_sites (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), name TEXT NOT NULL, site_time TEXT, notes TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_sacred_sites:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_activities (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), description TEXT NOT NULL, activity_time TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_activities:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS vendor_partners (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), contact_name TEXT, company_name TEXT, region TEXT, contact_email TEXT, contact_whatsapp TEXT, contact_social TEXT, website TEXT, languages TEXT, tier VARCHAR(2), source TEXT, first_impression TEXT, special_assets TEXT, questionnaire_sent BOOLEAN DEFAULT false, questionnaire_response TEXT, score INTEGER, bb_potential TEXT, limitations TEXT, lineage_tradition TEXT, services TEXT[], credentials TEXT[], created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] vendor_partners:', e.message));
+pool.query(`CREATE TABLE IF NOT EXISTS traveler_notes (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id) ON DELETE CASCADE, traveler_name TEXT NOT NULL, day_id UUID REFERENCES days(id) ON DELETE CASCADE, note_text TEXT, updated_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE (trip_id, traveler_name, day_id))`).catch(e => console.error('[startup] traveler_notes:', e.message));
 
 app.use('/api/trips',          tripsRouter);
 app.use('/api/contacts',       contactsRouter);
@@ -408,6 +412,42 @@ app.patch('/api/travelers/:id', async (req, res, next) => {
 app.delete('/api/travelers/:id', async (req, res, next) => {
   try {
     const { rowCount } = await pool.query('DELETE FROM trip_travelers WHERE id=$1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
+  } catch (e) { next(e); }
+});
+
+// ── Traveler Notes ────────────────────────────────────────────────────────────
+app.get('/api/notes', async (req, res, next) => {
+  try {
+    const { trip, traveler } = req.query;
+    if (!trip || !traveler) return res.status(400).json({ error: 'trip and traveler required' });
+    const { rows } = await pool.query(
+      'SELECT * FROM traveler_notes WHERE trip_id=$1 AND traveler_name=$2 ORDER BY updated_at',
+      [trip, traveler]
+    );
+    res.json(rows);
+  } catch (e) { next(e); }
+});
+
+app.post('/api/notes', async (req, res, next) => {
+  try {
+    const { trip_id, traveler_name, day_id, note_text } = req.body;
+    if (!trip_id || !traveler_name || !day_id) return res.status(400).json({ error: 'trip_id, traveler_name, day_id required' });
+    const { rows } = await pool.query(
+      `INSERT INTO traveler_notes (trip_id, traveler_name, day_id, note_text, updated_at)
+       VALUES ($1,$2,$3,$4,NOW())
+       ON CONFLICT (trip_id, traveler_name, day_id) DO UPDATE SET note_text=$4, updated_at=NOW()
+       RETURNING *`,
+      [trip_id, traveler_name, day_id, note_text || '']
+    );
+    res.json(rows[0]);
+  } catch (e) { next(e); }
+});
+
+app.delete('/api/notes/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM traveler_notes WHERE id=$1', [req.params.id]);
     if (!rowCount) return res.status(404).json({ error: 'Not found' });
     res.status(204).end();
   } catch (e) { next(e); }
