@@ -1567,12 +1567,13 @@ async function loadItinerary(){
   console.log('[loadItinerary] fetching trip id:', tripId);
   try{
     if(!hotelsCache.length)try{hotelsCache=await(await fetch(`${API}/hotels`)).json();}catch(_){}
-    const[trip,transports,trains,sacredSites,actItems]=await Promise.all([
+    const[trip,transports,trains,sacredSites,actItems,dinItems]=await Promise.all([
       fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/sacred-sites?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/activities?trip_id=${tripId}&category=activity`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/activities?trip_id=${tripId}&category=dining`).then(r=>r.json()).catch(()=>[]),
     ]);
     console.log('[loadItinerary] trip response:', trip);
     const trainList=Array.isArray(trains)?trains:[];
@@ -1606,6 +1607,7 @@ async function loadItinerary(){
       const checkOuts=bookings.filter(b=>(b.check_out||'').split('T')[0]===ds);
       const daySacred=Array.isArray(sacredSites)?sacredSites.filter(s=>s.day_id===d.id):[];
       const dayActs=Array.isArray(actItems)?actItems.filter(a=>a.day_id===d.id):[];
+      const dayDining=Array.isArray(dinItems)?dinItems.filter(a=>a.day_id===d.id):[];
       const dayHotelName=checkIns.length?(hotelsCache.find(h=>h.id===checkIns[0]?.hotel_id)?.name||''):(bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?hotelsCache.find(h=>h.id===bookings.find(b=>(b.check_in||'').split('T')[0]<=ds&&(b.check_out||'').split('T')[0]>ds)?.hotel_id)?.name||'':'');
       const arrivingFlights=flights.filter(f=>{
         if(!f.arrival_time||!f.departure_time)return false;
@@ -1668,6 +1670,10 @@ async function loadItinerary(){
       dayActs.forEach(a=>{
         const tm=a.activity_time?a.activity_time.slice(0,5):'';
         timedItems.push({time:tm||'98:11',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('activities','${a.id}','${tripId}','${d.id}')"><span class="itin-emoji">✨</span><div class="itin-body"><div class="itin-main" style="color:var(--gold);">${a.description}</div>${tm?`<div class="itin-sub">${tm}</div>`:''}</div>${P}</div>`});
+      });
+      dayDining.forEach(a=>{
+        const tm=a.activity_time?a.activity_time.slice(0,5):'';
+        timedItems.push({time:tm||'98:12',html:`<div class="itin-item" style="cursor:pointer;" onclick="editDayItem('dining','${a.id}','${tripId}','${d.id}')"><span class="itin-emoji">🍽️</span><div class="itin-body"><div class="itin-main" style="color:var(--gold);">${a.description}</div>${tm?`<div class="itin-sub">${tm}</div>`:''}</div>${P}</div>`});
       });
       timedItems.sort((a,b)=>a.time.localeCompare(b.time));
       let items=timedItems.map(x=>x.html).join('');
