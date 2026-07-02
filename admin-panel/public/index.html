@@ -781,6 +781,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         <button type="button" class="day-toggle travel-only" data-sec="checkin" onclick="toggleDaySec('checkin')" style="display:none;">🏨 Check-in</button>
         <button type="button" class="day-toggle travel-only" data-sec="checkout" onclick="toggleDaySec('checkout')" style="display:none;">🏨 Check-out</button>
         <button type="button" class="day-toggle" data-sec="activities" onclick="toggleDaySec('activities')">✨ Activities</button>
+        <button type="button" class="day-toggle" data-sec="dining" onclick="toggleDaySec('dining')">🍽️ Dining</button>
         <button type="button" class="day-toggle" data-sec="sacred_sites" onclick="toggleDaySec('sacred_sites')">🛕 Sacred Sites</button>
         <button type="button" class="day-toggle" data-sec="notes" onclick="toggleDaySec('notes')">📝 Notes</button>
       </div>
@@ -1057,6 +1058,27 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity</button>
         <button type="button" class="btn btn-outline btn-sm" onclick="newActItem()">Cancel</button>
+      </div>
+    </div>
+    <!-- DINING -->
+    <div class="day-section" id="day-sec-dining">
+      <div class="day-sec-hdr" style="color:var(--gold);">🍽️ DINING</div>
+      <input type="hidden" id="din-edit-id"/>
+      <div id="din-list" style="margin-bottom:8px;"></div>
+      <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="din-form-label">New Dining Entry</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Restaurant / Description</label>
+          <input type="text" class="form-input" id="din-desc" placeholder="e.g. Dinner at Bukhara, ITC Maurya"/>
+        </div>
+        <div class="form-group" style="max-width:130px;">
+          <label class="form-label">Time</label>
+          <input type="text" class="form-input" id="din-time" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveDining()">Save Dining</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="newDinItem()">Cancel</button>
       </div>
     </div>
     <!-- SACRED SITES -->
@@ -1689,6 +1711,7 @@ function toggleDaySec(name){
     else if(name==='checkin')loadCiList();
     else if(name==='checkout')loadCoList();
     else if(name==='activities')loadActList();
+    else if(name==='dining')loadDinList();
     else if(name==='sacred_sites')loadSacredList();
   }
 }
@@ -1702,6 +1725,7 @@ function showDaySec(name){
   else if(name==='checkin')loadCiList();
   else if(name==='checkout')loadCoList();
   else if(name==='activities')loadActList();
+  else if(name==='dining')loadDinList();
   else if(name==='sacred_sites')loadSacredList();
 }
 function hideDaySec(name){
@@ -2217,6 +2241,51 @@ function newActItem(){
   document.getElementById('act-edit-id').value='';
   const lbl=document.getElementById('act-form-label');if(lbl)lbl.textContent='New Activity';
   ['act-desc','act-time'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+// ── DINING instant-save ────────────────────────────────────────────────────
+async function loadDinList(){
+  const el=document.getElementById('din-list');if(!el)return;
+  const dayId=document.getElementById('day-id').value;if(!dayId){el.innerHTML='';return;}
+  try{
+    const items=await(await fetch(`${API}/activities?day_id=${encodeURIComponent(dayId)}&category=dining`)).json();
+    if(!Array.isArray(items)||!items.length){el.innerHTML='';return;}
+    el.innerHTML=items.map(a=>{
+      const tm=a.activity_time?a.activity_time.slice(0,5):'';
+      const lbl=[a.description,tm].filter(Boolean).join(' · ');
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(200,134,10,0.08);border-radius:6px;margin-bottom:4px;font-size:13px;"><span>🍽️ ${lbl}</span><div style="display:flex;gap:4px;"><button type="button" class="btn btn-outline btn-sm" onclick="editDin('${a.id}')" style="padding:2px 10px;font-size:11px;">Edit</button><button type="button" class="btn btn-outline btn-sm" onclick="confirmDelete('${API}/activities/${a.id}',loadDinList)" style="padding:2px 8px;font-size:11px;color:#cc4444;border-color:#cc4444;">✕</button></div></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='';console.error('[loadDinList]',e);}
+}
+async function saveDining(){
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const dayId=document.getElementById('day-id').value;
+  if(!dayId){alert('Save the day first');return;}
+  if(!tripId){alert('No trip selected');return;}
+  const description=document.getElementById('din-desc').value.trim();
+  if(!description){alert('Description is required');return;}
+  const did=document.getElementById('din-edit-id').value;
+  const body={description,activity_time:document.getElementById('din-time').value||null,category:'dining'};
+  if(!did){body.trip_id=tripId;body.day_id=dayId;}
+  try{
+    const r=await fetch(did?`${API}/activities/${did}`:`${API}/activities`,{method:did?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){const err=await r.json().catch(()=>({}));alert('Failed: '+(err.error||r.status));return;}
+    newDinItem();loadDinList();await loadItinerary();
+  }catch(e){alert('Failed to save dining entry');}
+}
+async function editDin(id){
+  try{
+    const a=await(await fetch(`${API}/activities/${id}`)).json();
+    document.getElementById('din-edit-id').value=id;
+    document.getElementById('din-form-label').textContent='Edit Dining Entry';
+    document.getElementById('din-desc').value=a.description||'';
+    document.getElementById('din-time').value=a.activity_time||'';
+  }catch(e){}
+}
+function newDinItem(){
+  document.getElementById('din-edit-id').value='';
+  document.getElementById('din-form-label').textContent='New Dining Entry';
+  document.getElementById('din-desc').value='';
+  document.getElementById('din-time').value='';
 }
 // ── SACRED SITES instant-save ──────────────────────────────────────────────
 async function loadSacredList(){

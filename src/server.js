@@ -63,6 +63,7 @@ pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS day_type VARCHAR(10) DEFAU
 pool.query("ALTER TABLE trips ADD COLUMN IF NOT EXISTS trip_code VARCHAR(50) UNIQUE").catch(e => console.error('[startup] trip_code migration:', e.message));
 pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catch(e => console.error('[startup] days date type migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e => console.error('[startup] activities migration:', e.message));
+pool.query("ALTER TABLE day_activities ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'activity'").catch(e => console.error('[startup] dining migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_sacred_sites (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), name TEXT NOT NULL, site_time TEXT, notes TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_sacred_sites:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_activities (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), description TEXT NOT NULL, activity_time TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_activities:', e.message));
@@ -297,6 +298,7 @@ app.get('/api/activities', async (req, res, next) => {
     const conditions = []; const params = [];
     if (trip_id) { params.push(trip_id); conditions.push(`trip_id=$${params.length}`); }
     if (day_id)  { params.push(day_id);  conditions.push(`day_id=$${params.length}`); }
+    if (req.query.category) { conditions.push(`category=$${params.length+1}`); params.push(req.query.category); }
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     const result = await pool.query(`SELECT * FROM day_activities ${where} ORDER BY activity_time NULLS LAST, created_at`, params);
     res.json(result.rows);
@@ -304,11 +306,11 @@ app.get('/api/activities', async (req, res, next) => {
 });
 app.post('/api/activities', async (req, res, next) => {
   try {
-    const { trip_id, day_id, description, activity_time } = req.body;
+    const { trip_id, day_id, description, activity_time, category } = req.body;
     if (!description) return res.status(400).json({ error: 'description required' });
     const result = await pool.query(
-      'INSERT INTO day_activities (trip_id,day_id,description,activity_time) VALUES ($1,$2,$3,$4) RETURNING *',
-      [trip_id, day_id, description, activity_time || null]
+      'INSERT INTO day_activities (trip_id,day_id,description,activity_time,category) VALUES ($1,$2,$3,$4,$5) RETURNING *',
+      [trip_id, day_id, description, activity_time || null, category || 'activity']
     );
     res.status(201).json(result.rows[0]);
   } catch (e) { next(e); }
@@ -322,7 +324,7 @@ app.get('/api/activities/:id', async (req, res, next) => {
 });
 app.patch('/api/activities/:id', async (req, res, next) => {
   try {
-    const allowed = ['description', 'activity_time'];
+    const allowed = ['description', 'activity_time', 'category'];
     const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
     if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
     const fields = Object.keys(updates).map((k, i) => `${k}=$${i+2}`).join(',');
