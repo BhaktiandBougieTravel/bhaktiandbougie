@@ -2369,6 +2369,8 @@ function resetDayModal(){
   const col=document.getElementById('co-form-label');if(col)col.textContent='New Check-out';
   const nt=document.getElementById('day-notes-text');if(nt)nt.value='';
   newFltItem();newTrnItem();newXfrItem();newDrvItem();newCiItem();newCoItem();newActItem();newSacredItem();
+  document.getElementById('din-list').innerHTML='';
+  newDinItem();
 }
 async function openAddDay(){
   if(!currentItinTripId){alert('Select a trip first');return;}
