@@ -253,7 +253,7 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 
   <div id="tab-today" class="tab-panel active">
     <div id="today-header">
-      <div id="traveler-greeting" style="display:none;font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:8px;opacity:0.7;"></div>
+      <div id="traveler-greeting" style="display:none;font-size:12px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:8px;"></div>
       <div class="day-nav">
         <button class="nav-arrow" id="btn-prev" onclick="navigateDay(-1)">‹</button>
         <div id="day-label" class="day-label"></div>
@@ -459,7 +459,7 @@ function renderToday(){
   const dateStr=(day.date||'').split('T')[0];
 
   const greet=document.getElementById('traveler-greeting');
-  if(greet){if(travelerName){greet.textContent=travelerName;greet.style.display='block';}else{greet.style.display='none';}}
+  if(greet){if(travelerName){const tripTitle=trip?.title?` · ${trip.title}`:'';greet.textContent=travelerName+tripTitle;greet.style.display='block';}else{greet.style.display='none';}}
   document.getElementById('day-label').textContent=fmtDayHeader(day);
   document.getElementById('day-location').textContent=day.location||'';
   const titleIsBareDay=/^day\s*\d+$/i.test(normStr(day.title||''));
