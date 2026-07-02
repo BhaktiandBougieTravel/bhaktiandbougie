@@ -1572,7 +1572,7 @@ async function loadItinerary(){
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/sacred-sites?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
-      fetch(`${API}/activities?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/activities?trip_id=${tripId}&category=activity`).then(r=>r.json()).catch(()=>[]),
     ]);
     console.log('[loadItinerary] trip response:', trip);
     const trainList=Array.isArray(trains)?trains:[];
@@ -2201,7 +2201,7 @@ async function loadActList(){
   const dayId=document.getElementById('day-id').value;
   if(!dayId){el.innerHTML='';return;}
   try{
-    const items=await(await fetch(`${API}/activities?day_id=${encodeURIComponent(dayId)}`)).json();
+    const items=await(await fetch(`${API}/activities?day_id=${encodeURIComponent(dayId)}&category=activity`)).json();
     if(!Array.isArray(items)||!items.length){el.innerHTML='';return;}
     el.innerHTML=items.map(a=>{
       const tm=a.activity_time?a.activity_time.slice(0,5):'';
