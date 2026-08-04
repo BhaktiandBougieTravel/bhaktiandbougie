@@ -210,6 +210,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
     </div>
     <nav class="nav-tabs">
       <div class="tab" data-tab="command">Command</div>
+      <div class="tab" data-tab="trips">Trips</div>
       <div class="tab" data-tab="itinerary">Itinerary</div>
       <div class="tab" data-tab="travelers">Travelers</div>
       <div class="nav-dropdown" id="vendors-dropdown">
@@ -1442,9 +1443,15 @@ async function loadTrips(){
     const res=await fetch(`${API}/trips`);
     tripsCache=await res.json();
     if(!tripsCache.length){el.innerHTML='<div class="loading">No trips yet.</div>';return;}
-    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Trip</th><th>Dates</th><th>Pax</th><th>Base Price</th><th>Status</th><th></th></tr></thead><tbody>${tripsCache.map(t=>`<tr><td class="td-primary">${t.title}</td><td>${fmtDate(t.start_date)} – ${fmtDate(t.end_date)}</td><td>${t.num_pax}</td><td>₹${Number(t.base_price||0).toLocaleString('en-IN')}</td><td><span class="badge badge-${t.status}">${t.status}</span></td><td class="td-action" onclick="editTrip('${t.id}')">✎</td></tr>`).join('')}</tbody></table></div>`;
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Trip</th><th>Dates</th><th>Pax</th><th>Base Price</th><th>Status</th><th></th></tr></thead><tbody>${tripsCache.map(t=>`<tr><td class="td-primary">${t.title}</td><td>${fmtDate(t.start_date)} – ${fmtDate(t.end_date)}</td><td>${t.num_pax}</td><td>₹${Number(t.base_price||0).toLocaleString('en-IN')}</td><td><span class="badge badge-${t.status}">${t.status}</span></td><td class="td-action"><span onclick="editTrip('${t.id}')">✎</span> <span onclick="deleteTrip('${t.id}',\`${t.title.replace(/`/g,"")}\`)" style="color:#8B1A1A;margin-left:10px;cursor:pointer;">🗑</span></td></tr>`).join('')}</tbody></table></div>`;
     populateTripSelects();
   }catch(e){el.innerHTML='<div class="loading">Unable to load trips</div>';}
+}
+async function deleteTrip(id,title){
+  if(!confirm(`Delete trip "${title}"? This permanently removes the trip and all its itinerary data. This cannot be undone.`))return;
+  const res=await fetch(`${API}/trips/${id}`,{method:'DELETE'});
+  if(!res.ok){alert('Delete failed — check console.');console.error(await res.text());return;}
+  loadTrips();
 }
 function openModal(id){document.getElementById(id).classList.remove('hidden');}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}

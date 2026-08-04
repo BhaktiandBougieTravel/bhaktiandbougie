@@ -127,6 +127,8 @@ router.delete('/:id/contacts/:contactId',
 // DELETE /api/trips/:id
 router.delete('/:id', param('id').isUUID(), validate, async (req, res, next) => {
   try {
+    await pool.query('DELETE FROM day_activities WHERE trip_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM day_sacred_sites WHERE trip_id = $1', [req.params.id]);
     const { rowCount } = await pool.query('DELETE FROM trips WHERE id = $1', [req.params.id]);
     if (!rowCount) return res.status(404).json({ error: 'Trip not found' });
     res.status(204).end();
