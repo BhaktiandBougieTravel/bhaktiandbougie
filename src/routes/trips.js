@@ -70,7 +70,7 @@ router.post('/',
       const { rows } = await pool.query(
         `INSERT INTO trips (title, status, start_date, end_date, num_pax, currency, base_price, notes)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-        [title, status || 'enquiry', start_date, end_date, num_pax || 1, currency || 'INR', base_price, notes]
+        [title, status || 'enquiry', start_date, end_date, num_pax || 1, currency || 'INR', (base_price === '' || base_price === undefined) ? null : base_price, notes]
       );
       res.status(201).json(rows[0]);
     } catch (err) { next(err); }

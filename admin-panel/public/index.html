@@ -1479,7 +1479,8 @@ async function saveTrip(){
   if(!start_date||!end_date){console.error('saveTrip: missing date — start:',start_date,'end:',end_date);return;}
   const tripCode=document.getElementById('trip-code').value.trim();
   const body={title:document.getElementById('trip-title').value,status:document.getElementById('trip-status').value,start_date,end_date,num_pax:document.getElementById('trip-pax').value,base_price:document.getElementById('trip-price').value,currency:document.getElementById('trip-currency').value,notes:document.getElementById('trip-desc').value,emergency_contact_name:document.getElementById('trip-emergency-name').value||null,emergency_contact_info:document.getElementById('trip-emergency-info').value||null,...(tripCode?{trip_code:tripCode}:{})};
-  await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const saveRes=await fetch(id?`${API}/trips/${id}`:`${API}/trips`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!saveRes.ok){const errText=await saveRes.text();alert('Save failed: '+errText);console.error('saveTrip failed:',errText);return;}
   closeModal('trip-modal');
   document.getElementById('trip-id').value='';
   document.getElementById('trip-modal-title').textContent='New Trip';
