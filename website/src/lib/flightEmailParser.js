@@ -56,7 +56,7 @@ function parseAirIndiaEmail({ subject = '', body = '' }) {
 
 function parseGenericAirlineEmail({ subject = '', body = '', senderDomain = '' }) {
   const text = `${subject}\n${body}`;
-  const flightMatch = text.match(/\b([A-Z]{2}\s?\d{2,4})\b/);
+  const flightMatch = text.match(/\b([A-Z0-9]{2}\s?\d{2,4})\b/);
   const isCancellation = /cancel/i.test(text);
   const isScheduleChange = /schedule|chang|reschedul|revised|delay/i.test(text);
   if (!flightMatch) return null;
