@@ -45,7 +45,7 @@ function extractSenderDomain(messageHeadersRaw, fallbackSender) {
   return '';
 }
 
-router.post('/mailgun-inbound', upload.any(), async (req, res) => {
+router.post('/mailgun-inbound', express.urlencoded({ extended: true }), upload.any(), async (req, res) => {
   const { timestamp, token, signature, sender, recipient, subject } = req.body;
   const bodyPlain = req.body['body-plain'] || '';
   const messageHeadersRaw = req.body['message-headers'] || '';
