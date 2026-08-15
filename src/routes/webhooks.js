@@ -64,6 +64,7 @@ router.post('/mailgun-inbound', express.urlencoded({ extended: true }), upload.a
     const midMatch = messageHeadersRaw.match(/"Message-Id"\s*,\s*"([^"]+)"/i);
     if (midMatch) sourceEmailId = midMatch[1];
 
+    console.log('[mailgun-inbound] RAW subject:', JSON.stringify(subject), 'RAW body:', JSON.stringify(bodyPlain));
     const parsedEmail = parseAirlineEmail({ subject: subject || '', body: bodyPlain, senderDomain });
     if (!parsedEmail) {
       console.log('[mailgun-inbound] no parseable flight data, subject:', subject);
