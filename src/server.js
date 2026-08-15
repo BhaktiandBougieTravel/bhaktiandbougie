@@ -13,6 +13,7 @@ const flightsRouter      = require('./routes/flights');
 const expensesRouter     = require('./routes/expenses');
 const daysRouter         = require('./routes/days');
 const festivalsRouter    = require('./routes/festivals');
+const webhooksRouter     = require('./routes/webhooks');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,7 @@ app.use('/api/flights',        flightsRouter);
 app.use('/api/expenses',       expensesRouter);
 app.use('/api/days',           daysRouter);
 app.use('/api/festivals',      festivalsRouter);
+app.use('/api/webhooks',       webhooksRouter);
 
 app.post('/api/rcb', async (_req, res) => {
   console.log('[RCB] route hit');
