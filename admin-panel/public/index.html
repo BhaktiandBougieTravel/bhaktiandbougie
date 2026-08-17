@@ -1216,6 +1216,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
   };
 });
 function onTabChange(tab){
+  if(tab==='flight-alerts')loadFlightAlerts();
   if(tab==='travelers')loadTravelers();
   if(tab==='contacts')loadContacts();
   if(tab==='festivals'){loadFestNextUp();}
@@ -1226,7 +1227,7 @@ function onTabChange(tab){
 function initApp(){
   renderClocks();setInterval(renderClocks,1000);
   loadWeather();loadFX();loadCmdFestivals();loadTrips();populateTripSelects();
-  const VALID_TABS=['itinerary','travelers','vendors','guides','contacts','festivals'];
+  const VALID_TABS=['itinerary','travelers','vendors','guides','contacts','festivals','flight-alerts'];
   const raw=sessionStorage.getItem('bb_active_tab');
   const activeTab=VALID_TABS.includes(raw)?raw:'itinerary';
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===activeTab));
@@ -1516,6 +1517,76 @@ async function saveContact(){
   closeModal('contact-modal');
   document.getElementById('contact-id').value='';
   loadContacts();
+}
+let flightAlertsCache=[];
+async function loadFlightAlerts(){
+  const el=document.getElementById('flight-alerts-list');
+  const status=document.getElementById('fa-status-select').value;
+  try{
+    const url=status?`${API}/flight-alerts?status=${status}`:`${API}/flight-alerts`;
+    flightAlertsCache=await(await fetch(url)).json();
+    if(!flightAlertsCache.length){el.innerHTML='<div class="loading">No alerts.</div>';return;}
+    el.innerHTML=flightAlertsCache.map(a=>renderFlightAlertCard(a)).join('');
+  }catch(e){el.innerHTML='<div class="loading">Unable to load flight alerts</div>';}
+}
+function faChangeLabel(a){
+  const labels={time_change:'Time Change',flight_number_change:'Flight Number Change',cancellation:'Cancellation',ambiguous_match:'Ambiguous Match',other:'Unmatched'};
+  return labels[a.change_type]||a.change_type;
+}
+function faChangeColor(a){
+  if(a.change_type==='cancellation')return'var(--red)';
+  if(a.change_type==='flight_number_change')return'var(--gold)';
+  if(a.change_type==='time_change')return'var(--cream)';
+  return'var(--muted)';
+}
+function fmtDT(dt){
+  if(!dt)return'–';
+  const d=new Date(dt);
+  return d.toLocaleString('en-IN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function renderFlightAlertCard(a){
+  const nv=a.new_values||{};
+  const newFlightNum=nv.flightNumber&&nv.flightNumber.replace(/\s+/g,'')!==(a.current_flight_number||'').replace(/\s+/g,'')?nv.flightNumber:null;
+  const newDep=nv.newDepartureDate&&nv.newDepartureTime?`${nv.newDepartureDate}T${nv.newDepartureTime}:00`:null;
+  const newArr=nv.newArrivalDate&&nv.newArrivalTime?`${nv.newArrivalDate}T${nv.newArrivalTime}:00`:null;
+  const canApprove=a.status==='pending'&&a.flight_id;
+  const canDismiss=a.status==='pending';
+  return `<div class="card" style="margin-bottom:12px;border-left:3px solid ${faChangeColor(a)};">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${faChangeColor(a)};margin-bottom:4px;">${faChangeLabel(a)} · ${a.status}</div>
+        <div style="font-family:var(--font-serif);font-size:20px;color:var(--cream);">${a.trip_name||'Unmatched booking ref'}</div>
+        <div style="font-size:12px;color:var(--cream-dim);margin-top:2px;">${a.current_flight_number||nv.flightNumber||'–'} · ${a.origin_airport||'?'} → ${a.dest_airport||'?'} · ${nv.bookingRef||'–'}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        ${canApprove?`<button class="btn btn-gold btn-sm" onclick="approveFlightAlert('${a.id}')">Approve</button>`:''}
+        ${canDismiss?`<button class="btn btn-outline btn-sm" onclick="dismissFlightAlert('${a.id}')">Dismiss</button>`:''}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;font-size:13px;">
+      <div>
+        <div class="form-label">Current</div>
+        <div>Dep: ${fmtDT(a.current_departure_time)}</div>
+        <div>Arr: ${fmtDT(a.current_arrival_time)}</div>
+      </div>
+      <div>
+        <div class="form-label" style="color:${faChangeColor(a)};">Reported Change</div>
+        <div>${newFlightNum?`Flight: ${newFlightNum}`:''}</div>
+        <div>${newDep?`Dep: ${fmtDT(newDep)}`:''}</div>
+        <div>${newArr?`Arr: ${fmtDT(newArr)}`:''}</div>
+        ${a.change_type==='cancellation'?'<div style="color:var(--red);">Flight cancelled</div>':''}
+      </div>
+    </div>
+  </div>`;
+}
+async function approveFlightAlert(id){
+  if(!confirm('Apply this change to the live flight record?'))return;
+  await fetch(`${API}/flight-alerts/${id}/approve`,{method:'POST'});
+  loadFlightAlerts();
+}
+async function dismissFlightAlert(id){
+  await fetch(`${API}/flight-alerts/${id}/dismiss`,{method:'POST'});
+  loadFlightAlerts();
 }
 async function loadExpenses(){
   const el=document.getElementById('expenses-table');
