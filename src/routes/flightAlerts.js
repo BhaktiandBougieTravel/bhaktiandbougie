@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
     const { rows } = await pool.query(
       `SELECT fca.*, f.flight_number AS current_flight_number, f.origin_airport, f.dest_airport,
               f.departure_time AS current_departure_time, f.arrival_time AS current_arrival_time,
-              t.name AS trip_name
+              t.title AS trip_name
        FROM flight_change_alerts fca
        LEFT JOIN flights f ON f.id = fca.flight_id
        LEFT JOIN trips t ON t.id = fca.trip_id
