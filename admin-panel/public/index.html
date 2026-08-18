@@ -222,6 +222,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
       </div>
       <div class="tab" data-tab="festivals">Festivals</div>
+      <div class="tab" data-tab="flight-alerts">Flight Alerts</div>
     </nav>
   </header>
   <main class="content">
@@ -410,6 +411,18 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
 
       </div>
+    </div>
+    <div class="tab-panel" id="tab-flight-alerts">
+      <div class="sh-row">
+        <div class="sh">Flight Alerts</div>
+        <select class="form-select" style="width:180px;" id="fa-status-select" onchange="loadFlightAlerts()">
+          <option value="pending">Pending</option>
+          <option value="">All</option>
+          <option value="approved">Approved</option>
+          <option value="dismissed">Dismissed</option>
+        </select>
+      </div>
+      <div id="flight-alerts-list"><div class="loading dot-pulse">Loading alerts</div></div>
     </div>
     <div class="tab-panel" id="tab-guides">
       <div class="sh-row">
