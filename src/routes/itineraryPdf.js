@@ -153,9 +153,9 @@ body { font-family: 'Jost', sans-serif; color: #0D1B2A; font-size: 15px; }
 .city-dates { font-size: 13px; letter-spacing: 1px; color: #8B1A1A; text-transform: uppercase; margin-top: 3px; }
 .day-block { margin-bottom: 30px; page-break-inside: avoid; }
 .day-block + .day-block { border-top: 1px solid #0D1B2A22; padding-top: 22px; }
-.day-num { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; font-weight: 500; }
-.day-date { font-size: 12.5px; color: #0D1B2A; opacity: 0.65; margin-bottom: 8px; }
-.day-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #0D1B2A; margin-bottom: 10px; }
+.day-date { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #0D1B2A; margin-bottom: 4px; }
+.day-title { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: #C8860A; font-weight: 500; margin-bottom: 6px; }
+.day-num { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; font-weight: 500; margin-bottom: 14px; }
 .day-desc { font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
 .sched-item { display: flex; gap: 12px; font-size: 14px; margin-bottom: 10px; align-items: flex-start; }
 .sched-time { color: #C8860A; font-weight: 500; min-width: 62px; flex-shrink: 0; }
