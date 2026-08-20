@@ -254,6 +254,7 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
   <div id="tab-today" class="tab-panel active">
     <div id="today-header">
       <div id="traveler-greeting" style="display:none;font-size:12px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:8px;"></div>
+      <div id="docs-toggle" style="display:none;text-align:center;font-size:11px;color:var(--gold);text-decoration:underline;margin-bottom:8px;cursor:pointer;" onclick="toggleShowAllDocs()"></div>
       <div class="day-nav">
         <button class="nav-arrow" id="btn-prev" onclick="navigateDay(-1)">‹</button>
         <div id="day-label" class="day-label"></div>
@@ -461,6 +462,15 @@ function renderToday(){
 
   const greet=document.getElementById('traveler-greeting');
   if(greet){if(travelerName){const tripTitle=trip?.title?` · ${trip.title}`:'';greet.textContent=travelerName+tripTitle;greet.style.display='block';}else{greet.style.display='none';}}
+  const docsToggle=document.getElementById('docs-toggle');
+  if(docsToggle){
+    if(travelerName&&flightDocs.length){
+      docsToggle.style.display='block';
+      docsToggle.textContent=showAllDocs?'Showing all travelers’ documents — tap to show only mine':'Tap to show all travelers’ documents';
+    }else{
+      docsToggle.style.display='none';
+    }
+  }
   document.getElementById('day-label').textContent=fmtDayHeader(day);
   document.getElementById('day-location').textContent=day.location||'';
   const titleIsBareDay=/^day\s*\d+$/i.test(normStr(day.title||''));
