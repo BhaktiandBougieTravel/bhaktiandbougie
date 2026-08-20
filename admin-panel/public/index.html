@@ -339,6 +339,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
             <option value="">Select trip...</option>
           </select>
           <button class="btn btn-gold" onclick="openAddDay()">+ Add Day</button>
+          <button class="btn btn-outline" onclick="downloadItineraryPdf()">📄 Make PDF</button>
         </div>
       </div>
       <div id="itinerary-content"><div class="loading">Select a trip to view itinerary</div></div>
@@ -1648,6 +1649,11 @@ let itinDaysCache=[];
 let activeModalDayId=null;
 const GT_COLOR={E:'rgba(200,134,10,0.2)',H:'rgba(106,138,170,0.15)',U:'rgba(74,158,92,0.15)',P:'rgba(242,230,204,0.08)',D:'rgba(224,120,48,0.15)',C:'rgba(106,138,170,0.12)'};
 const GT_TEXT={E:'var(--gold)',H:'var(--muted)',U:'#4a9e5c',P:'var(--cream-dim)',D:'#e07830',C:'var(--muted)'};
+function downloadItineraryPdf(){
+  const tripId=document.getElementById('itin-trip-select').value;
+  if(!tripId){alert('Select a trip first.');return;}
+  window.open(`${API}/itinerary-pdf/${tripId}`,'_blank');
+}
 async function loadItinerary(){
   const _scrollEl=document.querySelector('.content');
   const _savedScroll=_scrollEl?_scrollEl.scrollTop:0;
