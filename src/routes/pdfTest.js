@@ -1,24 +1,12 @@
 const express = require('express');
-const puppeteer = require('puppeteer-core');
-const { execSync } = require('child_process');
+const puppeteer = require('puppeteer');
 
 const router = express.Router();
-
-function getChromiumPath() {
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
-  try {
-    return execSync('which chromium').toString().trim();
-  } catch (e) {
-    return execSync('which chromium-browser').toString().trim();
-  }
-}
 
 router.get('/', async (req, res, next) => {
   let browser;
   try {
-    const executablePath = getChromiumPath();
     browser = await puppeteer.launch({
-      executablePath,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();

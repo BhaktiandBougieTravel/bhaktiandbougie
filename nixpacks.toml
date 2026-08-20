@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["nodejs_20", "chromium"]
-
-[start]
-cmd = "node src/server.js"
