@@ -85,15 +85,25 @@ async function loadTripData(tripId) {
   return { trip, days, hotelStays, flights, transports, trains };
 }
 
+// When location is blank, strips a trailing "Day N" pattern from the title so
+// e.g. "Madurai Day 3" groups with the other "Madurai" days instead of starting
+// a new page on its own.
+function normalizeLocationKey(location, title) {
+  const loc = (location || '').trim();
+  if (loc) return loc;
+  const stripped = (title || '').replace(/\s*Day\s*\d+\s*$/i, '').trim();
+  return stripped || title || 'Untitled';
+}
+
 function groupDaysByCity(days) {
   const groups = [];
   let current = null;
   for (const d of days) {
-    const key = d.location || d.title || 'Untitled';
+    const key = normalizeLocationKey(d.location, d.title);
     if (current && current.key === key) {
       current.days.push(d);
     } else {
-      current = { key, location: d.location || d.title || '', days: [d] };
+      current = { key, location: d.location || key, days: [d] };
       groups.push(current);
     }
   }
