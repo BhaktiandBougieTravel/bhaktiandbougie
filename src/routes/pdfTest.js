@@ -7,7 +7,7 @@ router.get('/', async (req, res, next) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     });
     const page = await browser.newPage();
     await page.setContent('<html><body style="font-family:sans-serif;padding:40px;"><h1>Bhakti & Bougie PDF Test</h1><p>If you can read this as a downloaded PDF, headless Chromium is working on Railway.</p></body></html>');
