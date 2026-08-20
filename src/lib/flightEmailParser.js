@@ -54,6 +54,47 @@ function parseAirIndiaEmail({ subject = '', body = '' }) {
   return result;
 }
 
+function parseIndiGoDate(day, mon, refDate) {
+  const month = MONTHS[mon.slice(0,3).toLowerCase()];
+  if (month === undefined) return null;
+  let year = refDate.getUTCFullYear();
+  if (month < refDate.getUTCMonth() - 6) year += 1;
+  return new Date(Date.UTC(year, month, parseInt(day, 10))).toISOString().slice(0, 10);
+}
+
+function toHHMM(raw) {
+  if (!raw || raw.length !== 4) return null;
+  return `${raw.slice(0,2)}:${raw.slice(2)}`;
+}
+
+function parseIndiGoEmail({ subject = '', body = '', emailDate }) {
+  const text = body || '';
+  const refDate = emailDate instanceof Date && !isNaN(emailDate) ? emailDate : new Date();
+
+  const pnrMatch = text.match(/PNR-([A-Z0-9]{5,8})/i);
+  const flightMatch = text.match(/\b([0-9A-Z]{1,2}\s?\d{2,4}),\s*([A-Z]{3})-([A-Z]{3})\s+(\d{4})-(\d{4})\s+hrs/i);
+  const revisedMatch = text.match(/revised time for your flight is\s+(\d{4})-(\d{4})\s+hrs\s+on\s+(\d{1,2})\s?([A-Za-z]{3})/i);
+  const isCancellation = /cancel(led|lation)/i.test(subject) && !/reschedul/i.test(text);
+  const isScheduleChange = /reschedul|revised|schedule.*chang/i.test(text);
+
+  if (!flightMatch || !pnrMatch) return null;
+
+  return {
+    airline: 'IndiGo',
+    flightNumber: flightMatch[1].replace(/\s+/g, ' ').trim(),
+    bookingRef: pnrMatch[1].toUpperCase(),
+    emailType: isCancellation ? 'cancellation' : (isScheduleChange ? 'schedule_change' : 'other'),
+    originAirport: flightMatch[2],
+    destAirport: flightMatch[3],
+    newDepartureTime: revisedMatch ? toHHMM(revisedMatch[1]) : null,
+    newArrivalTime: revisedMatch ? toHHMM(revisedMatch[2]) : null,
+    newDepartureDate: revisedMatch ? parseIndiGoDate(revisedMatch[3], revisedMatch[4], refDate) : null,
+    newArrivalDate: revisedMatch ? parseIndiGoDate(revisedMatch[3], revisedMatch[4], refDate) : null,
+    confidence: revisedMatch ? 'high' : 'low',
+    parser: 'indigo_v1'
+  };
+}
+
 function parseGenericAirlineEmail({ subject = '', body = '', senderDomain = '' }) {
   const text = `${subject}\n${body}`;
   const flightMatch = text.match(/\b([A-Z0-9]{2}\s?\d{2,4})\b/);
@@ -75,12 +116,16 @@ function parseGenericAirlineEmail({ subject = '', body = '', senderDomain = '' }
   };
 }
 
-function parseAirlineEmail({ subject, body, senderDomain }) {
+function parseAirlineEmail({ subject, body, senderDomain, emailDate }) {
   if (/airindia\.com/i.test(senderDomain || '')) {
     const result = parseAirIndiaEmail({ subject, body });
+    if (result) return result;
+  }
+  if (/goindigo\.in/i.test(senderDomain || '')) {
+    const result = parseIndiGoEmail({ subject, body, emailDate });
     if (result) return result;
   }
   return parseGenericAirlineEmail({ subject, body, senderDomain });
 }
 
-module.exports = { parseAirlineEmail, parseAirIndiaEmail, parseGenericAirlineEmail, parseAirIndiaDate };
+module.exports = { parseAirlineEmail, parseAirIndiaEmail, parseIndiGoEmail, parseGenericAirlineEmail, parseAirIndiaDate };
