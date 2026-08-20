@@ -110,24 +110,42 @@ async function loadTripData(tripId) {
 // When location is blank, strips a trailing "Day N" pattern from the title so
 // e.g. "Madurai Day 3" groups with the other "Madurai" days instead of starting
 // a new page on its own.
-function normalizeLocationKey(location, title) {
+function normalizeLocationKey(location, title, previousKey) {
   const loc = (location || '').trim();
   if (loc) return loc;
   const stripped = (title || '').replace(/\s*Day\s*\d+\s*$/i, '').trim();
-  return stripped || title || 'Untitled';
+  if (stripped) return stripped;
+  return previousKey || title || 'Untitled';
 }
 
+// Travel days store location as "Leaving City → Arriving City" and must never
+// be matched against a plain city name — they're buffered and attached to the
+// front of the destination city's page (the city you're arriving into), or to
+// the end of the previous group if the trip ends on a travel day with nothing
+// following it (e.g. flying home).
 function groupDaysByCity(days) {
   const groups = [];
   let current = null;
+  let travelBuffer = [];
+
   for (const d of days) {
-    const key = normalizeLocationKey(d.location, d.title);
+    const isTravel = (d.day_type || 'stay') === 'travel';
+    if (isTravel) {
+      travelBuffer.push(d);
+      continue;
+    }
+    const key = normalizeLocationKey(d.location, d.title, current ? current.key : null);
     if (current && current.key === key) {
-      current.days.push(d);
+      current.days.push(...travelBuffer, d);
     } else {
-      current = { key, location: d.location || key, days: [d] };
+      current = { key, location: d.location || key, days: [...travelBuffer, d] };
       groups.push(current);
     }
+    travelBuffer = [];
+  }
+  if (travelBuffer.length) {
+    if (current) current.days.push(...travelBuffer);
+    else groups.push({ key: 'Travel', location: 'Travel', days: travelBuffer });
   }
   return groups;
 }
@@ -233,6 +251,8 @@ td { padding: 9px 6px; border-bottom: 1px solid #0D1B2A22; }
 .sched-main { font-weight: 500; }
 .sched-main-red { color: #8B1A1A; }
 .sched-main-gold { color: #8A5D06; }
+.day-custom-title { font-size: 13.5px; color: #8B1A1A; font-style: italic; margin-bottom: 6px; }
+.day-hotel-line { font-size: 13px; color: #0D1B2A; opacity: 0.75; margin-bottom: 10px; }
 `;
 
 function tripundraSvg(size) {
@@ -269,14 +289,13 @@ function buildItineraryHtml(data) {
     const dateRange = g.days.length > 1 ? `${fmtDateShort(first.date)} – ${fmtDateShort(last.date)}` : fmtDateShort(first.date);
     const dayBlocks = g.days.map(d => {
       const dateStr = d.date.toISOString().slice(0, 10);
+      const isTravelDay = (d.day_type || 'stay') === 'travel';
       const dayHasFlight = flights.some(f => f.departure_time && f.departure_time.toISOString().slice(0,10) === dateStr);
       const dayHasTrain = trains.some(t => t.departure_date && t.departure_date.toISOString().slice(0,10) === dateStr);
       const dayHasTransport = transports.some(t => t.transport_date && t.transport_date.toISOString().slice(0,10) === dateStr);
       const stayingHotel = hotelStays.find(h => dateStr >= h.check_in.toISOString().slice(0,10) && dateStr < h.check_out.toISOString().slice(0,10));
-      const subIcon = dayHasFlight ? '✈️' : dayHasTrain ? '🚂' : dayHasTransport ? '🚗' : (stayingHotel ? '🏨' : '');
-      const titleDiffers = d.title && d.title.trim() && d.title.trim() !== (d.location || '').trim();
-      const subExtra = stayingHotel ? ` · ${stayingHotel.name}` : (titleDiffers ? ` — ${d.title}` : '');
-      const subtitle = `${d.location || g.location || ''}${subExtra}`;
+      const subIcon = isTravelDay ? '✈️' : (dayHasFlight ? '✈️' : dayHasTrain ? '🚂' : dayHasTransport ? '🚗' : (stayingHotel ? '🏨' : ''));
+      const subtitle = isTravelDay ? `Travel Day${d.location ? ': ' + d.location : ''}` : (d.location || g.location || '');
       const schedule = buildDaySchedule(d, transports, trains, flights, hotelStays);
       return `
       <div class="day-block">
@@ -286,6 +305,8 @@ function buildItineraryHtml(data) {
           <span class="day-date-txt">${fmtDayLine(d.date)}</span>
         </div>
         ${subtitle.trim() ? `<div class="day-subtitle">${subIcon} ${subtitle}</div>` : ''}
+        ${d.title && d.title.trim() ? `<div class="day-custom-title">${d.title}</div>` : ''}
+        ${stayingHotel ? `<div class="day-hotel-line">🏨 Staying at ${stayingHotel.name}</div>` : ''}
         ${d.description ? `<p class="day-desc">${d.description}</p>` : ''}
         ${schedule.map(i => i.html).join('')}
       </div>`;
