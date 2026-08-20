@@ -296,7 +296,7 @@ const API='https://bhaktiandbougie-production.up.railway.app/api';
 const DAY_NAMES=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
 const MON_SHORT=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
-let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[],tripTravelers=[];
+let tripId=null,trip=null,allDays=[],hotelBookings=[],transports=[],trains=[],sacredSites=[],activities=[],tripTravelers=[],flightDocs=[],showAllDocs=false;
 let currentDayIdx=0,activeTab='today';
 let travelerName=localStorage.getItem('travelerName')||'';
 
@@ -393,7 +393,7 @@ function showPwMsg(msg){
 async function loadAndShow(){
   showPwMsg('Loading your journey…');
   try{
-    [trip,transports,trains,sacredSites,activities,hotelBookings,tripTravelers]=await Promise.all([
+    [trip,transports,trains,sacredSites,activities,hotelBookings,tripTravelers,flightDocs]=await Promise.all([
       fetch(`${API}/trips/${tripId}`).then(r=>r.json()),
       fetch(`${API}/ground-transport?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trains?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
@@ -401,6 +401,7 @@ async function loadAndShow(){
       fetch(`${API}/activities?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/hotel-bookings?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
       fetch(`${API}/trips/${tripId}/travelers`).then(r=>r.json()).catch(()=>[]),
+      fetch(`${API}/flight-documents?trip_id=${tripId}`).then(r=>r.json()).catch(()=>[]),
     ]);
     if(trip.error){showPwMsg('Trip not found');return;}
 
@@ -592,6 +593,7 @@ function renderItem({sk,type,d}){
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${arr?' · Arr '+arr:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
         ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
+        ${docForFlight(d.id)?`<a class="tl-doc-btn" href="${API}/flight-documents/${docForFlight(d.id).id}/download" target="_blank" onclick="event.stopPropagation()">📄 View Boarding Pass</a>`:''}
       </div></div>`;
   }
   if(type==='arr'){
@@ -604,6 +606,7 @@ function renderItem({sk,type,d}){
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${dep?' · Dep '+dep:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
         ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
+        ${docForFlight(d.id)?`<a class="tl-doc-btn" href="${API}/flight-documents/${docForFlight(d.id).id}/download" target="_blank" onclick="event.stopPropagation()">📄 View Boarding Pass</a>`:''}
       </div></div>`;
   }
   if(type==='train'){
@@ -745,6 +748,13 @@ function renderJourney(){
   document.getElementById('journey-content').innerHTML=html;
 }
 
+function docForFlight(flightId){
+  return flightDocs.find(d=>d.flight_id===flightId && (showAllDocs || !d.traveler_name || (travelerName && d.traveler_name.toLowerCase()===travelerName.toLowerCase())));
+}
+function toggleShowAllDocs(){
+  showAllDocs=!showAllDocs;
+  renderToday();
+}
 function dayPrimaryIcon(day,dateStr){
   const hasDep=(trip.flights||[]).some(f=>f.departure_time&&f.departure_time.slice(0,10)===dateStr);
   const hasArr=(trip.flights||[]).some(f=>f.arrival_time&&f.arrival_time.slice(0,10)===dateStr);
