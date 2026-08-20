@@ -17,6 +17,7 @@ const webhooksRouter     = require('./routes/webhooks');
 const flightAlertsRouter = require('./routes/flightAlerts');
 const pdfTestRouter = require('./routes/pdfTest');
 const itineraryPdfRouter = require('./routes/itineraryPdf');
+const flightDocumentsRouter = require('./routes/flightDocuments');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -90,6 +91,7 @@ app.use('/api/webhooks',       webhooksRouter);
 app.use('/api/flight-alerts',  flightAlertsRouter);
 app.use('/api/pdf-test', pdfTestRouter);
 app.use('/api/itinerary-pdf', itineraryPdfRouter);
+app.use('/api/flight-documents', flightDocumentsRouter);
 
 app.post('/api/rcb', async (_req, res) => {
   console.log('[RCB] route hit');
