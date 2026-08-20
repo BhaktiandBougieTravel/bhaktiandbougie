@@ -52,29 +52,50 @@ async function loadTripData(tripId) {
   return { trip, days, hotelStays, flights };
 }
 
+// Groups consecutive days sharing the same location into one printable page
+// so a short stay doesn't waste an entire page of white space.
+function groupDaysByCity(days) {
+  const groups = [];
+  let current = null;
+  for (const d of days) {
+    const key = d.location || d.title || 'Untitled';
+    if (current && current.key === key) {
+      current.days.push(d);
+    } else {
+      current = { key, location: d.location || d.title || '', days: [d] };
+      groups.push(current);
+    }
+  }
+  return groups;
+}
+
 const ITINERARY_CSS = `
 @page { margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Jost', sans-serif; color: #0D1B2A; }
-.cover { height: 100vh; background: #0D1B2A; color: #F2E6CC; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; page-break-after: always; }
-.cover-mark { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: #C8860A; letter-spacing: 2px; margin-bottom: 8px; }
-.cover-tagline { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #C8860A; margin-bottom: 60px; }
-.cover-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; margin-bottom: 16px; max-width: 80%; }
-.cover-dates { font-size: 14px; letter-spacing: 1px; color: #F2E6CC; opacity: 0.85; }
-.day-page { padding: 50px 60px; page-break-after: always; min-height: 100vh; }
-.day-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #C8860A; padding-bottom: 10px; margin-bottom: 20px; }
-.day-num { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; font-weight: 500; }
-.day-date { font-size: 12px; color: #0D1B2A; opacity: 0.7; }
-.day-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #0D1B2A; margin-bottom: 4px; }
-.day-location { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #C8860A; margin-bottom: 16px; }
-.day-desc { font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
-.block { margin-bottom: 20px; }
-.block-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; margin-bottom: 8px; }
-.item { font-size: 13px; margin-bottom: 8px; padding-left: 4px; }
+.cover { height: 100vh; background: #FFFFFF; border-bottom: 6px solid #C8860A; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; page-break-after: always; }
+.cover-mark { font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #0D1B2A; letter-spacing: 2px; margin-bottom: 4px; }
+.cover-rule { width: 60px; height: 2px; background: #C8860A; margin: 16px 0 16px; }
+.cover-tagline { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #8B1A1A; margin-bottom: 60px; }
+.cover-title { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 600; color: #0D1B2A; margin-bottom: 16px; max-width: 80%; }
+.cover-dates { font-size: 14px; letter-spacing: 1px; color: #0D1B2A; opacity: 0.75; }
+.city-page { padding: 45px 60px; page-break-after: always; }
+.city-header { border-bottom: 2px solid #C8860A; padding-bottom: 10px; margin-bottom: 24px; }
+.city-name { font-family: 'Cormorant Garamond', serif; font-size: 34px; color: #0D1B2A; }
+.city-dates { font-size: 12px; letter-spacing: 1px; color: #8B1A1A; text-transform: uppercase; margin-top: 2px; }
+.day-block { margin-bottom: 28px; page-break-inside: avoid; }
+.day-block + .day-block { border-top: 1px solid #0D1B2A22; padding-top: 20px; }
+.day-num { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; font-weight: 500; }
+.day-date { font-size: 11px; color: #0D1B2A; opacity: 0.65; margin-bottom: 6px; }
+.day-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #0D1B2A; margin-bottom: 8px; }
+.day-desc { font-size: 12.5px; line-height: 1.65; margin-bottom: 14px; }
+.block { margin-bottom: 12px; }
+.block-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #8B1A1A; margin-bottom: 6px; }
+.item { font-size: 12.5px; margin-bottom: 6px; padding-left: 4px; }
 .time { color: #C8860A; font-weight: 500; margin-right: 10px; }
-.item-notes { font-size: 12px; opacity: 0.75; margin-top: 2px; margin-left: 4px; }
-.hotel-note { font-size: 12px; margin-top: 24px; padding-top: 12px; border-top: 1px solid #C8860A44; }
-.logistics { padding: 50px 60px; }
+.item-notes { font-size: 11.5px; opacity: 0.75; margin-top: 2px; margin-left: 4px; }
+.hotel-note { font-size: 11.5px; margin-top: 10px; color: #0D1B2A; opacity: 0.8; }
+.logistics { padding: 50px 60px; page-break-before: always; }
 .section-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #0D1B2A; margin: 24px 0 12px; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 td { padding: 8px 6px; border-bottom: 1px solid #0D1B2A22; }
@@ -83,22 +104,33 @@ td { padding: 8px 6px; border-bottom: 1px solid #0D1B2A22; }
 function buildItineraryHtml(data) {
   const { trip, days, hotelStays, flights } = data;
   const hotelFor = (dateStr) => hotelStays.find(h => dateStr >= h.check_in.toISOString().slice(0,10) && dateStr < h.check_out.toISOString().slice(0,10));
+  const cityGroups = groupDaysByCity(days);
 
-  const dayPages = days.map(d => {
-    const dateStr = d.date.toISOString().slice(0,10);
-    const hotel = hotelFor(dateStr);
-    return `
-    <section class="day-page">
-      <div class="day-header">
+  const cityPages = cityGroups.map(g => {
+    const first = g.days[0], last = g.days[g.days.length - 1];
+    const dateRange = g.days.length > 1 ? `${fmtDateShort(first.date)} – ${fmtDateShort(last.date)}` : fmtDateShort(first.date);
+    const dayBlocks = g.days.map(d => {
+      const dateStr = d.date.toISOString().slice(0,10);
+      const hotel = hotelFor(dateStr);
+      const showTitle = d.title && d.title.trim() !== (d.location || '').trim();
+      return `
+      <div class="day-block">
         <div class="day-num">Day ${d.day_number}</div>
         <div class="day-date">${fmtDate(d.date)}</div>
+        ${showTitle ? `<div class="day-title">${d.title}</div>` : ''}
+        ${d.description ? `<p class="day-desc">${d.description}</p>` : ''}
+        ${d.sacred_sites.length ? `<div class="block"><div class="block-label">Sacred Sites</div>${d.sacred_sites.map(s => `<div class="item">${s.site_time ? `<span class="time">${s.site_time}</span>` : ''}<span class="item-name">${s.name}</span>${s.notes ? `<div class="item-notes">${s.notes}</div>` : ''}</div>`).join('')}</div>` : ''}
+        ${d.activities.length ? `<div class="block"><div class="block-label">Activities</div>${d.activities.map(a => `<div class="item">${a.activity_time ? `<span class="time">${a.activity_time}</span>` : ''}<span class="item-name">${a.description}</span></div>`).join('')}</div>` : ''}
+        ${hotel ? `<div class="hotel-note">Staying at <strong>${hotel.name}</strong>, ${hotel.city}</div>` : ''}
+      </div>`;
+    }).join('');
+    return `
+    <section class="city-page">
+      <div class="city-header">
+        <div class="city-name">${g.location}</div>
+        <div class="city-dates">${dateRange}</div>
       </div>
-      <h2 class="day-title">${d.title || d.location || ''}</h2>
-      ${d.location ? `<div class="day-location">${d.location}</div>` : ''}
-      ${d.description ? `<p class="day-desc">${d.description}</p>` : ''}
-      ${d.sacred_sites.length ? `<div class="block"><div class="block-label">Sacred Sites</div>${d.sacred_sites.map(s => `<div class="item">${s.site_time ? `<span class="time">${s.site_time}</span>` : ''}<span class="item-name">${s.name}</span>${s.notes ? `<div class="item-notes">${s.notes}</div>` : ''}</div>`).join('')}</div>` : ''}
-      ${d.activities.length ? `<div class="block"><div class="block-label">Activities</div>${d.activities.map(a => `<div class="item">${a.activity_time ? `<span class="time">${a.activity_time}</span>` : ''}<span class="item-name">${a.description}</span></div>`).join('')}</div>` : ''}
-      ${hotel ? `<div class="hotel-note">Staying at <strong>${hotel.name}</strong>, ${hotel.city}</div>` : ''}
+      ${dayBlocks}
     </section>`;
   }).join('');
 
@@ -110,11 +142,12 @@ function buildItineraryHtml(data) {
   <style>${ITINERARY_CSS}</style></head><body>
   <section class="cover">
     <div class="cover-mark">Bhakti &amp; Bougie</div>
+    <div class="cover-rule"></div>
     <div class="cover-tagline">Auspicious sadhana &middot; Uncompromising luxury</div>
     <h1 class="cover-title">${trip.title}</h1>
     <div class="cover-dates">${fmtDate(trip.start_date)} — ${fmtDate(trip.end_date)}</div>
   </section>
-  ${dayPages}
+  ${cityPages}
   <section class="logistics">
     <h2 class="section-title">Flights</h2>
     <table>${flightRows}</table>
