@@ -71,6 +71,35 @@ router.post('/mailgun-inbound', express.urlencoded({ extended: true }), upload.a
       if (!isNaN(parsed)) emailDate = parsed;
     }
 
+    if (req.files && req.files.length) {
+      for (const file of req.files) {
+        if (file.mimetype !== 'application/pdf') continue;
+        const fnameLower = (file.originalname || '').toLowerCase();
+        const subjLower = (subject || '').toLowerCase();
+        const isBoardingDoc = /boarding|e-?ticket|itinerary/i.test(fnameLower) || /boarding|e-?ticket|check-?in/i.test(subjLower);
+        if (!isBoardingDoc) continue;
+
+        const docType = /boarding/i.test(fnameLower + subjLower) ? 'boarding_pass' : 'eticket';
+        const pnrMatch = (subject + ' ' + bodyPlain).match(/\b(?:PNR|booking ref(?:erence)?)[:\-\s]*([A-Z0-9]{5,8})\b/i);
+        const pnr = pnrMatch ? pnrMatch[1].toUpperCase() : null;
+        const nameMatch = fnameLower.match(/boarding pass-([a-z\s]+)\.pdf/i);
+        const travelerName = nameMatch ? nameMatch[1].trim().replace(/\b\w/g, c => c.toUpperCase()) : null;
+
+        let flightId = null, tripId = null;
+        if (pnr) {
+          const { rows } = await pool.query('SELECT id, trip_id FROM flights WHERE UPPER(booking_ref) = $1 LIMIT 1', [pnr]);
+          if (rows.length) { flightId = rows[0].id; tripId = rows[0].trip_id; }
+        }
+
+        await pool.query(
+          `INSERT INTO flight_documents (flight_id, trip_id, traveler_name, document_type, filename, mime_type, file_data, source_email_id)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (source_email_id, filename) DO NOTHING`,
+          [flightId, tripId, travelerName, docType, file.originalname, file.mimetype, file.buffer, sourceEmailId]
+        );
+        console.log('[mailgun-inbound] stored document:', file.originalname, 'flight matched:', !!flightId);
+      }
+    }
+
     const parsedEmail = parseAirlineEmail({ subject: subject || '', body: bodyPlain, senderDomain, emailDate });
     if (!parsedEmail) {
       console.log('[mailgun-inbound] no parseable flight data, subject:', subject);
