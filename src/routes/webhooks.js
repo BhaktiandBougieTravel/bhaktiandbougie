@@ -80,9 +80,10 @@ router.post('/mailgun-inbound', express.urlencoded({ extended: true }), upload.a
         if (!isBoardingDoc) continue;
 
         const docType = /boarding/i.test(fnameLower + subjLower) ? 'boarding_pass' : 'eticket';
-        const pnrMatch = (subject + ' ' + bodyPlain).match(/\b(?:PNR|booking ref(?:erence)?)[:\-\s]*([A-Z0-9]{5,8})\b/i);
+        let pnrMatch = (subject + ' ' + bodyPlain).match(/\b(?:PNR|booking ref(?:erence)?)[:\-\s]*([A-Z0-9]{5,8})\b/i);
+        if (!pnrMatch) pnrMatch = (subject + ' ' + bodyPlain + ' ' + file.originalname).match(/\(([A-Z0-9]{5,8})\)/);
         const pnr = pnrMatch ? pnrMatch[1].toUpperCase() : null;
-        const nameMatch = fnameLower.match(/boarding pass-([a-z\s]+)\.pdf/i);
+        const nameMatch = fnameLower.match(/[-–]\s*([a-z][a-z\s]{1,30})\.pdf$/i);
         const travelerName = nameMatch ? nameMatch[1].trim().replace(/\b\w/g, c => c.toUpperCase()) : null;
 
         let flightId = null, tripId = null;
