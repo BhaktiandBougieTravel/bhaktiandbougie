@@ -15,6 +15,7 @@ const daysRouter         = require('./routes/days');
 const festivalsRouter    = require('./routes/festivals');
 const webhooksRouter     = require('./routes/webhooks');
 const flightAlertsRouter = require('./routes/flightAlerts');
+const pdfTestRouter = require('./routes/pdfTest');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,6 +86,7 @@ app.use('/api/days',           daysRouter);
 app.use('/api/festivals',      festivalsRouter);
 app.use('/api/webhooks',       webhooksRouter);
 app.use('/api/flight-alerts',  flightAlertsRouter);
+app.use('/api/pdf-test', pdfTestRouter);
 
 app.post('/api/rcb', async (_req, res) => {
   console.log('[RCB] route hit');
