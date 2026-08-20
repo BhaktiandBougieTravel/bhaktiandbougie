@@ -603,7 +603,7 @@ function renderItem({sk,type,d}){
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${arr?' · Arr '+arr:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
         ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
-        ${docForFlight(d.id)?`<a class="tl-doc-btn" href="${API}/flight-documents/${docForFlight(d.id).id}/download" target="_blank" onclick="event.stopPropagation()">📄 View Boarding Pass</a>`:''}
+        ${docsForFlight(d.id).map(doc=>`<a class="tl-doc-btn" href="${API}/flight-documents/${doc.id}/download" target="_blank" onclick="event.stopPropagation()">📄 ${doc.traveler_name?doc.traveler_name+'’s ':''}Boarding Pass</a>`).join('')}
       </div></div>`;
   }
   if(type==='arr'){
@@ -616,7 +616,7 @@ function renderItem({sk,type,d}){
         <div class="tl-main">${esc((d.airline||'')+' '+(d.flight_number||''))}</div>
         <div class="tl-sub">${esc(d.origin_airport||'')} → ${esc(d.dest_airport||'')}${dep?' · Dep '+dep:''}${d.cabin_class?' · '+esc(d.cabin_class):''}</div>
         ${d.booking_ref?`<div class="tl-ref">${esc(d.booking_ref)}</div>`:''}
-        ${docForFlight(d.id)?`<a class="tl-doc-btn" href="${API}/flight-documents/${docForFlight(d.id).id}/download" target="_blank" onclick="event.stopPropagation()">📄 View Boarding Pass</a>`:''}
+        ${docsForFlight(d.id).map(doc=>`<a class="tl-doc-btn" href="${API}/flight-documents/${doc.id}/download" target="_blank" onclick="event.stopPropagation()">📄 ${doc.traveler_name?doc.traveler_name+'’s ':''}Boarding Pass</a>`).join('')}
       </div></div>`;
   }
   if(type==='train'){
@@ -758,8 +758,13 @@ function renderJourney(){
   document.getElementById('journey-content').innerHTML=html;
 }
 
-function docForFlight(flightId){
-  return flightDocs.find(d=>d.flight_id===flightId && (showAllDocs || !d.traveler_name || (travelerName && d.traveler_name.toLowerCase()===travelerName.toLowerCase())));
+function matchesTraveler(docName){
+  if(!travelerName||!docName)return false;
+  const a=travelerName.toLowerCase(),b=docName.toLowerCase();
+  return a===b||a.includes(b)||b.includes(a);
+}
+function docsForFlight(flightId){
+  return flightDocs.filter(d=>d.flight_id===flightId && (showAllDocs || !d.traveler_name || matchesTraveler(d.traveler_name)));
 }
 function toggleShowAllDocs(){
   showAllDocs=!showAllDocs;
