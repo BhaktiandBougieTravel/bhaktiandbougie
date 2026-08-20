@@ -280,6 +280,19 @@ const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 function fmtDayLine(d) { return `${d.getUTCDate()} ${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`; }
 function fmtWeekday(d) { return d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }); }
 
+// Old data entry often put things like "Day 2", "Madurai Day 3", or a route
+// like "Dubai>Mumbai" directly into the title field — all of that duplicates
+// what the day header and subtitle already compute, so it's noise, not signal.
+function isGenericTitle(title) {
+  if (!title) return true;
+  const t = title.trim();
+  if (!t) return true;
+  if (/^day\s*\d+$/i.test(t)) return true;
+  if (/day\s*\d+$/i.test(t)) return true;
+  if (/[→>]/.test(t)) return true;
+  return false;
+}
+
 function buildItineraryHtml(data) {
   const { trip, days, hotelStays, flights, transports, trains } = data;
   const cityGroups = groupDaysByCity(days);
@@ -305,7 +318,7 @@ function buildItineraryHtml(data) {
           <span class="day-date-txt">${fmtDayLine(d.date)}</span>
         </div>
         ${subtitle.trim() ? `<div class="day-subtitle">${subIcon} ${subtitle}</div>` : ''}
-        ${d.title && d.title.trim() ? `<div class="day-custom-title">${d.title}</div>` : ''}
+        ${!isGenericTitle(d.title) ? `<div class="day-custom-title">${d.title}</div>` : ''}
         ${stayingHotel ? `<div class="day-hotel-line">🏨 Staying at ${stayingHotel.name}</div>` : ''}
         ${d.description ? `<p class="day-desc">${d.description}</p>` : ''}
         ${schedule.map(i => i.html).join('')}
