@@ -1,6 +1,8 @@
 const express = require('express');
 const { param, validationResult } = require('express-validator');
 const pool = require('../db/pool');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = express.Router();
 
@@ -9,6 +11,22 @@ const validate = (req, res, next) => {
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   next();
 };
+
+// POST /api/flight-documents — manual upload, not tied to a flight (e.g. insurance PDFs)
+router.post('/', upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (req.file.mimetype !== 'application/pdf') return res.status(400).json({ error: 'Only PDF files are supported' });
+    const { trip_id, traveler_name, document_type } = req.body;
+    if (!trip_id) return res.status(400).json({ error: 'trip_id is required' });
+    const { rows } = await pool.query(
+      `INSERT INTO flight_documents (trip_id, traveler_name, document_type, filename, mime_type, file_data)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, trip_id, traveler_name, document_type, filename, uploaded_at`,
+      [trip_id, traveler_name || null, document_type || 'insurance', req.file.originalname, req.file.mimetype, req.file.buffer]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) { next(err); }
+});
 
 // GET /api/flight-documents?trip_id=<uuid>&traveler_name=<name>
 // Metadata only — never returns file bytes in the list view.
@@ -54,6 +72,15 @@ router.patch('/:id', param('id').isUUID(), validate, async (req, res, next) => {
     );
     if (!rows.length) return res.status(404).json({ error: 'Document not found' });
     res.json(rows[0]);
+  } catch (err) { next(err); }
+});
+
+// DELETE /api/flight-documents/:id
+router.delete('/:id', param('id').isUUID(), validate, async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query('DELETE FROM flight_documents WHERE id = $1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Document not found' });
+    res.status(204).end();
   } catch (err) { next(err); }
 });
 
