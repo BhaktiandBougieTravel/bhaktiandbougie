@@ -1077,6 +1077,12 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <input type="text" class="form-input" id="act-time" placeholder="HH:MM" pattern="[0-2][0-9]:[0-5][0-9]"/>
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Ticket / Document PDF</label>
+        <div id="act-doc-status" style="font-size:13px;color:#888;margin-bottom:6px;">Save activity first to attach a PDF.</div>
+        <input type="file" id="act-doc-file" accept="application/pdf" style="display:none" onchange="uploadActivityDoc()"/>
+        <button type="button" class="btn btn-secondary btn-sm" id="act-doc-btn" style="display:none" onclick="document.getElementById('act-doc-file').click()">Upload PDF</button>
+      </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
         <button type="button" class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity</button>
         <button type="button" class="btn btn-outline btn-sm" onclick="newActItem()">Cancel</button>
@@ -2346,12 +2352,60 @@ async function editAct(id){
     const lbl=document.getElementById('act-form-label');if(lbl)lbl.textContent='Edit Activity';
     document.getElementById('act-desc').value=a.description||'';
     document.getElementById('act-time').value=a.activity_time||'';
+    loadActivityDoc(id);
   }catch(e){console.error('[editAct]',e);}
 }
 function newActItem(){
   document.getElementById('act-edit-id').value='';
   const lbl=document.getElementById('act-form-label');if(lbl)lbl.textContent='New Activity';
   ['act-desc','act-time'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  loadActivityDoc(null);
+}
+let currentActDoc=null;
+async function loadActivityDoc(activityId){
+  currentActDoc=null;
+  const statusEl=document.getElementById('act-doc-status');
+  const btn=document.getElementById('act-doc-btn');
+  if(!statusEl||!btn)return;
+  if(!activityId){statusEl.textContent='Save activity first to attach a PDF.';btn.style.display='none';return;}
+  btn.style.display='';
+  btn.textContent='Upload PDF';
+  try{
+    const docs=await fetch(`${API}/flight-documents?activity_id=${activityId}`).then(r=>r.json());
+    const doc=(docs||[])[0];
+    if(doc){
+      currentActDoc=doc;
+      statusEl.innerHTML=`<a href="${API}/flight-documents/${doc.id}/download" target="_blank">${escH(doc.filename)}</a> &nbsp; <a href="#" onclick="deleteActivityDoc();return false;" style="color:#b33">Remove</a>`;
+      btn.textContent='Replace PDF';
+    }else{
+      statusEl.textContent='No PDF attached yet.';
+    }
+  }catch(e){statusEl.textContent='No PDF attached yet.';}
+}
+async function uploadActivityDoc(){
+  const fileInput=document.getElementById('act-doc-file');
+  const file=fileInput.files[0];
+  if(!file)return;
+  const tripId=document.getElementById('day-modal-trip-id').value||currentItinTripId;
+  const activityId=document.getElementById('act-edit-id').value;
+  if(!activityId)return;
+  const fd=new FormData();
+  fd.append('file',file);
+  fd.append('trip_id',tripId);
+  fd.append('activity_id',activityId);
+  fd.append('document_type','ticket');
+  try{
+    if(currentActDoc)await fetch(`${API}/flight-documents/${currentActDoc.id}`,{method:'DELETE'});
+    await fetch(`${API}/flight-documents`,{method:'POST',body:fd});
+    fileInput.value='';
+    loadActivityDoc(activityId);
+  }catch(e){alert('Upload failed: '+e.message);}
+}
+async function deleteActivityDoc(){
+  if(!currentActDoc)return;
+  if(!confirm('Remove this ticket PDF?'))return;
+  await fetch(`${API}/flight-documents/${currentActDoc.id}`,{method:'DELETE'});
+  loadActivityDoc(document.getElementById('act-edit-id').value);
 }
 // ── DINING instant-save ────────────────────────────────────────────────────
 async function loadDinList(){
