@@ -17,12 +17,12 @@ router.post('/', upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (req.file.mimetype !== 'application/pdf') return res.status(400).json({ error: 'Only PDF files are supported' });
-    const { trip_id, traveler_name, document_type } = req.body;
+    const { trip_id, traveler_name, document_type, activity_id } = req.body;
     if (!trip_id) return res.status(400).json({ error: 'trip_id is required' });
     const { rows } = await pool.query(
-      `INSERT INTO flight_documents (trip_id, traveler_name, document_type, filename, mime_type, file_data)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, trip_id, traveler_name, document_type, filename, uploaded_at`,
-      [trip_id, traveler_name || null, document_type || 'insurance', req.file.originalname, req.file.mimetype, req.file.buffer]
+      `INSERT INTO flight_documents (trip_id, traveler_name, document_type, activity_id, filename, mime_type, file_data)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, trip_id, traveler_name, document_type, activity_id, filename, uploaded_at`,
+      [trip_id, traveler_name || null, document_type || 'insurance', activity_id || null, req.file.originalname, req.file.mimetype, req.file.buffer]
     );
     res.status(201).json(rows[0]);
   } catch (err) { next(err); }
@@ -32,14 +32,15 @@ router.post('/', upload.single('file'), async (req, res, next) => {
 // Metadata only — never returns file bytes in the list view.
 router.get('/', async (req, res, next) => {
   try {
-    const { trip_id, traveler_name } = req.query;
+    const { trip_id, traveler_name, activity_id } = req.query;
     const conditions = [];
     const params = [];
     if (trip_id) { params.push(trip_id); conditions.push(`fd.trip_id = $${params.length}`); }
     if (traveler_name) { params.push(traveler_name); conditions.push(`fd.traveler_name ILIKE $${params.length}`); }
+    if (activity_id) { params.push(activity_id); conditions.push(`fd.activity_id = $${params.length}`); }
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     const { rows } = await pool.query(
-      `SELECT fd.id, fd.flight_id, fd.trip_id, fd.traveler_name, fd.document_type, fd.filename, fd.uploaded_at,
+      `SELECT fd.id, fd.flight_id, fd.trip_id, fd.traveler_name, fd.document_type, fd.activity_id, fd.filename, fd.uploaded_at,
               f.flight_number, f.origin_airport, f.dest_airport, f.departure_time
        FROM flight_documents fd
        LEFT JOIN flights f ON f.id = fd.flight_id
