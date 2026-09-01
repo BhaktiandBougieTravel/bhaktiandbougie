@@ -5,7 +5,7 @@ const router = express.Router({ mergeParams: true });
 
 const FIELDS = [
   'first_name','last_name','email','phone','address',
-  'passport_number','passport_expiry','passport_country',
+  'passport_number','passport_expiry','passport_country','known_traveler_number',
   'insurance_provider','insurance_policy','insurance_phone',
   'emergency_contact_name','emergency_contact_phone',
   'dietary_notes','medical_notes',

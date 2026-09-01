@@ -70,6 +70,7 @@ pool.query("ALTER TABLE days ALTER COLUMN date TYPE DATE USING date::date").catc
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS activities TEXT").catch(e => console.error('[startup] activities migration:', e.message));
 pool.query("ALTER TABLE day_activities ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'activity'").catch(e => console.error('[startup] dining migration:', e.message));
 pool.query("ALTER TABLE days ADD COLUMN IF NOT EXISTS sacred_sites TEXT").catch(e => console.error('[startup] sacred_sites migration:', e.message));
+pool.query("ALTER TABLE trip_travelers ADD COLUMN IF NOT EXISTS known_traveler_number TEXT").catch(e => console.error('[startup] known_traveler_number migration:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_sacred_sites (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), name TEXT NOT NULL, site_time TEXT, notes TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_sacred_sites:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS day_activities (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), trip_id UUID REFERENCES trips(id), day_id UUID REFERENCES days(id), description TEXT NOT NULL, activity_time TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] day_activities:', e.message));
 pool.query(`CREATE TABLE IF NOT EXISTS vendor_partners (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), contact_name TEXT, company_name TEXT, region TEXT, contact_email TEXT, contact_whatsapp TEXT, contact_social TEXT, website TEXT, languages TEXT, tier VARCHAR(2), source TEXT, first_impression TEXT, special_assets TEXT, questionnaire_sent BOOLEAN DEFAULT false, questionnaire_response TEXT, score INTEGER, bb_potential TEXT, limitations TEXT, lineage_tradition TEXT, services TEXT[], credentials TEXT[], created_at TIMESTAMPTZ DEFAULT NOW())`).catch(e => console.error('[startup] vendor_partners:', e.message));
@@ -407,7 +408,7 @@ app.delete('/api/vendors/:id', async (req, res, next) => {
 // ── Travelers (individual record update/delete) ───────────────────────────────
 const TRAVELER_FIELDS = [
   'first_name','last_name','email','phone','address',
-  'passport_number','passport_expiry','passport_country',
+  'passport_number','passport_expiry','passport_country','known_traveler_number',
   'insurance_provider','insurance_policy','insurance_phone',
   'emergency_contact_name','emergency_contact_phone',
   'dietary_notes','medical_notes',

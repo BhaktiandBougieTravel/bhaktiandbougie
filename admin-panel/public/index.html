@@ -470,6 +470,7 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
           <div class="form-group"><label class="form-label">Issuing Country</label><input type="text" class="form-input" id="trav-passport-country"/></div>
         </div>
         <div class="form-group"><label class="form-label">Passport Expiry</label><input type="date" class="form-input" id="trav-passport-expiry"/></div>
+        <div class="form-group"><label class="form-label">Known Traveler Number</label><input type="text" class="form-input" id="trav-ktn"/></div>
         <div class="form-sec-hdr">Travel Insurance</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Provider</label><input type="text" class="form-input" id="trav-ins-provider"/></div>
@@ -3029,6 +3030,7 @@ function openTravelerForm(travelerId){
   document.getElementById('trav-passport-number').value=t.passport_number||'';
   document.getElementById('trav-passport-country').value=t.passport_country||'';
   document.getElementById('trav-passport-expiry').value=t.passport_expiry?(t.passport_expiry||'').split('T')[0]:'';
+  document.getElementById('trav-ktn').value=t.known_traveler_number||'';
   document.getElementById('trav-ins-provider').value=t.insurance_provider||'';
   document.getElementById('trav-ins-policy').value=t.insurance_policy||'';
   document.getElementById('trav-ins-phone').value=t.insurance_phone||'';
@@ -3107,6 +3109,7 @@ async function saveTraveler(){
     passport_number:g('trav-passport-number').value||null,
     passport_country:g('trav-passport-country').value||null,
     passport_expiry:g('trav-passport-expiry').value||null,
+    known_traveler_number:g('trav-ktn').value||null,
     insurance_provider:g('trav-ins-provider').value||null,
     insurance_policy:g('trav-ins-policy').value||null,
     insurance_phone:g('trav-ins-phone').value||null,
