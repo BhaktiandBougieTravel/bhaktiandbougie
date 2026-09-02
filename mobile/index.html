@@ -764,6 +764,11 @@ function renderJourney(){
 function docsForActivity(activityId){
   return flightDocs.filter(d=>d.activity_id===activityId);
 }
+function passportDocForTraveler(t){
+  const full=`${t.first_name||''} ${t.last_name||''}`.trim().toLowerCase();
+  if(!full)return null;
+  return flightDocs.find(d=>!d.flight_id&&d.document_type==='passport'&&d.traveler_name&&(d.traveler_name.toLowerCase()===full||full.includes(d.traveler_name.toLowerCase())||d.traveler_name.toLowerCase().includes(full)))||null;
+}
 function insuranceDocForTraveler(t){
   const full=`${t.first_name||''} ${t.last_name||''}`.trim().toLowerCase();
   if(!full)return null;
@@ -807,6 +812,8 @@ function renderTravelerCard(t){
   if(t.phone)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">PHONE</span><span class="trav-detail-val">${esc(t.phone)}</span></div>`);
   if(t.passport_country||t.passport_expiry)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">PASSPORT</span><span class="trav-detail-val">${esc(t.passport_country||'')}${t.passport_expiry?' · exp '+fmtPassportExpiry(t.passport_expiry):''}</span></div>`);
   if(t.known_traveler_number)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">KNOWN TRAVELER #</span><span class="trav-detail-val">${esc(t.known_traveler_number)}</span></div>`);
+  const passDoc=passportDocForTraveler(t);
+  if(passDoc)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">PASSPORT PHOTO</span><span class="trav-detail-val"><a href="${API}/flight-documents/${passDoc.id}/download" target="_blank" style="color:inherit;text-decoration:underline">📄 View Copy</a></span></div>`);
   if(t.insurance_provider||t.insurance_policy)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">INSURANCE</span><span class="trav-detail-val">${esc(t.insurance_provider||'')}${t.insurance_policy?' · '+esc(t.insurance_policy):''}</span></div>`);
   const insDoc=insuranceDocForTraveler(t);
   if(insDoc)rows.push(`<div class="trav-detail-row"><span class="trav-detail-key">INSURANCE PDF</span><span class="trav-detail-val"><a href="${API}/flight-documents/${insDoc.id}/download" target="_blank" style="color:inherit;text-decoration:underline">📄 View Policy</a></span></div>`);
