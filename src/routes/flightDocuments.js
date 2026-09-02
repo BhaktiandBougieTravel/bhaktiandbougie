@@ -16,7 +16,8 @@ const validate = (req, res, next) => {
 router.post('/', upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    if (req.file.mimetype !== 'application/pdf') return res.status(400).json({ error: 'Only PDF files are supported' });
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/heic', 'image/webp'];
+    if (!ALLOWED_TYPES.includes(req.file.mimetype)) return res.status(400).json({ error: 'Only PDF or image files are supported' });
     const { trip_id, traveler_name, document_type, activity_id } = req.body;
     if (!trip_id) return res.status(400).json({ error: 'trip_id is required' });
     const { rows } = await pool.query(

@@ -472,6 +472,12 @@ tr:hover td{background:var(--ash-dim);color:var(--cream);}
         </div>
         <div class="form-group"><label class="form-label">Passport Expiry</label><input type="date" class="form-input" id="trav-passport-expiry"/></div>
         <div class="form-group"><label class="form-label">Known Traveler Number</label><input type="text" class="form-input" id="trav-ktn"/></div>
+        <div class="form-group">
+          <label class="form-label">Passport Photo</label>
+          <div id="trav-pass-doc-status" style="font-size:13px;color:#888;margin-bottom:6px;">Save traveler first to attach a photo.</div>
+          <input type="file" id="trav-pass-doc-file" accept="image/*,application/pdf" style="display:none" onchange="uploadPassportDoc()"/>
+          <button type="button" class="btn btn-secondary" id="trav-pass-doc-btn" style="display:none" onclick="document.getElementById('trav-pass-doc-file').click()">Upload Photo</button>
+        </div>
         <div class="form-sec-hdr">Travel Insurance</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Provider</label><input type="text" class="form-input" id="trav-ins-provider"/></div>
@@ -3095,6 +3101,7 @@ function openTravelerForm(travelerId){
   document.getElementById('trav-medical').value=t.medical_notes||'';
   document.getElementById('trav-delete-btn').style.display=travelerId?'':'none';
   loadTravelerInsuranceDoc(travelerId);
+  loadTravelerPassportDoc(travelerId);
   document.getElementById('travelers-list-view').style.display='none';
   document.getElementById('travelers-form-view').style.display='block';
 }
@@ -3105,6 +3112,52 @@ function showTravelersListView(){
   currentTraveler=null;
 }
 
+let currentPassDoc=null;
+async function loadTravelerPassportDoc(travelerId){
+  currentPassDoc=null;
+  const statusEl=document.getElementById('trav-pass-doc-status');
+  const btn=document.getElementById('trav-pass-doc-btn');
+  if(!travelerId){statusEl.textContent='Save traveler first to attach a photo.';btn.style.display='none';return;}
+  const tripId=document.getElementById('trav-trip-select').value;
+  const name=`${document.getElementById('trav-first-name').value} ${document.getElementById('trav-last-name').value}`.trim();
+  btn.style.display='';
+  btn.textContent='Upload Photo';
+  try{
+    const docs=await fetch(`${API}/flight-documents?trip_id=${tripId}&traveler_name=${encodeURIComponent(name)}`).then(r=>r.json());
+    const doc=(docs||[]).find(d=>!d.flight_id&&d.document_type==='passport');
+    if(doc){
+      currentPassDoc=doc;
+      statusEl.innerHTML=`<a href="${API}/flight-documents/${doc.id}/download" target="_blank">${escH(doc.filename)}</a> &nbsp; <a href="#" onclick="deletePassportDoc();return false;" style="color:#b33">Remove</a>`;
+      btn.textContent='Replace Photo';
+    }else{
+      statusEl.textContent='No photo attached yet.';
+    }
+  }catch(e){statusEl.textContent='No photo attached yet.';}
+}
+async function uploadPassportDoc(){
+  const fileInput=document.getElementById('trav-pass-doc-file');
+  const file=fileInput.files[0];
+  if(!file)return;
+  const tripId=document.getElementById('trav-trip-select').value;
+  const name=`${document.getElementById('trav-first-name').value} ${document.getElementById('trav-last-name').value}`.trim();
+  const fd=new FormData();
+  fd.append('file',file);
+  fd.append('trip_id',tripId);
+  fd.append('traveler_name',name);
+  fd.append('document_type','passport');
+  try{
+    if(currentPassDoc)await fetch(`${API}/flight-documents/${currentPassDoc.id}`,{method:'DELETE'});
+    await fetch(`${API}/flight-documents`,{method:'POST',body:fd});
+    fileInput.value='';
+    loadTravelerPassportDoc(document.getElementById('trav-id').value);
+  }catch(e){alert('Upload failed: '+e.message);}
+}
+async function deletePassportDoc(){
+  if(!currentPassDoc)return;
+  if(!confirm('Remove this passport photo?'))return;
+  await fetch(`${API}/flight-documents/${currentPassDoc.id}`,{method:'DELETE'});
+  loadTravelerPassportDoc(document.getElementById('trav-id').value);
+}
 let currentInsDoc=null;
 async function loadTravelerInsuranceDoc(travelerId){
   currentInsDoc=null;
