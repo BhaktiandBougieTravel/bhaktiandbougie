@@ -666,6 +666,7 @@ function renderItem({sk,type,d}){
       <div class="tl-icon">✨</div>
       <div class="tl-body">
         <div class="tl-main">${esc(d.description)}</div>
+        ${docsForActivity(d.id).map(doc=>`<a class="tl-doc-btn" href="${API}/flight-documents/${doc.id}/download" target="_blank" onclick="event.stopPropagation()">📄 Ticket</a>`).join('')}
       </div></div>`;
   }
   if(type==='dining'){
@@ -758,6 +759,9 @@ function renderJourney(){
   document.getElementById('journey-content').innerHTML=html;
 }
 
+function docsForActivity(activityId){
+  return flightDocs.filter(d=>d.activity_id===activityId);
+}
 function insuranceDocForTraveler(t){
   const full=`${t.first_name||''} ${t.last_name||''}`.trim().toLowerCase();
   if(!full)return null;
