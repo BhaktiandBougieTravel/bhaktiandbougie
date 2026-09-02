@@ -1,4 +1,4 @@
-const CACHE = 'bb-v2';
+const CACHE = 'bb-v3';
 const PRECACHE = ['/mobile/index.html', '/manifest.json'];
 
 self.addEventListener('install', e => {
