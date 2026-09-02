@@ -136,7 +136,7 @@ html,body{height:100%;background:var(--navy);color:var(--cream);font-family:var(
 .jday-info{flex:1;min-width:0;}
 .jday-date{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
 .jday-loc{font-family:var(--font-serif);font-size:17px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.jday-icon{font-size:22px;flex-shrink:0;}
+.jday-icon{font-size:19px;flex-shrink:0;display:flex;gap:4px;}
 
 /* ── Info tab ─── */
 #info-content{flex:1;overflow-y:auto;min-height:0;padding:20px 16px;-webkit-overflow-scrolling:touch;}
@@ -748,14 +748,14 @@ function renderJourney(){
   allDays.forEach((day,idx)=>{
     const dateStr=(day.date||'').split('T')[0];
     const isToday=dateStr===today;
-    const icon=dayPrimaryIcon(day,dateStr);
+    const icons=dayPrimaryIcon(day,dateStr);
     html+=`<div class="jday-row${isToday?' is-today':''}" onclick="goToDay(${idx})">
       <div class="jday-num">${day.day_number||idx+1}</div>
       <div class="jday-info">
         <div class="jday-date">${fmtDateShort(dateStr)}${isToday?' · TODAY':''}</div>
         <div class="jday-loc">${esc(day.location||day.title||'—')}</div>
       </div>
-      <div class="jday-icon">${icon}</div>
+      <div class="jday-icon">${icons.map(i=>`<span>${i}</span>`).join('')}</div>
     </div>`;
   });
   document.getElementById('journey-content').innerHTML=html;
@@ -787,16 +787,19 @@ function toggleShowAllDocs(){
   renderToday();
 }
 function dayPrimaryIcon(day,dateStr){
+  const out=[];
   const hasDep=(trip.flights||[]).some(f=>f.departure_time&&f.departure_time.slice(0,10)===dateStr);
   const hasArr=(trip.flights||[]).some(f=>f.arrival_time&&f.arrival_time.slice(0,10)===dateStr);
-  if(hasDep||hasArr)return'✈️';
+  if(hasDep||hasArr)out.push('✈️');
   const hasTrain=trains.some(t=>(t.journey_date||'').split('T')[0]===dateStr);
   const hasTransport=transports.some(gt=>(gt.transport_date||'').split('T')[0]===dateStr);
-  if(hasTrain||hasTransport)return'🚗';
+  if(hasTrain||hasTransport)out.push('🚗');
   const hasHotel=hotelBookings.some(hb=>(hb.check_in||'').split('T')[0]===dateStr||(hb.check_out||'').split('T')[0]===dateStr);
-  if(hasHotel)return'🏨';
-  if(sacredSites.some(s=>s.day_id===day.id))return'🛕';
-  return'—';
+  if(hasHotel)out.push('🏨');
+  if(activities.some(a=>a.day_id===day.id&&a.category==='dining'))out.push('🍽️');
+  if(activities.some(a=>a.day_id===day.id&&a.category!=='dining'))out.push('✨');
+  if(sacredSites.some(s=>s.day_id===day.id))out.push('🛕');
+  return out.length?out:['—'];
 }
 
 // ── Info ──────────────────────────────────────────────────────────────────────
